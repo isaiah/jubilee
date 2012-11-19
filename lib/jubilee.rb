@@ -1,0 +1,5 @@
+require 'vertx'
+require 'rack'
+require 'jubilee/runner'
+require 'jubilee/server'
+require 'rack/adapter/loader'
