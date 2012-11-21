@@ -40,6 +40,8 @@ Rake::TestTask.new(:test) do |test|
   test.verbose = true
 end
 
+task :test => :jar
+
 require 'rcov/rcovtask'
 Rcov::RcovTask.new do |test|
   test.libs << 'test'
@@ -67,7 +69,7 @@ directory "pkg/classes"
 desc "Clean up build artifacts"
 task :clean do
   rm_rf "pkg/classes"
-  rm_rf "lib/jubilee/ext/*.jar"
+  rm_rf "lib/ext/*.jar"
 end
 
 BUILDTIME_LIB_DIR = File.join(File.dirname(__FILE__), "jars")
@@ -81,7 +83,7 @@ end
 
 desc "Build the jar"
 task :jar => [:clean, :compile] do
-  ant.jar :basedir => "pkg/classes", :destfile => "lib/ext/server.jar", :includes => "**/*.class"
+  ant.jar :basedir => "pkg/classes", :destfile => "lib/ext/jubilee.jar", :includes => "**/*.class"
 end
  
 task :package => :jar
