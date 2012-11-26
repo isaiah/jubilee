@@ -1,4 +1,4 @@
-package ext;
+package jubilee;
 
 import org.jruby.Ruby;
 import org.jruby.runtime.load.BasicLibraryService;
