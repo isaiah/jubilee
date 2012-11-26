@@ -15,6 +15,7 @@ public class Server extends RubyObject {
     final private Vertx vertx;
     final private HttpServer httpServer;
     private IRubyObject app;
+    private boolean running;
     public static void createServerClass(Ruby runtime) {
         RubyModule mJubilee = runtime.defineModule("Jubilee");
         RubyClass serverClass = mJubilee.defineClassUnder("Server", runtime.getObject(), ALLOCATOR);
@@ -33,10 +34,20 @@ public class Server extends RubyObject {
         httpServer = vertx.createHttpServer();
     }
 
-    @JRubyMethod(name = "request_handler", optional = 1)
-    public IRubyObject addHandler(final ThreadContext context, final IRubyObject[] args, final Block block) {
-        app = callMethod(context, "load_rack_adapter", args, block);
+    @JRubyMethod(name = "initialize")
+    public IRubyObject initialize(ThreadContext context, IRubyObject app, Block block) {
+        this.app = app;
+        this.running = false;
+        return this;
+    }
+
+    @JRubyMethod(name = "start", optional = 1)
+    public IRubyObject start(final ThreadContext context, final IRubyObject[] args, final Block block) {
         final Ruby runtime = context.runtime;
+        if (running) {
+            runtime.newRuntimeError("Jubilee server is already running");
+        }
+        running = true;
         httpServer.requestHandler(new Handler<HttpServerRequest>() {
             public void handle(final HttpServerRequest req) {
                 final Buffer body = new Buffer(0);

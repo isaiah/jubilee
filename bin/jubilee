@@ -1,1 +1,6 @@
-vertx run ../lib/jubilee/server.rb
+#!/usr/bin/env ruby
+
+require 'jubilee/cli'
+
+cli = Jubilee::CLI.new ARGV
+cli.run
