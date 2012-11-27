@@ -1,6 +1,8 @@
 package org.jruby.jubilee;
 
 import org.jruby.jubilee.impl.DefaultRackEnvironment;
+import org.jruby.jubilee.impl.NullIO;
+import org.jruby.jubilee.impl.RubyIORackInput;
 import org.vertx.java.core.*;
 import org.vertx.java.core.buffer.*;
 import org.vertx.java.core.http.*;
@@ -16,6 +18,8 @@ public class Server extends RubyObject {
     final private HttpServer httpServer;
     private IRubyObject app;
     private boolean running;
+    private RackInput emptyBody;
+    private int port;
     public static void createServerClass(Ruby runtime) {
         RubyModule mJubilee = runtime.defineModule("Jubilee");
         RubyClass serverClass = mJubilee.defineClassUnder("Server", runtime.getObject(), ALLOCATOR);
@@ -32,12 +36,18 @@ public class Server extends RubyObject {
         super(ruby, rubyClass);
         vertx = Vertx.newVertx();
         httpServer = vertx.createHttpServer();
+        emptyBody = new NullIO(ruby);
     }
 
-    @JRubyMethod(name = "initialize")
-    public IRubyObject initialize(ThreadContext context, IRubyObject app, Block block) {
-        this.app = app;
-        this.running = false;
+    @JRubyMethod(name = "initialize", required = 1, optional = 1)
+    public IRubyObject initialize(ThreadContext context, IRubyObject[] args, Block block) {
+        this.app = args[0];
+        if (args.length == 2) {
+            this.port = RubyInteger.num2int(args[1].convertToInteger());
+        } else {
+            this.port = 3212;
+        }
+        running = false;
         return this;
     }
 
@@ -50,16 +60,23 @@ public class Server extends RubyObject {
         running = true;
         httpServer.requestHandler(new Handler<HttpServerRequest>() {
             public void handle(final HttpServerRequest req) {
-                final Buffer body = new Buffer(0);
-                req.dataHandler(new Handler<Buffer>() {
-                    public void handle(Buffer buffer) {
-                        body.appendBuffer(buffer);
-                    }
-                });
+                String contentLength = req.headers().get("Content-Length");
+                RackInput input;
+                if (contentLength == null) {
+                    input = emptyBody;
+                } else {
+                    final Buffer body = new Buffer(0);
+                    req.dataHandler(new Handler<Buffer>() {
+                        public void handle(Buffer buffer) {
+                            body.appendBuffer(buffer);
+                        }
+                    });
+                    input = new RubyIORackInput(getRuntime(), body);
+                }
 
-                RubyHash env = new DefaultRackEnvironment(runtime, req).getEnv();
-                IRubyObject[] args = new IRubyObject[] {env};
-                RubyArray result = (RubyArray) app.callMethod(context, "call", args, Block.NULL_BLOCK);
+                RubyHash env = new DefaultRackEnvironment(runtime, req, input).getEnv();
+//                IRubyObject[] args = new IRubyObject[] {env};
+                RubyArray result = (RubyArray) app.callMethod(context, "call", env);
                 int status = RubyInteger.num2int(result.entry(0));
                 RubyHash headers = (RubyHash) result.entry(1);
                 req.response.statusCode = status;
@@ -83,15 +100,15 @@ public class Server extends RubyObject {
 
                 req.response.write(buffer);
                 req.response.end();
-                req.response.close();
             }
         });
-        httpServer.listen(3212);
+        httpServer.listen(this.port);
         return this;
     }
 
     @JRubyMethod(name = {"stop", "close"})
     public IRubyObject close(ThreadContext context) {
+        this.running = false;
         httpServer.close(new SimpleHandler() {
             @Override
             protected void handle() {

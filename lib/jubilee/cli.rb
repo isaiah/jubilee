@@ -1,4 +1,6 @@
 require 'optparse'
+require 'jubilee'
+require 'jubilee'
 
 module Jubilee
   class CLI
@@ -9,23 +11,35 @@ module Jubilee
       setup_options
     end
 
-    def run
-      @parser.parse @argv
+    def parse_options
+      @parser.parse! @argv
       if @argv.last
         @options[:rackup] = @argv.shift
       end
-      @config = Configuration.new(@options)
+    end
+
+    def run
+      parse_options
+      @config = Jubilee::Configuration.new(@options)
       @config.load
-      server = Server.new(@config.app)
+      server = Jubilee::Server.new(@config.app, @config.port)
       server.start
+      puts "Jubilee start is listening on port #{@config.port}, press Ctrl+C to quit"
+      while true
+        begin
+        rescue Interrupt
+          puts "* Bye!"
+          server.stop
+        end
+      end
     end
 
     def setup_options
       @options = {
-        :debug = false,
-        :daemon = false,
-        :port = 8080,
-        :environment = "development"
+        debug: false,
+        daemon: false,
+        port: 3212,
+        environment: "development"
       }
       @parser = OptionParser.new do |o|
         o.on "-c", "--config PATH", "Load PATH as a config file" do |arg|
@@ -46,11 +60,12 @@ module Jubilee
         o.on "-e", "--environment ENV", "Rack environment" do |arg|
           @options[:environment] = arg
         end
+      end
 
-        @parser.banner = "jubilee <options> <rackup file>"
-        @parser.on_tail "-h", "--help", "Show this message" do
-          exit 1
-        end
+      @parser.banner = "jubilee <options> <rackup file>"
+      @parser.on_tail "-h", "--help", "Show this message" do
+        puts @parser
+        exit 1
       end
     end
   end

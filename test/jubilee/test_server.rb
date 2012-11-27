@@ -26,6 +26,7 @@ class TestJubileeServer < MiniTest::Unit::TestCase
 
   def test_server_embeded
     config = Jubilee::Configuration.new({rackup: File.join(File.dirname(__FILE__), "../config/app.rb")})
+    config.load
     server = Jubilee::Server.new(config.app)
     server.start
     http, body = Net::HTTP.new(@host, @port), nil
@@ -37,5 +38,9 @@ class TestJubileeServer < MiniTest::Unit::TestCase
     end
     server.stop
     assert_equal "embeded app", body
+  end
+
+  def test_large_post_body
+    skip
   end
 end

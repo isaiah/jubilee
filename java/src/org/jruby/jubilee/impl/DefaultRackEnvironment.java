@@ -6,6 +6,7 @@ import org.jruby.jubilee.RackEnvironment;
 import org.jruby.jubilee.Const;
 import org.jruby.Ruby;
 import org.jruby.RubyHash;
+import org.jruby.jubilee.RackInput;
 import org.vertx.java.core.http.HttpServerRequest;
 
 import java.util.Map;
@@ -20,13 +21,13 @@ public class DefaultRackEnvironment implements RackEnvironment {
     private RubyHash env;
     private Ruby runtime;
 
-    public DefaultRackEnvironment( final Ruby runtime, final HttpServerRequest request )
+    public DefaultRackEnvironment( final Ruby runtime, final HttpServerRequest request, RackInput input)
     {
         this.runtime = runtime;
         // DEFAULT
         env = RubyHash.newHash(runtime);
         env.put("rack.version", Const.RackVersion(runtime));
-        env.put("rack.errors", new RubyIORackErrors());
+        env.put("rack.errors", new RubyIORackErrors(runtime));
         env.put("rack.multithread", true);
         env.put("rack.multiprocess", false);
         env.put("rack.run_once", true);
@@ -46,11 +47,25 @@ public class DefaultRackEnvironment implements RackEnvironment {
 
         // Parse request headers
         Map<String, String> headers = request.headers();
-        String[] host = headers.get("host").split(":");
-        env.put(Const.RACK_INPUT, new NullIO());
+        String host;
+        if ((host = headers.get(Const.HTTP_HOST)) != null) {
+            int colon = host.indexOf(":");
+            if (colon > 0) {
+                env.put(Const.SERVER_NAME, host.substring(0, colon));
+                env.put(Const.SERVER_PORT, host.substring(colon + 1));
+            } else {
+                env.put(Const.SERVER_NAME, host);
+                env.put(Const.SERVER_PORT, Const.PORT_80);
+            }
+
+        } else {
+            env.put(Const.SERVER_NAME, Const.LOCALHOST);
+            env.put(Const.SERVER_PORT, Const.PORT_80);
+        }
+        env.put(Const.RACK_INPUT, input);
         env.put(Const.REQUEST_METHOD, request.method);
         env.put(Const.REQUEST_PATH, request.path);
-        env.put(Const.REQUEST_URI, "http://" + headers.get("host") + request.uri);
+        env.put(Const.REQUEST_URI, request.uri);
         env.put(Const.QUERY_STRING, orEmtpy(request.query));
         env.put(Const.HTTP_HOST, headers.get("host"));
         env.put(Const.HTTP_COOKIE, orEmtpy(headers.get("cookie")));
@@ -59,10 +74,8 @@ public class DefaultRackEnvironment implements RackEnvironment {
         env.put(Const.HTTP_ACCEPT_LANGUAGE, orEmtpy(headers.get("accept-language")));
         env.put(Const.HTTP_ACCEPT_ENCODING, orEmtpy(headers.get("accept-encoding")));
         env.put(Const.HTTP_CONNECTION, orEmtpy(headers.get("connection")));
-        env.put(Const.PATH_INFO, request.uri);
-        env.put(Const.SERVER_NAME, host[0]);
-        env.put(Const.SERVER_PORT, host[1]);
-        env.put(Const.SERVER_SOFTWARE, "jubilee 0.0.1 " + Const.JUBILEE_VERSION);
+        env.put(Const.PATH_INFO, request.path);
+        env.put(Const.SERVER_SOFTWARE, "jubilee 0.0.1");
     }
 
     public RubyHash getEnv() {

@@ -74,10 +74,10 @@ end
 
 BUILDTIME_LIB_DIR = File.join(File.dirname(__FILE__), "jars")
 
-desc "Compile the extension"
+desc "Compile the extension, need jdk7 before vertx relies on it"
 task :compile => "pkg/classes" do |t|
   ant.javac :srcdir => "java", :destdir => t.prerequisites.first,
-    :source => "1.5", :target => "1.5", :debug => true,
+    :source => "1.7", :target => "1.7", :debug => true,
     :classpath => "${java.class.path}:${sun.boot.class.path}:jars/vertx-core-1.3.0.final.jar:jars/netty-3.6.0.Beta1.jar"
 end
 

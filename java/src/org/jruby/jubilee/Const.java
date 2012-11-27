@@ -37,6 +37,8 @@ public class Const {
     public static final String REQUEST_URI = "REQUEST_URI";
     public static final String PATH_INFO = "PATH_INFO";
     public static final String QUERY_STRING = "QUERY_STRING";
+    public static final String LOCALHOST = "localhost";
+    public static final String PORT_80 = "80";
 
     public static final String HTTP_HOST = "HTTP_HOST";
     public static final String HTTP_USER_AGENT = "HTTP_USER_AGENT";

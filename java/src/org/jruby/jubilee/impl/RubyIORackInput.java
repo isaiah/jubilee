@@ -1,43 +1,46 @@
 package org.jruby.jubilee.impl;
 
-import org.jruby.Ruby;
-import org.jruby.RubyClass;
-import org.jruby.RubyModule;
-import org.jruby.RubyObject;
+import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.jubilee.RackInput;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.vertx.java.core.buffer.Buffer;
 
 /**
  * Created with IntelliJ IDEA.
  * User: isaiah
  * Date: 11/26/12
- * Time: 12:11 PM
+ * Time: 10:12 PM
  */
-public class NullIO extends RubyObject implements RackInput {
-    public static RubyClass createNullIOClass(Ruby ruby) {
-        RubyModule jModule = ruby.defineModule("Jubilee");
-        RubyClass nullIOClass = jModule.defineClassUnder("NullIO", ruby.getObject(), ALLOCATOR);
-        nullIOClass.defineAnnotatedMethods(NullIO.class);
-        return nullIOClass;
-    }
+public class RubyIORackInput extends RubyObject implements RackInput {
+    private Buffer buffer;
+    private int pos;
 
     public static ObjectAllocator ALLOCATOR = new ObjectAllocator() {
         @Override
         public IRubyObject allocate(Ruby ruby, RubyClass rubyClass) {
-            return new NullIO(ruby, rubyClass);
+            return new RubyIORackInput(ruby, rubyClass);
         }
     };
 
-    public NullIO(Ruby ruby) {
-        this(ruby, createNullIOClass(ruby));
+    public static RubyClass createRubyIORackInputClass(Ruby runtime) {
+        RubyModule jModule = runtime.defineModule("Jubilee");
+        RubyClass rackIOInputClass = jModule.defineClassUnder("RubyIORackInput", runtime.getObject(), ALLOCATOR);
+        rackIOInputClass.defineAnnotatedMethods(RubyIORackInput.class);
+        return rackIOInputClass;
     }
 
-    public NullIO(Ruby runtime, RubyClass metaClass) {
+    public RubyIORackInput(Ruby runtime, RubyClass metaClass) {
         super(runtime, metaClass);
+    }
+
+    public RubyIORackInput(Ruby runtime, Buffer buf) {
+        this(runtime, createRubyIORackInputClass(runtime));
+        buffer = buf;
+        pos = 0;
     }
 
     /**
@@ -47,9 +50,9 @@ public class NullIO extends RubyObject implements RackInput {
      * @return a string, or nil on EOF
      */
     @Override
-    @JRubyMethod(name = "gets")
+    @JRubyMethod
     public IRubyObject gets(ThreadContext context) {
-        return getRuntime().getNil();
+        return RubyString.newString(getRuntime(), buffer.toString());
     }
 
     /**
@@ -69,7 +72,25 @@ public class NullIO extends RubyObject implements RackInput {
     @Override
     @JRubyMethod(optional = 2)
     public IRubyObject read(ThreadContext context, IRubyObject[] args) {
-        return getRuntime().getNil();
+        Ruby runtime = getRuntime();
+        if (pos >= buffer.length()) {
+            return runtime.getNil();
+        }
+        if (args.length == 0) {
+            return RubyString.newString(runtime, buffer.getBytes(pos, buffer.length()));
+        }
+        int length = RubyInteger.num2int(args[0].convertToInteger());
+        if (pos + length >= buffer.length()) {
+            length = buffer.length() - pos;
+        }
+        RubyString ret = RubyString.newString(runtime, buffer.getBytes(pos, pos + length));
+        pos += length;
+        if (args.length == 2) {
+            RubyString buffer = args[1].convertToString();
+            buffer.append19(ret);
+            return runtime.getNil();
+        }
+        return ret;
     }
 
     /**
@@ -82,6 +103,7 @@ public class NullIO extends RubyObject implements RackInput {
     @Override
     @JRubyMethod
     public IRubyObject each(ThreadContext context, Block block) {
+        block.yield(context, RubyString.newString(getRuntime(), buffer.toString()));
         return getRuntime().getNil();
     }
 
@@ -97,6 +119,7 @@ public class NullIO extends RubyObject implements RackInput {
     @Override
     @JRubyMethod
     public IRubyObject rewind(ThreadContext context) {
+        pos = 0;
         return getRuntime().getNil();
     }
 
@@ -106,6 +129,6 @@ public class NullIO extends RubyObject implements RackInput {
      */
     @Override
     public void close() {
-
+        // no op
     }
 }
