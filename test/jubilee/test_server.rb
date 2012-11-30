@@ -1,6 +1,4 @@
 require 'test_helper'
-require 'jubilee/server'
-require 'jubilee/configuration'
 require 'net/http'
 
 class TestJubileeServer < MiniTest::Unit::TestCase
@@ -25,7 +23,7 @@ class TestJubileeServer < MiniTest::Unit::TestCase
   end
 
   def test_server_embeded
-    config = Jubilee::Configuration.new({rackup: File.join(File.dirname(__FILE__), "../config/app.rb")})
+    config = Jubilee::Configuration.new(rackup: File.join(File.dirname(__FILE__), "../config/app.rb"))
     config.load
     server = Jubilee::Server.new(config.app)
     server.start

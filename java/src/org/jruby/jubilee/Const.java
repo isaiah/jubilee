@@ -10,7 +10,7 @@ import org.jruby.runtime.builtin.IRubyObject;
  * Date: 11/26/12
  * Time: 11:45 AM
  */
-public class Const {
+public final class Const {
     public static final String DEFAULT_HOST = "localhost";
     public static final int DEFAULT_PORT = 3001;
 
@@ -56,4 +56,6 @@ public class Const {
         version.add("1");
         return version;
     }
+
+    private Const() {}
 }

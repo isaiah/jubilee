@@ -40,5 +40,6 @@ DEPENDENCIES
   guard
   guard-minitest
   jeweler
+  pry
   rack
   rcov

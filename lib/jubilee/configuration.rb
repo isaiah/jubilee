@@ -1,4 +1,3 @@
-require 'rack'
 module Jubilee
   class Configuration
     attr_accessor :app, :port
@@ -12,10 +11,10 @@ module Jubilee
       @port = @options[:port]
     end
 
-    def self.load(config)
-      rackup_code = ::File.read(config)
-      eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, config)
-    end
+    #def self.load(config)
+    #  rackup_code = ::File.read(config)
+    #  eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, config)
+    #end
 
     private
     def load_rack_adapter(options, &block)
@@ -30,7 +29,6 @@ module Jubilee
           app, opts = Rack::Builder.parse_file "config.ru"
         end
       end
-      #app = eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, config)
       Rack::Lint.new(Rack::CommonLogger.new(app, STDOUT))
     end
 

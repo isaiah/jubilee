@@ -1,6 +1,4 @@
 require 'optparse'
-require 'jubilee'
-require 'jubilee'
 
 module Jubilee
   class CLI

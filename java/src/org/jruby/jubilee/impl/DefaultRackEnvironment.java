@@ -23,6 +23,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
 
     public DefaultRackEnvironment( final Ruby runtime, final HttpServerRequest request, RackInput input)
     {
+
         this.runtime = runtime;
         // DEFAULT
         env = RubyHash.newHash(runtime);
