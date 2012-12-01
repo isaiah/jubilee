@@ -22,7 +22,7 @@ class TestPersistent < MiniTest::Unit::TestCase
     end
 
     @host = "127.0.0.1"
-    @port = 3212
+    @port = 3215
 
     @server = Jubilee::Server.new @simple
     @server.start
@@ -96,20 +96,14 @@ class TestPersistent < MiniTest::Unit::TestCase
     @client << @valid_request
 
     assert_equal "HTTP/1.1 200 OK\r\nx-header: Works\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nHello\r\n7\r\nChunked\r\n0\r\n\r\n", lines(10)
-    #puts lines(4)
-    #assert_equal "Hello", @client.read(5)
-    #puts @client.read(6)
-    #puts @client.read(7)
-    #puts @client.read(8)
   end
 
-=begin
   def test_no_chunked_in_http10
     @body << "Chunked"
 
     @client << @http10_request
 
-    assert_equal "HTTP/1.0 200 OK\r\nX-Header: Works\r\nConnection: close\r\n\r\n", lines(4)
+     assert_equal "HTTP/1.0 200 OK\r\nConnection: close\r\nx-header: Works\r\n\r\n", lines(4)
     assert_equal "HelloChunked", @client.read
   end
 
@@ -119,123 +113,123 @@ class TestPersistent < MiniTest::Unit::TestCase
 
     @client << @valid_request
 
-    assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nHello\r\n#{str.size.to_s(16)}\r\n#{str}\r\n0\r\n\r\n", lines(10)
+    assert_equal "HTTP/1.1 200 OK\r\nx-header: Works\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nHello\r\n#{str.size.to_s(16)}\r\n#{str}\r\n0\r\n\r\n", lines(10)
 
   end
 
-  #def test_client11_close
-  #  @client << @close_request
-  #  sz = @body[0].size.to_s
+  def test_client11_close
+    @client << @close_request
+    sz = @body[0].size.to_s
 
-  #  assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nConnection: close\r\nContent-Length: #{sz}\r\n\r\n", lines(5)
-  #  assert_equal "Hello", @client.read(5)
-  #end
+    assert_equal "HTTP/1.1 200 OK\r\nConnection: close\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(5)
+    assert_equal "Hello", @client.read(5)
+  end
 
-  #def test_client10_close
-  #  @client << @http10_request
-  #  sz = @body[0].size.to_s
+  def test_client10_close
+    @client << @http10_request
+    sz = @body[0].size.to_s
 
-  #  assert_equal "HTTP/1.0 200 OK\r\nX-Header: Works\r\nConnection: close\r\nContent-Length: #{sz}\r\n\r\n", lines(5)
-  #  assert_equal "Hello", @client.read(5)
-  #end
+    assert_equal "HTTP/1.0 200 OK\r\nConnection: close\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(5)
+    assert_equal "Hello", @client.read(5)
+  end
 
-  #def test_one_with_keep_alive_header
-  #  @client << @keep_request
-  #  sz = @body[0].size.to_s
+  def test_one_with_keep_alive_header
+    @client << @keep_request
+    sz = @body[0].size.to_s
 
-  #  assert_equal "HTTP/1.0 200 OK\r\nX-Header: Works\r\nConnection: Keep-Alive\r\nContent-Length: #{sz}\r\n\r\n", lines(5)
-  #  assert_equal "Hello", @client.read(5)
-  #end
+    assert_equal "HTTP/1.0 200 OK\r\nConnection: keep-alive\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(5)
+    assert_equal "Hello", @client.read(5)
+  end
 
-  #def test_persistent_timeout
-  #  @server.persistent_timeout = 2
-  #  @client << @valid_request
-  #  sz = @body[0].size.to_s
+  def test_persistent_timeout
+    @server.persistent_timeout = 2
+    @client << @valid_request
+    sz = @body[0].size.to_s
 
-  #  assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\n\r\n", lines(4)
-  #  assert_equal "Hello", @client.read(5)
+    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
+    assert_equal "Hello", @client.read(5)
 
-  #  sleep 3
+    sleep 3
 
-  #  assert_raises EOFError do
-  #    @client.read_nonblock(1)
-  #  end
-  #end
+    assert_raises EOFError do
+      @client.read_nonblock(1)
+    end
+  end
 
-  #def test_app_sets_content_length
-  #  @body = ["hello", " world"]
-  #  @headers['Content-Length'] = "11"
+  def test_app_sets_content_length
+    @body = ["hello", " world"]
+    @headers['Content-Length'] = "11"
 
-  #  @client << @valid_request
+    @client << @valid_request
 
-  #  assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nContent-Length: 11\r\n\r\n",
-  #               lines(4)
-  #  assert_equal "hello world", @client.read(11)
-  #end
+    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: 11\r\nx-header: Works\r\n\r\n",
+                 lines(4)
+    assert_equal "hello world", @client.read(11)
+  end
 
-  #def test_allow_app_to_chunk_itself
-  #  @headers = {'Transfer-Encoding' => "chunked" }
+  def test_allow_app_to_chunk_itself
+    skip "vertx doesn't support chunk self yet"
+    @headers = {'Transfer-Encoding' => "chunked" }
 
-  #  @body = ["5\r\nhello\r\n0\r\n\r\n"]
+    @body = ["5\r\nhello\r\n0\r\n\r\n"]
 
-  #  @client << @valid_request
+    @client << @valid_request
 
-  #  assert_equal "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n\r\n", lines(7)
-  #end
+    assert_equal "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n\r\n", lines(7)
+  end
 
 
-  #def test_two_requests_in_one_chunk
-  #  @server.persistent_timeout = 3
+  def test_two_requests_in_one_chunk
+    @server.persistent_timeout = 3
 
-  #  req = @valid_request.to_s
-  #  req << "GET /second HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"
+    req = @valid_request.to_s
+    req << "GET /second HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"
 
-  #  @client << req
+    @client << req
 
-  #  sz = @body[0].size.to_s
+    sz = @body[0].size.to_s
 
-  #  assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\n\r\n", lines(4)
-  #  assert_equal "Hello", @client.read(5)
+    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
+    assert_equal "Hello", @client.read(5)
 
-  #  assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\n\r\n", lines(4)
-  #  assert_equal "Hello", @client.read(5)
-  #end
+    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
+    assert_equal "Hello", @client.read(5)
+  end
 
-  #def test_second_request_not_in_first_req_body
-  #  @server.persistent_timeout = 3
+  def test_second_request_not_in_first_req_body
+    @server.persistent_timeout = 3
 
-  #  req = @valid_request.to_s
-  #  req << "GET /second HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"
+    req = @valid_request.to_s
+    req << "GET /second HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"
 
-  #  @client << req
+    @client << req
 
-  #  sz = @body[0].size.to_s
+    sz = @body[0].size.to_s
 
-  #  assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\n\r\n", lines(4)
-  #  assert_equal "Hello", @client.read(5)
+    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
+    assert_equal "Hello", @client.read(5)
 
-  #  assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\n\r\n", lines(4)
-  #  assert_equal "Hello", @client.read(5)
+    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
+    assert_equal "Hello", @client.read(5)
 
-  #  assert_kind_of Jubilee::NullIO, @inputs[0]
-  #  assert_kind_of Jubilee::NullIO, @inputs[1]
-  #end
+    assert_kind_of Jubilee::NullIO, @inputs[0]
+    assert_kind_of Jubilee::NullIO, @inputs[1]
+  end
 
-  #def test_keepalive_doesnt_starve_clients
-  #  sz = @body[0].size.to_s
+  def test_keepalive_doesnt_starve_clients
+    sz = @body[0].size.to_s
 
-  #  @client << @valid_request
+    @client << @valid_request
 
-  #  c2 = TCPSocket.new @host, @port
-  #  c2 << @valid_request
+    c2 = TCPSocket.new @host, @port
+    c2 << @valid_request
 
-  #  out = IO.select([c2], nil, nil, 1)
+    out = IO.select([c2], nil, nil, 1)
 
-  #  assert out, "select returned nil"
-  #  assert_equal c2, out.first.first
+    assert out, "select returned nil"
+    assert_equal c2, out.first.first
 
-  #  assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\n\r\n", lines(4, c2)
-  #  assert_equal "Hello", c2.read(5)
-  #end
-=end
+    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4, c2)
+    assert_equal "Hello", c2.read(5)
+  end
 end
