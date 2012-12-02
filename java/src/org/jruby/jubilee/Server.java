@@ -1,16 +1,12 @@
 package org.jruby.jubilee;
 
-import org.jruby.jubilee.impl.DefaultRackEnvironment;
-import org.jruby.jubilee.impl.NullIO;
-import org.jruby.jubilee.impl.RubyIORackInput;
+
 import org.vertx.java.core.*;
-import org.vertx.java.core.buffer.*;
 import org.vertx.java.core.http.*;
 
 import org.jruby.*;
 import org.jruby.runtime.*;
 import org.jruby.runtime.builtin.*;
-import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 
 import java.util.Map;
@@ -20,7 +16,9 @@ public class Server extends RubyObject {
   final private HttpServer httpServer;
   private RackApplication app;
   private boolean running;
-  private RackInput emptyBody;
+  private boolean ssl = false;
+  private String keyStorePath;
+  private String keyStorePassword;
   private int port;
 
   public static void createServerClass(Ruby runtime) {
@@ -39,17 +37,19 @@ public class Server extends RubyObject {
     super(ruby, rubyClass);
     vertx = Vertx.newVertx();
     httpServer = vertx.createHttpServer();
-    emptyBody = new NullIO(ruby);
   }
 
-  @JRubyMethod(name = "initialize", required = 1, optional = 1)
+  @JRubyMethod(name = "initialize", required = 2, optional = 3)
   public IRubyObject initialize(ThreadContext context, IRubyObject[] args, Block block) {
     this.app = new RackApplication(args[0]);
-    if (args.length == 2) {
-      this.port = RubyInteger.num2int(args[1].convertToInteger());
-    } else {
-      this.port = 3212;
+    this.port = RubyInteger.num2int(args[1]);
+    if (args.length == 3) {
+      this.ssl = args[2].isTrue();
     }
+    if (args.length == 4)
+      this.keyStorePath = args[3].toString();
+    if (args.length == 5)
+      this.keyStorePassword = args[4].toString();
     running = false;
     return this;
   }
@@ -61,11 +61,17 @@ public class Server extends RubyObject {
       runtime.newRuntimeError("Jubilee server is already running");
     }
     running = true;
+
     httpServer.requestHandler(new Handler<HttpServerRequest>() {
       public void handle(final HttpServerRequest req) {
-        app.call(new RackRequest(runtime, req)).respond(req.response);
+        req.response.end("hello world");
+        //app.call(new RackRequest(runtime, req)).respond(req.response);
       }
     });
+    //if (ssl)
+    httpServer.setSSL(true)
+            .setKeyStorePath("/home/isaiah/codes/playground/jubilee/examples/jubilee/server-keystore.jks")
+            .setKeyStorePassword("wibble");
     httpServer.listen(this.port);
     return this;
   }

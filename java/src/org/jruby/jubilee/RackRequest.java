@@ -17,11 +17,8 @@ import org.vertx.java.core.http.HttpServerRequest;
  */
 public class RackRequest {
   private RackEnvironment env;
-  private Ruby runtime;
 
   public RackRequest(Ruby runtime, HttpServerRequest request) {
-    this.runtime = runtime;
-
     final Buffer body = new Buffer(0);
     request.dataHandler(new Handler<Buffer>() {
       public void handle(Buffer buffer) {

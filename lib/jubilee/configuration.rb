@@ -1,6 +1,6 @@
 module Jubilee
   class Configuration
-    attr_accessor :app, :port
+    attr_accessor :app, :port, :ssl
     def initialize(options, &block)
       @options = options
       @block = block
@@ -9,6 +9,7 @@ module Jubilee
     def load
       @app = load_rack_adapter(@options, &@block)
       @port = @options[:port]
+      @port = @options[:ssl]
     end
 
     #def self.load(config)

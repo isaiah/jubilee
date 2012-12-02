@@ -20,7 +20,7 @@ module Jubilee
       parse_options
       @config = Jubilee::Configuration.new(@options)
       @config.load
-      server = Jubilee::Server.new(@config.app, @config.port)
+      server = Jubilee::Server.new(@config.app, @config.port, @config.ssl)
       server.start
       puts "Jubilee start is listening on port #{@config.port}, press Ctrl+C to quit"
       while true
@@ -37,6 +37,7 @@ module Jubilee
         debug: false,
         daemon: false,
         port: 3212,
+        ssl: false,
         environment: "development"
       }
       @parser = OptionParser.new do |o|
@@ -51,6 +52,9 @@ module Jubilee
         end
         o.on "-p", "--port PORT", "Defind which PORT the server should bind" do |arg|
           @options[:port] = arg
+        end
+        o.on "--ssl", "Enable SSL connection" do 
+          @options[:ssl] = true
         end
         o.on "--verbose", "Log low level debug information" do
           @options[:debug] = true
