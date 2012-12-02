@@ -1,4 +1,5 @@
 require 'optparse'
+require 'jubilee'
 
 module Jubilee
   class CLI
@@ -20,11 +21,12 @@ module Jubilee
       parse_options
       @config = Jubilee::Configuration.new(@options)
       @config.load
-      server = Jubilee::Server.new(@config.app, @config.port, @config.ssl)
+      server = Jubilee::Server.new(@config.app, {port: @config.port, ssl: @config.ssl})
       server.start
       puts "Jubilee start is listening on port #{@config.port}, press Ctrl+C to quit"
       while true
         begin
+          sleep 1
         rescue Interrupt
           puts "* Bye!"
           server.stop
@@ -36,7 +38,7 @@ module Jubilee
       @options = {
         debug: false,
         daemon: false,
-        port: 3212,
+        port: 3215,
         ssl: false,
         environment: "development"
       }
@@ -61,6 +63,9 @@ module Jubilee
         end
         o.on "-e", "--environment ENV", "Rack environment" do |arg|
           @options[:environment] = arg
+        end
+        o.on "-q", "--quiet" do
+          @options[:quiet] = true
         end
       end
 

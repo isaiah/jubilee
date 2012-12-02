@@ -1,6 +1,5 @@
 module Jubilee
   class Configuration
-    attr_accessor :app, :port, :ssl
     def initialize(options, &block)
       @options = options
       @block = block
@@ -8,8 +7,23 @@ module Jubilee
 
     def load
       @app = load_rack_adapter(@options, &@block)
-      @port = @options[:port]
-      @port = @options[:ssl]
+    end
+
+    def app
+      if !@options[:quiet] and @options[:environment] == "development"
+        logger = @options[:logger] || STDOUT
+        Rack::CommonLogger.new(@app, logger)
+      else
+        @app
+      end
+    end
+
+    def port
+      @options[:port]
+    end
+
+    def ssl
+      @options[:ssl]
     end
 
     #def self.load(config)
@@ -30,7 +44,8 @@ module Jubilee
           app, opts = Rack::Builder.parse_file "config.ru"
         end
       end
-      Rack::Lint.new(Rack::CommonLogger.new(app, STDOUT))
+      app
+      #Rack::Lint.new(Rack::CommonLogger.new(app, STDOUT))
     end
 
   end

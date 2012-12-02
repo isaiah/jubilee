@@ -56,14 +56,15 @@ public class Server extends RubyObject {
 
   @JRubyMethod(name = "start", optional = 1)
   public IRubyObject start(final ThreadContext context, final IRubyObject[] args, final Block block) {
-        httpServer.requestHandler(new Handler<HttpServerRequest>() {
-            public void handle(HttpServerRequest req) {
-              app.call(req).respond(req.response);
-            }
-        });
-        if (ssl) httpServer.setSSL(true).setKeyStorePath(this.keyStorePath)
-                .setKeyStorePassword(this.keyStorePassword);
-        httpServer.listen(this.port);
+    this.running = true;
+    httpServer.requestHandler(new Handler<HttpServerRequest>() {
+      public void handle(HttpServerRequest req) {
+        app.call(req).respond(req.response);
+      }
+    });
+    if (ssl) httpServer.setSSL(true).setKeyStorePath(this.keyStorePath)
+            .setKeyStorePassword(this.keyStorePassword);
+    httpServer.listen(this.port);
     return this;
   }
 
@@ -75,14 +76,19 @@ public class Server extends RubyObject {
 
   @JRubyMethod(name = {"stop", "close"})
   public IRubyObject close(ThreadContext context) {
-    this.running = false;
-    httpServer.close();
+    if (running) {
+      this.running = false;
+      httpServer.close();
 //        httpServer.close(new SimpleHandler() {
 //            @Override
 //            protected void handle() {
 //                getRuntime().getOutputStream().println("closing.");
 //            }
 //        });
+    } else {
+      getRuntime().getOutputStream().println("not running?");
+      // no op
+    }
     return getRuntime().getNil();
   }
 }
