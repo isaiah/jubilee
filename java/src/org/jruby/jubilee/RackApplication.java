@@ -3,6 +3,7 @@ package org.jruby.jubilee;
 import org.jruby.Ruby;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.vertx.java.core.http.HttpServerRequest;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,18 +12,21 @@ import org.jruby.runtime.builtin.IRubyObject;
  * Time: 5:40 PM
  */
 public class RackApplication {
-    private IRubyObject app;
+  private IRubyObject app;
+  private boolean ssl;
 
-    public RackApplication(IRubyObject app) {
-        this.app = app;
-    }
+  public RackApplication(IRubyObject app, boolean ssl) {
+    this.app = app;
+    this.ssl = ssl;
+  }
 
-    public RackResponse call(RackRequest request) {
-        IRubyObject result = app.callMethod(getRuntime().getCurrentContext(), "call", request.getRackEnv());
-        return (RackResponse) JavaEmbedUtils.rubyToJava(getRuntime(), result, RackResponse.class);
-    }
+  public RackResponse call(HttpServerRequest req) {
+    RackRequest request = new RackRequest(getRuntime(), req, ssl);
+    IRubyObject result = app.callMethod(getRuntime().getCurrentContext(), "call", request.getRackEnv());
+    return (RackResponse) JavaEmbedUtils.rubyToJava(getRuntime(), result, RackResponse.class);
+  }
 
-    public Ruby getRuntime() {
-        return app.getRuntime();
-    }
+  public Ruby getRuntime() {
+    return app.getRuntime();
+  }
 }

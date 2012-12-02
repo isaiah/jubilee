@@ -26,6 +26,10 @@ module Jubilee
     PATH_INFO = "PATH_INFO".freeze
     QUERY_STRING = "QUERY_STRING".freeze
 
+    CONTENT_LENGTH = "Content-Length".freeze
+    TRANSFER_ENCODING = "Transfer-Encoding".freeze
+
+    HTTP_VERSION = "HTTP_VERSION".freeze
     HTTP_HOST = "HTTP_HOST".freeze
     HTTP_USER_AGENT = "HTTP_USER_AGENT".freeze
     HTTP_ACCEPT = "HTTP_ACCEPT".freeze

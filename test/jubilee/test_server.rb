@@ -6,7 +6,6 @@ class TestJubileeServer < MiniTest::Unit::TestCase
     @host, @port = "localhost", 3215
   end
 
-=begin
   def test_server_lambda
     app = lambda {|env| [200, {"Content-Type" => "text/plain"}, ["http"]] }
     server = Jubilee::Server.new(app)
@@ -42,7 +41,6 @@ class TestJubileeServer < MiniTest::Unit::TestCase
   def test_large_post_body
     skip
   end
-=end
 
   
   def test_url_scheme_for_https
@@ -51,8 +49,6 @@ class TestJubileeServer < MiniTest::Unit::TestCase
                                  keystore: File.join(File.dirname(__FILE__), "../../examples/jubilee/server-keystore.jks"),
     keystore_password: "wibble"})
     server.start
-
-    sleep 5
     http = Net::HTTP.new @host, @port
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE

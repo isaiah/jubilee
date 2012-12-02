@@ -43,14 +43,14 @@ public class RubyIORackErrors extends RubyObject implements RackErrors {
     @Override
     @JRubyMethod(name = "puts")
     public IRubyObject puts(ThreadContext context, IRubyObject arg) {
-        getRuntime().getOutputStream().println(arg.toString());
+        //getRuntime().getOutputStream().println(arg.toString());
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     @JRubyMethod
     public IRubyObject write(ThreadContext context, IRubyObject string) {
-        getRuntime().getOutputStream().println(string.toString());
+        //getRuntime().getOutputStream().println(string.toString());
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

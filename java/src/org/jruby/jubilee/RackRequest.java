@@ -18,7 +18,7 @@ import org.vertx.java.core.http.HttpServerRequest;
 public class RackRequest {
   private RackEnvironment env;
 
-  public RackRequest(Ruby runtime, HttpServerRequest request) {
+  public RackRequest(Ruby runtime, HttpServerRequest request, boolean ssl) {
     final Buffer body = new Buffer(0);
     request.dataHandler(new Handler<Buffer>() {
       public void handle(Buffer buffer) {
@@ -26,7 +26,7 @@ public class RackRequest {
       }
     });
     RackInput input = body.length() == 0 ? new NullIO(runtime) : new RubyIORackInput(runtime, body);
-    env = new DefaultRackEnvironment(runtime, request, input);
+    env = new DefaultRackEnvironment(runtime, request, input, ssl);
   }
 
   public RackEnvironment getEnv() {

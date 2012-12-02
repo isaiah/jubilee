@@ -41,14 +41,14 @@ public class Server extends RubyObject {
 
   @JRubyMethod(name = "initialize", required = 2, optional = 3)
   public IRubyObject initialize(ThreadContext context, IRubyObject[] args, Block block) {
-    this.app = new RackApplication(args[0]);
     this.port = RubyInteger.num2int(args[1]);
-    if (args.length == 3) {
+    if (args.length > 2) {
       this.ssl = args[2].isTrue();
     }
-    if (args.length == 4)
+    this.app = new RackApplication(args[0], this.ssl);
+    if (args.length > 3)
       this.keyStorePath = args[3].toString();
-    if (args.length == 5)
+    if (args.length > 4)
       this.keyStorePassword = args[4].toString();
     running = false;
     return this;
@@ -56,23 +56,14 @@ public class Server extends RubyObject {
 
   @JRubyMethod(name = "start", optional = 1)
   public IRubyObject start(final ThreadContext context, final IRubyObject[] args, final Block block) {
-    final Ruby runtime = context.runtime;
-    if (running) {
-      runtime.newRuntimeError("Jubilee server is already running");
-    }
-    running = true;
-
-    httpServer.requestHandler(new Handler<HttpServerRequest>() {
-      public void handle(final HttpServerRequest req) {
-        req.response.end("hello world");
-        //app.call(new RackRequest(runtime, req)).respond(req.response);
-      }
-    });
-    //if (ssl)
-    httpServer.setSSL(true)
-            .setKeyStorePath("/home/isaiah/codes/playground/jubilee/examples/jubilee/server-keystore.jks")
-            .setKeyStorePassword("wibble");
-    httpServer.listen(this.port);
+        httpServer.requestHandler(new Handler<HttpServerRequest>() {
+            public void handle(HttpServerRequest req) {
+              app.call(req).respond(req.response);
+            }
+        });
+        if (ssl) httpServer.setSSL(true).setKeyStorePath(this.keyStorePath)
+                .setKeyStorePassword(this.keyStorePassword);
+        httpServer.listen(this.port);
     return this;
   }
 

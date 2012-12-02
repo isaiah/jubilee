@@ -1,10 +1,15 @@
 require 'java'
 module Jubilee
   class Response
+    include Const
     include org.jruby.jubilee.RackResponse
 
     def initialize(array)
       @status, @headers, @body = *array
+      @content_length = nil
+      if @body.kind_of? Array and @body.size == 1
+        @content_length = @body[0].bytesize
+      end
     end
 
     def getStatus
@@ -24,6 +29,8 @@ module Jubilee
       write_headers(response)
       write_body(response)
       response.end
+    ensure
+      @body.close if @body.respond_to?(:close)
     end
 
     private
@@ -33,25 +40,27 @@ module Jubilee
 
     def write_headers(response)
       @headers.each do |key, value|
+        case key
+        when CONTENT_LENGTH
+          @content_length = value
+          next
+        when TRANSFER_ENCODING
+          @allow_chunked = false
+          @content_length = nil
+        end
         response.putHeader(key, value)
       end
     end
 
     def write_body(response)
-      enum = @body.to_enum
-      begin
-        ret = enum.next
-        begin
-          enum.peek # works as has_next?
-          response.setChunked(true)
-          enum.each {|part| response.write part }
-        rescue StopIteration
-          response.putHeader("content-length", ret.length)
-          response.write ret
-        end
-      rescue StopIteration # empty body
-        response.putHeader("content-length", "0")
-        response.write ""
+      if @content_length
+        response.putHeader(CONTENT_LENGTH, @content_length.to_s)
+      else
+        response.setChunked(true)
+      end
+
+      @body.each do |part|
+        response.write(part)
       end
     end
   end
