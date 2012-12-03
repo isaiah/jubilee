@@ -87,6 +87,35 @@ class TestRackServer < MiniTest::Unit::TestCase
     assert_equal "/test/a/b/c", input['PATH_INFO']
   end
 
+  def test_query_string
+    input = nil
+    @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
+    @server.start
+
+    hit(['http://127.0.0.1:3215/test/a/b/c?foo=bar'])
+
+    assert_equal "foo=bar", input['QUERY_STRING']
+  end
+
+  def test_post_data
+    require 'rack/request'
+    input = nil
+    @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
+    @server.start
+
+    http= Net::HTTP.new('localhost', 3215)
+    body = http.post("/", "foo=bar")
+    puts body.body
+    #Net::HTTP.post_form URI.parse('http://127.0.0.1:3215/test'), { "foo" => "bar" }
+
+    require 'pp'
+    request = Rack::Request.new input
+    puts "======="
+    pp request.params
+    puts "======="
+    assert_equal "bar", request.params["foo"]
+  end
+
   #def test_after_reply
   #  closed = false
 

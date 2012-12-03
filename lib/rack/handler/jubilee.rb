@@ -6,7 +6,7 @@ module Rack
     module Jubilee
       DEFAULT_OPTIONS = {
         :host => '0.0.0.0',
-        :port => 8080,
+        :port => 3000,
         :verbose => false
       }
       def self.run(app, options = {})
@@ -20,7 +20,7 @@ module Rack
           ENV["RACK_ENV"] = options[:environment].to_s
         end
 
-        server = ::Jubilee::Server.new(app)
+        server = ::Jubilee::Server.new(app, options)
 
         puts "Jubilee starting..."
         puts "Environment: #{ENV['RACK_ENV']}"
@@ -29,6 +29,9 @@ module Rack
 
         begin
           server.start
+          while true
+            sleep 1
+          end
         rescue Interrupt
           puts "* Gracefully stopping, waiting requests to finish"
           server.stop

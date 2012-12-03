@@ -57,9 +57,10 @@ public class Server extends RubyObject {
   @JRubyMethod(name = "start", optional = 1)
   public IRubyObject start(final ThreadContext context, final IRubyObject[] args, final Block block) {
     this.running = true;
+    httpServer.setAcceptBacklog(10000);
     httpServer.requestHandler(new Handler<HttpServerRequest>() {
       public void handle(HttpServerRequest req) {
-        app.call(req).respond(req.response);
+        app.call(req);
       }
     });
     if (ssl) httpServer.setSSL(true).setKeyStorePath(this.keyStorePath)

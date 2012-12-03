@@ -1,8 +1,24 @@
+#$:.unshift("/home/isaiah/codes/ruby/rack/lib")
 require 'sinatra'
 
 class Vertx < Sinatra::Base
   get '/' do
-    "<h1>Hello Sinatra!</h1>"
+    "<h1>Hello Sinatra! #{params[:foo]}</h1>"
+  end
+
+  post "/home/test" do
+    #require 'pp'
+    #pp env['rack.input'].gets
+    #require 'rack/multipart'
+    #puts "=========="
+    ##pp Rack::Multipart.parse_multipart(env)
+    #puts "=========="
+    ##pp env
+    #pp request.params
+    #puts "=========="
+    a = ""
+    params.each{|k,v| a << "#{k}:#{v}\n"}
+    a
   end
 
   get '/app' do

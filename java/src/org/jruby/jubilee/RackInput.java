@@ -57,6 +57,6 @@ public interface RackInput
      * Close the input. Exposed only to the Java side because the Rack spec says
      * that application code must not call close, so we don't expose a close method to Ruby.
      */
-    public void close();
+    public IRubyObject close(ThreadContext context);
 }
 

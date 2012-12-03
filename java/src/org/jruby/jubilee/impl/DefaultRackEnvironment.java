@@ -40,7 +40,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
     // Rack blows up if this is an empty string, and Rack::Lint
     // blows up if it's nil. So 'text/plain' seems like the most
     // sensible default value.
-    env.put("CONTENT_TYPE", "text/plain");
+    //env.put(Const.HTTP_CONTENT_TYPE, "text/plain");
 
     env.put(Const.SERVER_PROTOCOL, Const.HTTP_11);
     env.put(Const.SERVER_SOFTWARE, Const.JUBILEE_VERSION);
@@ -63,18 +63,21 @@ public class DefaultRackEnvironment implements RackEnvironment {
       env.put(Const.SERVER_NAME, Const.LOCALHOST);
       env.put(Const.SERVER_PORT, Const.PORT_80);
     }
+
     env.put(Const.RACK_INPUT, input);
     env.put(Const.REQUEST_METHOD, request.method);
     env.put(Const.REQUEST_PATH, request.path);
     env.put(Const.REQUEST_URI, request.uri);
-    env.put(Const.QUERY_STRING, orEmtpy(request.query));
+    env.put(Const.QUERY_STRING, orEmpty(request.query));
     env.put(Const.HTTP_HOST, headers.get("host"));
-    env.put(Const.HTTP_COOKIE, orEmtpy(headers.get("cookie")));
+    env.put(Const.HTTP_COOKIE, orEmpty(headers.get("cookie")));
     env.put(Const.HTTP_USER_AGENT, headers.get("user-agent"));
     env.put(Const.HTTP_ACCEPT, headers.get("accept"));
-    env.put(Const.HTTP_ACCEPT_LANGUAGE, orEmtpy(headers.get("accept-language")));
-    env.put(Const.HTTP_ACCEPT_ENCODING, orEmtpy(headers.get("accept-encoding")));
-    env.put(Const.HTTP_CONNECTION, orEmtpy(headers.get("connection")));
+    env.put(Const.HTTP_ACCEPT_LANGUAGE, orEmpty(headers.get("accept-language")));
+    env.put(Const.HTTP_ACCEPT_ENCODING, orEmpty(headers.get("accept-encoding")));
+    env.put(Const.HTTP_CONNECTION, orEmpty(headers.get("connection")));
+    env.put(Const.HTTP_CONTENT_TYPE, orEmpty(headers.get("content-type")));
+    env.put(Const.HTTP_CONTENT_LENGTH, orEmpty(headers.get("content-length")));
     env.put(Const.PATH_INFO, request.path);
   }
 
@@ -82,7 +85,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
     return env;
   }
 
-  private RubyString orEmtpy(String jString) {
+  private RubyString orEmpty(String jString) {
     return jString == null ? RubyString.newEmptyString(runtime) : RubyString.newString(runtime, jString);
   }
 }

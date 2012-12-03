@@ -2,6 +2,7 @@ package org.jruby.jubilee;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.RubyString;
 import org.jruby.runtime.builtin.IRubyObject;
 
 /**
@@ -47,8 +48,8 @@ public final class Const {
   public static final String HTTP_ACCEPT_LANGUAGE = "HTTP_ACCEPT_LANGUAGE";
   public static final String HTTP_ACCEPT_ENCODING = "HTTP_ACCEPT_ENCODING";
   public static final String HTTP_CONNECTION = "HTTP_CONNECTION";
-  public static final String HTTP_CONTENT_TYPE = "Content-Type";
-  public static final String HTTP_CONTENT_LENGTH = "Content-Length";
+  public static final String HTTP_CONTENT_TYPE = "CONTENT_TYPE";
+  public static final String HTTP_CONTENT_LENGTH = "CONTENT_LENGTH";
 
   public static RubyArray RackVersion(Ruby runtime) {
     RubyArray version = RubyArray.newArray(runtime, 2);
@@ -68,4 +69,7 @@ public final class Const {
   public static final String SCRIPT_NAME = "SCRIPT_NAME";
   private Const() {
   }
+
+  // Internal
+  public static final String END_OF_BODY = "__EOF__";
 }

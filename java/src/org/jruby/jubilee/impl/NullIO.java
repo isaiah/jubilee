@@ -105,7 +105,7 @@ public class NullIO extends RubyObject implements RackInput {
      * that application code must not call close, so we don't expose a close method to Ruby.
      */
     @Override
-    public void close() {
-
+    public IRubyObject close(ThreadContext context) {
+      return getRuntime().getNil();
     }
 }
