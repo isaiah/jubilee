@@ -9,8 +9,6 @@ import org.jruby.runtime.*;
 import org.jruby.runtime.builtin.*;
 import org.jruby.anno.JRubyMethod;
 
-import java.util.Map;
-
 public class Server extends RubyObject {
   final private Vertx vertx;
   final private HttpServer httpServer;
@@ -59,7 +57,7 @@ public class Server extends RubyObject {
     this.running = true;
     httpServer.setAcceptBacklog(10000);
     httpServer.requestHandler(new Handler<HttpServerRequest>() {
-      public void handle(HttpServerRequest req) {
+      public void handle(final HttpServerRequest req) {
         app.call(req);
       }
     });
@@ -75,20 +73,15 @@ public class Server extends RubyObject {
     return this;
   }
 
-  @JRubyMethod(name = {"stop", "close"})
-  public IRubyObject close(ThreadContext context) {
+  @JRubyMethod(name = {"stop", "close"}, optional = 1)
+  public IRubyObject close(ThreadContext context, IRubyObject now) {
     if (running) {
+      // TODO graceful shutdown
+      app.shutdown();
       this.running = false;
       httpServer.close();
-//        httpServer.close(new SimpleHandler() {
-//            @Override
-//            protected void handle() {
-//                getRuntime().getOutputStream().println("closing.");
-//            }
-//        });
     } else {
       getRuntime().getOutputStream().println("not running?");
-      // no op
     }
     return getRuntime().getNil();
   }

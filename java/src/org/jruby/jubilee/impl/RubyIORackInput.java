@@ -22,7 +22,9 @@ import java.util.concurrent.BlockingQueue;
 public class RubyIORackInput extends RubyObject implements RackInput {
   private BlockingQueue<String> buf;
   private List<RubyString> backup;
-  private int pos;
+  private List<String> stringBuf;
+  private int pos; //initialized by JVM
+  private int lineno; //initialized by JVM
   private boolean isEnd;
 
   public static ObjectAllocator ALLOCATOR = new ObjectAllocator() {
@@ -46,13 +48,15 @@ public class RubyIORackInput extends RubyObject implements RackInput {
   public RubyIORackInput(Ruby runtime, BlockingQueue<String> buf) {
     this(runtime, createRubyIORackInputClass(runtime));
     this.buf = buf;
-    pos = 0;
     backup = new ArrayList<RubyString>();
+    stringBuf = new ArrayList<String>();
     isEnd = false;
   }
 
   /**
    * gets must be called without arguments and return a string, or nil on EOF.
+   *
+   * this method return one line a time.
    *
    * @param context it's a JRuby thing
    * @return a string, or nil on EOF
@@ -61,32 +65,49 @@ public class RubyIORackInput extends RubyObject implements RackInput {
   @JRubyMethod
   public IRubyObject gets(ThreadContext context) {
     IRubyObject empty = getRuntime().getNil();
-    if (! isEnd) {
-      if (pos < backup.size()) {
-        pos++;
-        return backup.get(pos - 1);
-      }
-      getRuntime().getOutputStream().println("=======gets======");
-      try {
-        String part = buf.take();
-
-        getRuntime().getOutputStream().println(part);
-        getRuntime().getOutputStream().println("=======gets======");
-        if (part.equals(Const.END_OF_BODY)) {
-          isEnd = true;
-          return empty;
-        }
-        RubyString ret = RubyString.newString(getRuntime(), part);
-        backup.add(ret);
-        pos++;
-        return ret;
-      } catch (InterruptedException e) {
-        return getRuntime().getNil();
-      }
-    } else {
-      // rack should not enter this part
+    if (isEnd)
       return empty;
+    // if rewinded
+    if (lineno < backup.size()) {
+      RubyString ret = backup.get(lineno++);
+      pos += RubyInteger.num2int(ret.length());
+      return ret;
+    // if something in buffer
+    } else if (lineno - backup.size() < stringBuf.size()) {
+      String ret = stringBuf.get(lineno - backup.size()) + Const.EOL;
+      lineno++;
+      pos += ret.length();
+      stringBuf.remove(0);
+      RubyString rStr = RubyString.newString(getRuntime(), ret);
+      backup.add(rStr);
+      return rStr;
     }
+
+    getRuntime().getOutputStream().println("=======gets======");
+    try {
+      String part = buf.take();
+
+      getRuntime().getOutputStream().println(part);
+      getRuntime().getOutputStream().println("=======gets======");
+      if (part.equals(Const.END_OF_BODY)) {
+        isEnd = true;
+        return empty;
+      }
+      String[] arr = part.split(Const.EOL);
+      String ret = arr[0] + Const.EOL;
+      RubyString rStr = RubyString.newString(getRuntime(), ret);
+      backup.add(rStr);
+      pos += ret.length();
+      lineno++;
+
+      if (arr.length > 1)
+        for (int i = 1; i < arr.length; i++)
+          stringBuf.add(arr[i]);
+      return rStr;
+    } catch (InterruptedException e) {
+      return getRuntime().getNil();
+    }
+
   }
 
   /**
@@ -160,6 +181,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
   @JRubyMethod
   public IRubyObject rewind(ThreadContext context) {
     pos = 0;
+    lineno = 0;
     return getRuntime().getNil();
   }
 

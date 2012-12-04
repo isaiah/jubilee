@@ -72,4 +72,5 @@ public final class Const {
 
   // Internal
   public static final String END_OF_BODY = "__EOF__";
+  public static final String EOL = "\r\n";
 }

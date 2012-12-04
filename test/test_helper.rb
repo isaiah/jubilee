@@ -3,6 +3,7 @@ require 'minitest/autorun'
 require 'minitest/unit'
 require 'jubilee'
 require 'net/http'
+require 'net/http/post/multipart'
 def hit(uris)
   uris.map do |u|
     res = nil

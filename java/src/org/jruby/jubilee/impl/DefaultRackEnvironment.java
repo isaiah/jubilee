@@ -77,7 +77,9 @@ public class DefaultRackEnvironment implements RackEnvironment {
     env.put(Const.HTTP_ACCEPT_ENCODING, orEmpty(headers.get("accept-encoding")));
     env.put(Const.HTTP_CONNECTION, orEmpty(headers.get("connection")));
     env.put(Const.HTTP_CONTENT_TYPE, orEmpty(headers.get("content-type")));
-    env.put(Const.HTTP_CONTENT_LENGTH, orEmpty(headers.get("content-length")));
+    String contentLength;
+    if ((contentLength = headers.get("content-length")) != null)
+      env.put(Const.HTTP_CONTENT_LENGTH, contentLength);
     env.put(Const.PATH_INFO, request.path);
   }
 

@@ -103,9 +103,11 @@ class TestRackServer < MiniTest::Unit::TestCase
     @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
     @server.start
 
-    http= Net::HTTP.new('localhost', 3215)
-    body = http.post("/", "foo=bar")
-    puts body.body
+    req = Net::HTTP::Post::Multipart.new("/", "foo" => "bar")
+    resp = Net::HTTP.start('localhost', 3215) do |http|
+      http.request req
+    end
+
     #Net::HTTP.post_form URI.parse('http://127.0.0.1:3215/test'), { "foo" => "bar" }
 
     require 'pp'
@@ -115,32 +117,4 @@ class TestRackServer < MiniTest::Unit::TestCase
     puts "======="
     assert_equal "bar", request.params["foo"]
   end
-
-  #def test_after_reply
-  #  closed = false
-
-  #  @server = Jubilee::Server.new lambda do |env|
-  #    env['rack.after_reply'] << lambda { closed = true }
-  #    @simple.call(env)
-  #  end
-
-  #  @server.start
-
-  #  hit(['http://127.0.0.1:3215/test'])
-
-
-  #  assert_equal true, closed
-  #end
-
-  #def test_common_logger
-  #  log = StringIO.new
-
-  #  @server = Jubilee::Server.new Rack::CommonLogger.new(@simple, log)
-  #  @server.start
-
-  #  hit(['http://127.0.0.1:3215/test'])
-
-  #  assert_match %r!GET /test HTTP/1\.1!, log.string
-  #end
-
 end
