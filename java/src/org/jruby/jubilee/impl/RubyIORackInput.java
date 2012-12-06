@@ -1,5 +1,6 @@
 package org.jruby.jubilee.impl;
 
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.jubilee.Const;
@@ -8,10 +9,9 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.vertx.java.core.buffer.Buffer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,12 +20,8 @@ import java.util.concurrent.BlockingQueue;
  * Time: 10:12 PM
  */
 public class RubyIORackInput extends RubyObject implements RackInput {
-  private BlockingQueue<String> buf;
-  private List<RubyString> backup;
-  private List<String> stringBuf;
-  private int pos; //initialized by JVM
-  private int lineno; //initialized by JVM
-  private boolean isEnd;
+  private ChannelBuffer buf;
+  private CountDownLatch bodyLatch;
 
   public static ObjectAllocator ALLOCATOR = new ObjectAllocator() {
     @Override
@@ -45,17 +41,15 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     super(runtime, metaClass);
   }
 
-  public RubyIORackInput(Ruby runtime, BlockingQueue<String> buf) {
+  public RubyIORackInput(Ruby runtime, Buffer buf, CountDownLatch bodyLatch) {
     this(runtime, createRubyIORackInputClass(runtime));
-    this.buf = buf;
-    backup = new ArrayList<RubyString>();
-    stringBuf = new ArrayList<String>();
-    isEnd = false;
+    this.buf = buf.getChannelBuffer();
+    this.bodyLatch = bodyLatch;
   }
 
   /**
    * gets must be called without arguments and return a string, or nil on EOF.
-   *
+   * <p/>
    * this method return one line a time.
    *
    * @param context it's a JRuby thing
@@ -64,50 +58,22 @@ public class RubyIORackInput extends RubyObject implements RackInput {
   @Override
   @JRubyMethod
   public IRubyObject gets(ThreadContext context) {
-    IRubyObject empty = getRuntime().getNil();
-    if (isEnd)
-      return empty;
-    // if rewinded
-    if (lineno < backup.size()) {
-      RubyString ret = backup.get(lineno++);
-      pos += RubyInteger.num2int(ret.length());
-      return ret;
-    // if something in buffer
-    } else if (lineno - backup.size() < stringBuf.size()) {
-      String ret = stringBuf.get(lineno - backup.size()) + Const.EOL;
-      lineno++;
-      pos += ret.length();
-      stringBuf.remove(0);
-      RubyString rStr = RubyString.newString(getRuntime(), ret);
-      backup.add(rStr);
-      return rStr;
-    }
-
-    getRuntime().getOutputStream().println("=======gets======");
     try {
-      String part = buf.take();
-
-      getRuntime().getOutputStream().println(part);
-      getRuntime().getOutputStream().println("=======gets======");
-      if (part.equals(Const.END_OF_BODY)) {
-        isEnd = true;
-        return empty;
-      }
-      String[] arr = part.split(Const.EOL);
-      String ret = arr[0] + Const.EOL;
-      RubyString rStr = RubyString.newString(getRuntime(), ret);
-      backup.add(rStr);
-      pos += ret.length();
-      lineno++;
-
-      if (arr.length > 1)
-        for (int i = 1; i < arr.length; i++)
-          stringBuf.add(arr[i]);
-      return rStr;
-    } catch (InterruptedException e) {
+      bodyLatch.await();
+    } catch (InterruptedException ignore) {
       return getRuntime().getNil();
     }
-
+    if (buf.readableBytes() == 0)
+      return getRuntime().getNil();
+    int lineEnd = buf.indexOf(buf.readerIndex(), buf.capacity(), Const.EOL);
+    int readLength;
+    if ((readLength = lineEnd - buf.readerIndex()) > 0) {
+      byte[] dst = new byte[readLength + 1];
+      buf.readBytes(dst, 0, readLength + 1);
+      return RubyString.newString(getRuntime(), dst);
+    }
+    // TODO this is not true;
+    return getRuntime().getNil();
   }
 
   /**
@@ -116,7 +82,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
    * String and may not be nil. If length is given and not nil, then this method
    * reads at most length bytes from the input stream. If length is not given or
    * nil, then this method reads all data until EOF. When EOF is reached, this
-   * method returns nil if length is given and not nil, or "" if length is not
+   * method returns nil if length is given and not nil, or "" if) length is not
    * given or is nil. If buffer is given, then the read data will be placed into
    * buffer instead of a newly created String object.
    *
@@ -126,28 +92,30 @@ public class RubyIORackInput extends RubyObject implements RackInput {
    */
   @Override
   @JRubyMethod(optional = 2)
-  // FIXME this is broken
   public IRubyObject read(ThreadContext context, IRubyObject[] args) {
-    return getRuntime().getNil();
-    //Ruby runtime = getRuntime();
-    //if (pos >= buffer.length()) {
-    //  return runtime.getNil();
-    //}
-    //if (args.length == 0) {
-    //  return RubyString.newString(runtime, "");
-    //}
-    //int length = RubyInteger.num2int(args[0].convertToInteger());
-    //if (pos + length >= buffer.length()) {
-    //  length = buffer.length() - pos;
-    //}
-    //RubyString ret = RubyString.newString(runtime, "");
-    //pos += length;
-    //if (args.length == 2) {
-    //  RubyString buffer = args[1].convertToString();
-    //  buffer.append19(ret);
-    //  return runtime.getNil();
-    //}
-    //return ret;
+    try {
+      bodyLatch.await();
+    } catch (InterruptedException ignore) {
+      return getRuntime().getNil();
+    }
+    if (buf.readableBytes() == 0)
+      return getRuntime().getNil();
+    int length;
+    switch (args.length) {
+      case 0:
+        length = buf.readableBytes();
+        break;
+      case 1:
+        int len = RubyInteger.num2int(args[0]);
+        length = len > buf.readableBytes() ? buf.readableBytes() : len;
+        break;
+      default:
+        len = RubyInteger.num2int(args[0]);
+        length = len > buf.readableBytes() ? buf.readableBytes() : len;
+    }
+    byte[] dst = new byte[length];
+    buf.readBytes(dst, 0, length);
+    return RubyString.newString(getRuntime(), dst);
   }
 
   /**
@@ -160,11 +128,10 @@ public class RubyIORackInput extends RubyObject implements RackInput {
   @Override
   @JRubyMethod
   public IRubyObject each(ThreadContext context, Block block) {
-    for (RubyString str: backup) {
+    IRubyObject str;
+    while (!(str = gets(context)).isNil()) {
       block.yield(context, str);
     }
-    while (! isEnd)
-      block.yield(context, gets(context));
     return getRuntime().getNil();
   }
 
@@ -180,8 +147,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
   @Override
   @JRubyMethod
   public IRubyObject rewind(ThreadContext context) {
-    pos = 0;
-    lineno = 0;
+    buf.readerIndex(0);
     return getRuntime().getNil();
   }
 
@@ -192,7 +158,6 @@ public class RubyIORackInput extends RubyObject implements RackInput {
   @JRubyMethod
   public IRubyObject close(ThreadContext context) {
     buf.clear();
-    backup.clear();
     return getRuntime().getNil();
   }
 }

@@ -21,34 +21,31 @@ import java.util.concurrent.*;
 public class RackApplication {
   private IRubyObject app;
   private boolean ssl;
-  private BlockingQueue<String> bodyBuf;
-  private int DEFAULT_CAPACITY = 10;
+  private Buffer bodyBuf;
 
   private ExecutorService exec;
 
   public RackApplication(IRubyObject app, boolean ssl) {
     this.app = app;
     this.ssl = ssl;
-    bodyBuf = new ArrayBlockingQueue<String>(DEFAULT_CAPACITY);
+    bodyBuf = new Buffer(0);
     exec = Executors.newCachedThreadPool();
   }
 
   public void call(final HttpServerRequest request) {
     final Ruby runtime = app.getRuntime();
+    final CountDownLatch bodyLatch = new CountDownLatch(1);
     request.dataHandler(new Handler<Buffer>() {
       @Override
       public void handle(Buffer buffer) {
-        runtime.getOutputStream().println("========dataHandler======");
-        runtime.getOutputStream().println(buffer.toString());
-        runtime.getOutputStream().println("========dataHandler======");
-        bodyBuf.offer(buffer.toString());
+        bodyBuf.appendBuffer(buffer);
       }
     });
     // TODO optimize by use NullIO when there is no body here.
     Runnable task = new Runnable() {
       @Override
       public void run() {
-        RackInput input = new RubyIORackInput(runtime, bodyBuf);
+        RackInput input = new RubyIORackInput(runtime, bodyBuf, bodyLatch);
         RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
         IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
         RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
@@ -59,7 +56,7 @@ public class RackApplication {
     request.endHandler(new SimpleHandler() {
       @Override
       protected void handle() {
-        bodyBuf.offer(Const.END_OF_BODY);
+        bodyLatch.countDown();
       }
     });
   }
