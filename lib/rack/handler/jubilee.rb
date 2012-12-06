@@ -27,16 +27,7 @@ module Rack
 
         yield server if block_given?
 
-        begin
-          server.start
-          while true
-            sleep 1
-          end
-        rescue Interrupt
-          puts "* Gracefully stopping, waiting requests to finish"
-          server.stop
-          puts "* Goodbye!"
-        end
+        server.start
       end
     end
     register :jubilee, Jubilee
