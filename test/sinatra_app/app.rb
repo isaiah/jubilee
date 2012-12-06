@@ -3,7 +3,7 @@ require 'sinatra'
 
 class Vertx < Sinatra::Base
   get '/' do
-    "<h1>Hello Sinatra! #{params[:foo]}</h1>"
+    "<h1>Hello Sinatra!</h1>"
   end
 
   post "/home/test" do
