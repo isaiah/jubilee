@@ -16,7 +16,7 @@ public final class Const {
   public static final int DEFAULT_PORT = 3001;
 
 
-  public static final String JUBILEE_VERSION = "0.0.1";
+  public static final String JUBILEE_VERSION = "0.1.0";
   public static final String VERSION = "0.0.1";
   public static final String HTTP_11 = "HTTP/1.1";
   public static final String HTTP_10 = "HTTP/1.0";

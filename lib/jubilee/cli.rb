@@ -23,14 +23,14 @@ module Jubilee
       @config.load
       server = Jubilee::Server.new(@config.app, {port: @config.port, ssl: @config.ssl})
       server.start
-      puts "Jubilee start is listening on port #{@config.port}, press Ctrl+C to quit"
-      while true
-        begin
-          sleep 1
-        rescue Interrupt
-          puts "* Bye!"
-          server.stop
-        end
+      puts "Jubilee is listening on port #{@config.port}, press Ctrl+C to quit"
+      starter = org.jruby.jubilee.deploy.Starter.new
+      begin
+        starter.block
+      rescue Interrupt
+        puts "* Bye!"
+        stop_latch.unblock
+        server.stop
       end
     end
 

@@ -4,7 +4,7 @@ module Jubilee
     DEFAULT_PORT = 3001
 
 
-    JUBILEE_VERSION = VERSION = "0.0.1".freeze
+    JUBILEE_VERSION = VERSION = "0.1.0".freeze
     HTTP_11 = "HTTP/1.1".freeze
     HTTP_10 = "HTTP/1.0".freeze
 
