@@ -3,22 +3,21 @@ Jubilee
 
 A fast rack server build upon [vertx](http://vertx.io)
 
+Issues
+----------
+
+* Long running request get reset, Thread pool execute time
+* Failed to serve uploaded images
+* Rack handler still need a latch
+
 Installation
 -----------
 
 ```gem install jubilee```
 
-
-Features
------------
-
-* SSL
-* Chunked body
-
 TODO
 ----------
 
-* Send file
 * EventBus
 * WebSocket [need test]
 

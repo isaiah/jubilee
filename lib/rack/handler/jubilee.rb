@@ -20,14 +20,22 @@ module Rack
           ENV["RACK_ENV"] = options[:environment].to_s
         end
 
-        server = ::Jubilee::Server.new(app, options)
+        @server = ::Jubilee::Server.new(app, options)
 
         puts "Jubilee starting..."
         puts "Environment: #{ENV['RACK_ENV']}"
 
-        yield server if block_given?
+        yield @server if block_given?
 
-        server.start
+        @server.start
+        @starter = org.jruby.jubilee.deploy.Starter.new
+        @starter.block
+      end
+
+      def self.shutdown
+        @stater.unblock
+        @server.stop
+        @server = nil
       end
     end
     register :jubilee, Jubilee

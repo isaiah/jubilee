@@ -52,7 +52,7 @@ public class RackApplication {
         response.respond(request.response);
       }
     };
-    exec.submit(task);
+    exec.execute(task);
     request.endHandler(new SimpleHandler() {
       @Override
       protected void handle() {

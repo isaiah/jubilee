@@ -49,7 +49,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
     // Parse request headers
     Map<String, String> headers = request.headers();
     String host;
-    if ((host = headers.get(Const.HTTP_HOST)) != null) {
+    if ((host = headers.get(Const.HOST)) != null) {
       int colon = host.indexOf(":");
       if (colon > 0) {
         env.put(Const.SERVER_NAME, host.substring(0, colon));
@@ -69,7 +69,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
     env.put(Const.REQUEST_PATH, request.path);
     env.put(Const.REQUEST_URI, request.uri);
     env.put(Const.QUERY_STRING, orEmpty(request.query));
-    env.put(Const.HTTP_HOST, headers.get("host"));
+    env.put(Const.HTTP_HOST, host);
     env.put(Const.HTTP_COOKIE, orEmpty(headers.get("cookie")));
     env.put(Const.HTTP_USER_AGENT, headers.get("user-agent"));
     env.put(Const.HTTP_ACCEPT, headers.get("accept"));

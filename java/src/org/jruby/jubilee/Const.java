@@ -12,9 +12,6 @@ import org.jruby.runtime.builtin.IRubyObject;
  * Time: 11:45 AM
  */
 public final class Const {
-  public static final String DEFAULT_HOST = "localhost";
-  public static final int DEFAULT_PORT = 3001;
-
 
   public static final String JUBILEE_VERSION = "0.1.0";
   public static final String VERSION = "0.0.1";
@@ -58,6 +55,7 @@ public final class Const {
     return version;
   }
 
+  public static final String HOST = "host";
   public static final String HTTP = "http";
   public static final String HTTPS = "https";
   public static final String URL_SCHEME = "rack.url_scheme";
