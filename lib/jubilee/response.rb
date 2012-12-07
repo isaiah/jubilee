@@ -25,10 +25,14 @@ module Jubilee
     end
 
     def respond(response)
-      write_status(response)
-      write_headers(response)
-      write_body(response)
-      response.end
+      if @body.respond_to?(:to_path)
+        response.sendFile(@body.to_path)
+      else
+        write_status(response)
+        write_headers(response)
+        write_body(response)
+        response.end
+      end
     ensure
       @body.close if @body.respond_to?(:close)
     end
