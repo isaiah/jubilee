@@ -38,12 +38,12 @@ module Jubilee
         environment: "development"
       }
       @parser = OptionParser.new do |o|
-        o.on "-c", "--config PATH", "Load PATH as a config file" do |arg|
-          @options[:config_file] = arg
-        end
-        o.on "-d", "--daemon", "Daemonize the server" do
-          @options[:daemon] = true
-        end
+        #o.on "-c", "--config PATH", "Load PATH as a config file" do |arg|
+        #  @options[:config_file] = arg
+        #end
+        #o.on "-d", "--daemon", "Daemonize the server" do
+        #  @options[:daemon] = true
+        #end
         o.on "--dir DIR", "Change to DIR before starting" do |arg|
           @options[:chdir] = arg
         end
