@@ -32,6 +32,7 @@ class TestPersistent < MiniTest::Unit::TestCase
 
   def teardown
     @client.close
+    sleep 0.1 # in case server shutdown before request is submitted
     @server.stop
   end
 
@@ -212,8 +213,10 @@ class TestPersistent < MiniTest::Unit::TestCase
     assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
     assert_equal "Hello", @client.read(5)
 
-    assert_kind_of Jubilee::NullIO, @inputs[0]
-    assert_kind_of Jubilee::NullIO, @inputs[1]
+    # Since rack process request before the body is ready, we cannot
+    # utilize this optimization
+    # assert_kind_of Jubilee::NullIO, @inputs[0]
+    # assert_kind_of Jubilee::NullIO, @inputs[1]
   end
 
   def test_keepalive_doesnt_starve_clients

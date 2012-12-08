@@ -1,7 +1,5 @@
 package org.jruby.jubilee.deploy;
 
-import org.jruby.jubilee.Server;
-
 import java.util.concurrent.CountDownLatch;
 
 /**

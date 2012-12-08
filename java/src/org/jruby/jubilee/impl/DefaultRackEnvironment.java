@@ -38,11 +38,6 @@ public class DefaultRackEnvironment implements RackEnvironment {
       env.put(Const.URL_SCHEME, Const.HTTP);
     env.put(Const.SCRIPT_NAME, "");
 
-    // Rack blows up if this is an empty string, and Rack::Lint
-    // blows up if it's nil. So 'text/plain' seems like the most
-    // sensible default value.
-    //env.put(Const.HTTP_CONTENT_TYPE, "text/plain");
-
     env.put(Const.SERVER_PROTOCOL, Const.HTTP_11);
     env.put(Const.SERVER_SOFTWARE, Const.JUBILEE_VERSION);
     env.put(Const.GATEWAY_INTERFACE, Const.CGI_VER);

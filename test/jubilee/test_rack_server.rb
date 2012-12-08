@@ -110,11 +110,7 @@ class TestRackServer < MiniTest::Unit::TestCase
 
     #Net::HTTP.post_form URI.parse('http://127.0.0.1:3215/test'), { "foo" => "bar" }
 
-    require 'pp'
     request = Rack::Request.new input
-    puts "======="
-    pp request.params
-    puts "======="
     assert_equal "bar", request.params["foo"]
   end
 end

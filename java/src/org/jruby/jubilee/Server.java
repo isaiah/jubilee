@@ -69,27 +69,30 @@ public class Server extends RubyObject {
   /**
    * Set timeout for keep alive connection
    * @param context
-   * @param timeout (in TimeUnit.MILLISECONDS)
+   * @param timeout (in TimeUnit.SECONDS)
    * @return this
    */
   @JRubyMethod(name = "persistent_timeout=")
   public IRubyObject setPersistentTimeout(final ThreadContext context, final IRubyObject timeout) {
-    httpServer.setPersistentTimeout(RubyInteger.fix2long(timeout));
+    httpServer.setPersistentTimeout(RubyInteger.fix2long(timeout) * 1000);
     return this;
   }
 
   /**
    * Stop the HttpServer
    * @param context
-   * @param now if shutdown abruptly
+   * @param args if shutdown abruptly
    * @param block callback on close
    * @return
    */
   @JRubyMethod(name = {"stop", "close"}, optional = 1)
-  public IRubyObject close(ThreadContext context, IRubyObject now, Block block) {
+  public IRubyObject close(ThreadContext context, IRubyObject[] args, Block block) {
     if (running) {
-      // TODO graceful shutdown
-      app.shutdown();
+      if (args.length == 1)
+        app.shutdown(args[0].isTrue());
+      else
+        app.shutdown(false);
+
       this.running = false;
       httpServer.close();
       if (block.isGiven()) block.yieldSpecific(context);

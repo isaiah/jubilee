@@ -30,6 +30,8 @@ Fixed
 * Failed to serve uploaded images. Fixed by use vertx sendfile
 * Rack handler still need a latch. Fixed by execute a unblock hook in
   server#stop
+* If-Modified-Since doesn't work. All headers were added.
+
 
 Installation
 -----------
@@ -45,7 +47,7 @@ Get request for test/sinatra_app
 Got rival performance as puma.
 (ab -c 20 -n 10000)
 
-jubilee: 1493rps after warm
+jubilee: 1750rps after warm
 puma: 1327rps after warm
 
 unicorn (worker 10): 1440rps

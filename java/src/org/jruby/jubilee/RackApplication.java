@@ -61,7 +61,10 @@ public class RackApplication {
     });
   }
 
-  public void shutdown() {
-    exec.shutdown();
+  public void shutdown(boolean force) {
+    if (force)
+      exec.shutdownNow();
+    else
+      exec.shutdown();
   }
 }
