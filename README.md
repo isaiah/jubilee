@@ -3,7 +3,7 @@ Jubilee
 
 A fast rack server build upon [vertx](http://vertx.io)
 
-Issues
+Known Issues
 ----------
 
 * Direct use of HttpServerResponse object in Ruby Response class is
@@ -15,7 +15,7 @@ TODO
 
 * Daemon mode
 * Try non-block IO
-* site
+* Site(WIP)
 * benchmark: Get, static file, post
 
 * EventBus
@@ -24,11 +24,11 @@ TODO
 Fixed
 -----------
 
-* Long running request get reset, connection timeout. Fix by increase
-  connection timeout from 5 seconds to 10 seconds, cannot be higher, or
-  it just doesn't respond on first request.  donno why.
+* Long running request get reset, as connection timed out. Fix by increase
+  default connection timeout from 5 seconds to 10 seconds, cannot be higher, or
+  it just doesn't respond.  donno why.
 * Failed to serve uploaded images. Fixed by use vertx sendfile
-* Rack handler still need a latch. Fixed by execute a hook in
+* Rack handler still need a latch. Fixed by execute a unblock hook in
   server#stop
 
 Installation

@@ -1,6 +1,7 @@
 source :rubygems
 
 gem 'rack'
+gem 'spoon'
 
 group :development do
   gem 'jeweler'
@@ -11,5 +12,5 @@ group :test do
   gem 'guard-minitest'
   gem 'multipart-post'
   gem 'pry'
+  gem 'rcov'
 end
-gem 'rcov'

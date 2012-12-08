@@ -45,3 +45,4 @@ DEPENDENCIES
   pry
   rack
   rcov
+  spoon

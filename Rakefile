@@ -42,13 +42,13 @@ end
 
 task :test => :jar
 
-require 'rcov/rcovtask'
-Rcov::RcovTask.new do |test|
-  test.libs << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
-  test.rcov_opts << '--exclude "gems/*"'
-end
+#require 'rcov/rcovtask'
+#Rcov::RcovTask.new do |test|
+#  test.libs << 'test'
+#  test.pattern = 'test/**/test_*.rb'
+#  test.verbose = true
+#  test.rcov_opts << '--exclude "gems/*"'
+#end
 
 task :default => :test
 
@@ -74,7 +74,7 @@ end
 
 BUILDTIME_LIB_DIR = File.join(File.dirname(__FILE__), "jars")
 
-desc "Compile the extension, need jdk7 before vertx relies on it"
+desc "Compile the extension, need jdk7 because vertx relies on it"
 task :compile => "pkg/classes" do |t|
   ant.javac :srcdir => "java", :destdir => t.prerequisites.first,
     :source => "1.7", :target => "1.7", :debug => true,
