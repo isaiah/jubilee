@@ -2,8 +2,9 @@ package org.jruby.jubilee;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
-import org.jruby.RubyString;
-import org.jruby.runtime.builtin.IRubyObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,7 +14,7 @@ import org.jruby.runtime.builtin.IRubyObject;
  */
 public final class Const {
 
-  public static final String JUBILEE_VERSION = "0.1.0";
+  public static final String JUBILEE_VERSION = "Jubilee 0.1.0";
   public static final String HTTP_11 = "HTTP/1.1";
   public static final String HTTP_10 = "HTTP/1.0";
 
@@ -48,7 +49,19 @@ public final class Const {
   public static final String HTTP_CONTENT_LENGTH = "CONTENT_LENGTH";
 
   public static class Rack {
+    public static final String HTTP_DATE = "HTTP_DATE";
+    public static final String HTTP_EXPECT = "HTTP_EXPECT";
+    public static final String HTTP_IF_MATCH = "HTTP_IF_MATCH";
     public static final String HTTP_IF_MODIFIED_SINCE = "HTTP_IF_MODIFIED_SINCE";
+    public static final String HTTP_IF_NONE_MATCH = "HTTP_IF_NONE_MATCH";
+    public static final String HTTP_IF_RANGE = "HTTP_IF_RANGE";
+    public static final String HTTP_IF_UNMODIFIED_SINCE = "HTTP_IF_UNMODIFIED_SINCE";
+    public static final String HTTP_RANGE = "HTTP_RANGE";
+    public static final String HTTP_PRAGMA = "HTTP_PRAGMA";
+    public static final String HTTP_MAX_FORWARDS = "HTTP_MAX_FORWARDS";
+    public static final String HTTP_REFERER = "HTTP_REFERER";
+    public static final String HTTP_VIA = "HTTP_VIA";
+    public static final String HTTP_WARNING = "HTTP_WARNING";
   }
 
   public static class Vertx {
@@ -63,7 +76,37 @@ public final class Const {
     public static final String CONTENT_LENGTH = "content-length";
     public static final String HOST = "host";
 
+    public static final String DATE = "date";
+    public static final String EXPECT = "expect";
+    public static final String IF_MATCH = "if-match";
     public static final String IF_MODIFIED_SINCE = "if-modified-since";
+    public static final String IF_NONE_MATCH = "if-none-match";
+    public static final String IF_RANGE = "if-range";
+    public static final String IF_UNMODIFIED_SINCE = "if-unmodified-since";
+    public static final String RANGE = "range";
+    public static final String PRAGMA = "pragma";
+    public static final String MAX_FORWARDS = "max-forwards";
+    public static final String REFERER = "referer";
+    public static final String VIA = "via";
+    public static final String WARNING = "warning";
+  }
+
+  public static Map<String, String> ADDITIONAL_HEADERS = new HashMap<String, String>();
+
+  static {
+    ADDITIONAL_HEADERS.put(Vertx.DATE, Rack.HTTP_DATE);
+    ADDITIONAL_HEADERS.put(Vertx.EXPECT, Rack.HTTP_EXPECT);
+    ADDITIONAL_HEADERS.put(Vertx.IF_MATCH, Rack.HTTP_IF_MATCH);
+    ADDITIONAL_HEADERS.put(Vertx.IF_MODIFIED_SINCE, Rack.HTTP_IF_MODIFIED_SINCE);
+    ADDITIONAL_HEADERS.put(Vertx.IF_NONE_MATCH, Rack.HTTP_IF_NONE_MATCH);
+    ADDITIONAL_HEADERS.put(Vertx.IF_RANGE, Rack.HTTP_IF_RANGE);
+    ADDITIONAL_HEADERS.put(Vertx.IF_UNMODIFIED_SINCE, Rack.HTTP_IF_UNMODIFIED_SINCE);
+    ADDITIONAL_HEADERS.put(Vertx.RANGE, Rack.HTTP_RANGE);
+    ADDITIONAL_HEADERS.put(Vertx.PRAGMA, Rack.HTTP_PRAGMA);
+    ADDITIONAL_HEADERS.put(Vertx.MAX_FORWARDS, Rack.HTTP_MAX_FORWARDS);
+    ADDITIONAL_HEADERS.put(Vertx.REFERER, Rack.HTTP_REFERER);
+    ADDITIONAL_HEADERS.put(Vertx.VIA, Rack.HTTP_VIA);
+    ADDITIONAL_HEADERS.put(Vertx.WARNING, Rack.HTTP_WARNING);
   }
 
   public static RubyArray RackVersion(Ruby runtime) {
@@ -82,6 +125,7 @@ public final class Const {
   public static final String RACK_MULTIPROCESS = "rack.multiprocess";
   public static final String RACK_RUNONCE = "rack.run_once";
   public static final String SCRIPT_NAME = "SCRIPT_NAME";
+
   private Const() {
   }
 

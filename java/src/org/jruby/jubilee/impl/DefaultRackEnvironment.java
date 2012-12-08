@@ -84,9 +84,8 @@ public class DefaultRackEnvironment implements RackEnvironment {
     env.put(Const.PATH_INFO, request.path);
 
     // Additional headers
-
-    //String[] additionalHeaders = new String[10];
-    setRackHeader(Const.Vertx.IF_MODIFIED_SINCE, Const.Rack.HTTP_IF_MODIFIED_SINCE);
+    for (Map.Entry<String, String> var : Const.ADDITIONAL_HEADERS.entrySet())
+      setRackHeader(var.getKey(), var.getValue());
   }
 
   public RubyHash getEnv() {
