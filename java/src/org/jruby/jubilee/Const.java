@@ -62,6 +62,10 @@ public final class Const {
     public static final String HTTP_REFERER = "HTTP_REFERER";
     public static final String HTTP_VIA = "HTTP_VIA";
     public static final String HTTP_WARNING = "HTTP_WARNING";
+
+    public static final String HTTP_X_REQUESTED_WITH = "HTTP_X_REQUESTED_WITH"; // xhr
+    public static final String HTTP_DNT = "HTTP_DNT"; // do-not-track
+    public static final String HTTP_X_FORWARDED_FOR = "HTTP_X_FORWARDED_FOR"; // original ip
   }
 
   public static class Vertx {
@@ -89,6 +93,11 @@ public final class Const {
     public static final String REFERER = "referer";
     public static final String VIA = "via";
     public static final String WARNING = "warning";
+
+    // Non-standard request headers http://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Common_non-standard_request_headers
+    public static final String X_REQUESTED_WITH = "x-requested-with"; // xhr
+    public static final String DNT = "dnt"; // do-not-track
+    public static final String X_FORWARDED_FOR = "x-forwarded-for"; // original ip
   }
 
   public static Map<String, String> ADDITIONAL_HEADERS = new HashMap<String, String>();
@@ -107,6 +116,9 @@ public final class Const {
     ADDITIONAL_HEADERS.put(Vertx.REFERER, Rack.HTTP_REFERER);
     ADDITIONAL_HEADERS.put(Vertx.VIA, Rack.HTTP_VIA);
     ADDITIONAL_HEADERS.put(Vertx.WARNING, Rack.HTTP_WARNING);
+    ADDITIONAL_HEADERS.put(Vertx.X_REQUESTED_WITH, Rack.HTTP_X_REQUESTED_WITH);
+    ADDITIONAL_HEADERS.put(Vertx.DNT, Rack.HTTP_DNT);
+    ADDITIONAL_HEADERS.put(Vertx.X_FORWARDED_FOR, Rack.HTTP_X_FORWARDED_FOR);
   }
 
   public static RubyArray RackVersion(Ruby runtime) {
