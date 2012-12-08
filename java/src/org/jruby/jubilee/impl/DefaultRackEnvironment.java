@@ -19,6 +19,7 @@ import java.util.Map;
  */
 public class DefaultRackEnvironment implements RackEnvironment {
   private RubyHash env;
+  private  Map<String, String> headers;
   private Ruby runtime;
 
   public DefaultRackEnvironment(final Ruby runtime, final HttpServerRequest request, RackInput input, boolean isSSL) {
@@ -47,9 +48,9 @@ public class DefaultRackEnvironment implements RackEnvironment {
     env.put(Const.GATEWAY_INTERFACE, Const.CGI_VER);
 
     // Parse request headers
-    Map<String, String> headers = request.headers();
+    headers = request.headers();
     String host;
-    if ((host = headers.get(Const.HOST)) != null) {
+    if ((host = headers.get(Const.Vertx.HOST)) != null) {
       int colon = host.indexOf(":");
       if (colon > 0) {
         env.put(Const.SERVER_NAME, host.substring(0, colon));
@@ -70,17 +71,22 @@ public class DefaultRackEnvironment implements RackEnvironment {
     env.put(Const.REQUEST_URI, request.uri);
     env.put(Const.QUERY_STRING, orEmpty(request.query));
     env.put(Const.HTTP_HOST, host);
-    env.put(Const.HTTP_COOKIE, orEmpty(headers.get("cookie")));
-    env.put(Const.HTTP_USER_AGENT, headers.get("user-agent"));
-    env.put(Const.HTTP_ACCEPT, headers.get("accept"));
-    env.put(Const.HTTP_ACCEPT_LANGUAGE, orEmpty(headers.get("accept-language")));
-    env.put(Const.HTTP_ACCEPT_ENCODING, orEmpty(headers.get("accept-encoding")));
-    env.put(Const.HTTP_CONNECTION, orEmpty(headers.get("connection")));
-    env.put(Const.HTTP_CONTENT_TYPE, orEmpty(headers.get("content-type")));
+    env.put(Const.HTTP_COOKIE, orEmpty(headers.get(Const.Vertx.COOKIE)));
+    env.put(Const.HTTP_USER_AGENT, headers.get(Const.Vertx.USER_AGENT));
+    env.put(Const.HTTP_ACCEPT, headers.get(Const.Vertx.ACCEPT));
+    env.put(Const.HTTP_ACCEPT_LANGUAGE, orEmpty(headers.get(Const.Vertx.ACCEPT_LANGUAGE)));
+    env.put(Const.HTTP_ACCEPT_ENCODING, orEmpty(headers.get(Const.Vertx.ACCEPT_ENCODING)));
+    env.put(Const.HTTP_CONNECTION, orEmpty(headers.get(Const.Vertx.CONNECTION)));
+    env.put(Const.HTTP_CONTENT_TYPE, orEmpty(headers.get(Const.Vertx.CONTENT_TYPE)));
     String contentLength;
-    if ((contentLength = headers.get("content-length")) != null)
+    if ((contentLength = headers.get(Const.Vertx.CONTENT_LENGTH)) != null)
       env.put(Const.HTTP_CONTENT_LENGTH, contentLength);
     env.put(Const.PATH_INFO, request.path);
+
+    // Additional headers
+
+    //String[] additionalHeaders = new String[10];
+    setRackHeader(Const.Vertx.IF_MODIFIED_SINCE, Const.Rack.HTTP_IF_MODIFIED_SINCE);
   }
 
   public RubyHash getEnv() {
@@ -89,5 +95,9 @@ public class DefaultRackEnvironment implements RackEnvironment {
 
   private RubyString orEmpty(String jString) {
     return jString == null ? RubyString.newEmptyString(runtime) : RubyString.newString(runtime, jString);
+  }
+
+  private void setRackHeader(String vertxHeader, String rackHeader) {
+    if (headers.containsKey(vertxHeader)) env.put(rackHeader, headers.get(vertxHeader));
   }
 }

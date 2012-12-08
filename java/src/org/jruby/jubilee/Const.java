@@ -14,7 +14,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 public final class Const {
 
   public static final String JUBILEE_VERSION = "0.1.0";
-  public static final String VERSION = "0.0.1";
   public static final String HTTP_11 = "HTTP/1.1";
   public static final String HTTP_10 = "HTTP/1.0";
 
@@ -48,14 +47,32 @@ public final class Const {
   public static final String HTTP_CONTENT_TYPE = "CONTENT_TYPE";
   public static final String HTTP_CONTENT_LENGTH = "CONTENT_LENGTH";
 
+  public static class Rack {
+    public static final String HTTP_IF_MODIFIED_SINCE = "HTTP_IF_MODIFIED_SINCE";
+  }
+
+  public static class Vertx {
+    // all lower case since vertx has converted them
+    public static final String COOKIE = "cookie";
+    public static final String USER_AGENT = "user-agent";
+    public static final String ACCEPT = "accept";
+    public static final String ACCEPT_LANGUAGE = "accept-language";
+    public static final String ACCEPT_ENCODING = "accept-encoding";
+    public static final String CONNECTION = "connection";
+    public static final String CONTENT_TYPE = "content-type";
+    public static final String CONTENT_LENGTH = "content-length";
+    public static final String HOST = "host";
+
+    public static final String IF_MODIFIED_SINCE = "if-modified-since";
+  }
+
   public static RubyArray RackVersion(Ruby runtime) {
     RubyArray version = RubyArray.newArray(runtime, 2);
     version.add("1");
-    version.add("1");
+    version.add("4");
     return version;
   }
 
-  public static final String HOST = "host";
   public static final String HTTP = "http";
   public static final String HTTPS = "https";
   public static final String URL_SCHEME = "rack.url_scheme";

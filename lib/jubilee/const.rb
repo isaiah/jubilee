@@ -1,9 +1,5 @@
 module Jubilee
   module Const
-    DEFAULT_HOST = 'localhost'
-    DEFAULT_PORT = 3001
-
-
     JUBILEE_VERSION = VERSION = "0.1.0".freeze
     HTTP_11 = "HTTP/1.1".freeze
     HTTP_10 = "HTTP/1.0".freeze
@@ -37,5 +33,7 @@ module Jubilee
     HTTP_ACCEPT_LANGUAGE = "HTTP_ACCEPT_LANGUAGE".freeze
     HTTP_ACCEPT_ENCODING = "HTTP_ACCEPT_ENCODING".freeze
     HTTP_CONNECTION = "HTTP_CONNECTION".freeze
+
+    STATUS_WITH_NO_ENTITY_BODY = Hash[Rack::Utils::STATUS_WITH_NO_ENTITY_BODY.map{|s| [s, true]}]
   end
 end
