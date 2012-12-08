@@ -12,12 +12,5 @@ import java.util.Map;
  * Time: 5:39 PM
  */
 public interface RackResponse {
-
-    public int getStatus();
-
-    public Map<String, String> getHeaders();
-
-    public String getBody();
-
     public void respond(HttpServerResponse response);
 }

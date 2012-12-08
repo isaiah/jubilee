@@ -12,18 +12,6 @@ module Jubilee
       end
     end
 
-    def getStatus
-      @status
-    end
-
-    def getHeaders
-      @headers
-    end
-
-    def getBody
-      @body
-    end
-
     def respond(response)
       no_body = @status < 200 || STATUS_WITH_NO_ENTITY_BODY[@status]
       write_status(response)
