@@ -65,6 +65,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
     env.put(Const.REQUEST_PATH, request.path);
     env.put(Const.REQUEST_URI, request.uri);
     env.put(Const.QUERY_STRING, orEmpty(request.query));
+    env.put(Const.REMOTE_ADDR, request.remoteAddr);
     env.put(Const.HTTP_HOST, host);
     env.put(Const.HTTP_COOKIE, orEmpty(headers.get(Const.Vertx.COOKIE)));
     env.put(Const.HTTP_USER_AGENT, headers.get(Const.Vertx.USER_AGENT));

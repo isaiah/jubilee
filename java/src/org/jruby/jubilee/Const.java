@@ -38,6 +38,7 @@ public final class Const {
   public static final String LOCALHOST = "localhost";
   public static final String PORT_80 = "80";
 
+  public static final String REMOTE_ADDR = "REMOTE_ADDR";
   public static final String HTTP_HOST = "HTTP_HOST";
   public static final String HTTP_USER_AGENT = "HTTP_USER_AGENT";
   public static final String HTTP_ACCEPT = "HTTP_ACCEPT";
