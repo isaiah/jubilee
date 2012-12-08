@@ -6,20 +6,35 @@ A fast rack server build upon [vertx](http://vertx.io)
 Issues
 ----------
 
-* Long running request get reset, Thread pool execute time
-* Failed to serve uploaded images
-* Rack handler still need a latch
+* Direct use of HttpServerResponse object in Ruby Response class is
+  potentially slow. see [Improving Java Integration
+  Performance](https://github.com/jruby/jruby/wiki/ImprovingJavaIntegrationPerformance)
+
+TODO
+----------
+
+* Daemon mode
+* Try non-block IO
+* site
+* benchmark: Get, static file, post
+
+* EventBus
+* WebSocket [need test]
+
+Fixed
+-----------
+
+* Long running request get reset, connection timeout. Fix by increase
+  connection timeout from 5 seconds to 10 seconds, cannot be higher, or
+  it just doesn't respond on first request.  donno why.
+* Failed to serve uploaded images. Fixed by use vertx sendfile
+* Rack handler still need a latch. Fixed by execute a hook in
+  server#stop
 
 Installation
 -----------
 
 ```gem install jubilee```
-
-TODO
-----------
-
-* EventBus
-* WebSocket [need test]
 
 Performance
 ===========
