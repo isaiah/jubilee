@@ -1,5 +1,6 @@
 require 'rack/handler'
 require 'jubilee'
+require 'java'
 
 module Rack
   module Handler
@@ -33,9 +34,8 @@ module Rack
       end
 
       def self.shutdown
-        @stater.unblock
-        @server.stop
-        @server = nil
+        @server.stop{ @starter.unblock }
+        exit
       end
     end
     register :jubilee, Jubilee

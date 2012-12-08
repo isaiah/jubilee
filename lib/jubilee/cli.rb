@@ -1,5 +1,6 @@
 require 'optparse'
 require 'jubilee'
+require 'java'
 
 module Jubilee
   class CLI
@@ -25,13 +26,7 @@ module Jubilee
       server.start
       puts "Jubilee is listening on port #{@config.port}, press Ctrl+C to quit"
       starter = org.jruby.jubilee.deploy.Starter.new
-      begin
-        starter.block
-      rescue Interrupt
-        puts "* Bye!"
-        stop_latch.unblock
-        server.stop
-      end
+      starter.block
     end
 
     def setup_options

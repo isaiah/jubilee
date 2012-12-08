@@ -1,6 +1,5 @@
 package org.jruby.jubilee;
 
-
 import org.vertx.java.core.*;
 import org.vertx.java.core.http.*;
 
@@ -74,14 +73,15 @@ public class Server extends RubyObject {
   }
 
   @JRubyMethod(name = {"stop", "close"}, optional = 1)
-  public IRubyObject close(ThreadContext context, IRubyObject now) {
+  public IRubyObject close(ThreadContext context, IRubyObject now, Block block) {
     if (running) {
       // TODO graceful shutdown
       app.shutdown();
       this.running = false;
       httpServer.close();
+      if (block.isGiven()) block.yieldSpecific(context);
     } else {
-      getRuntime().getOutputStream().println("not running?");
+      getRuntime().getOutputStream().println("jubilee server not running?");
     }
     return getRuntime().getNil();
   }

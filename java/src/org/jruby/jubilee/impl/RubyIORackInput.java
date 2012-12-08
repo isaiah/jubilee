@@ -12,6 +12,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.buffer.Buffer;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created with IntelliJ IDEA.
@@ -58,8 +59,9 @@ public class RubyIORackInput extends RubyObject implements RackInput {
   @Override
   @JRubyMethod
   public IRubyObject gets(ThreadContext context) {
+    // TODO this is not the optimistic way. remove the latch and implement tee_input as unicorn
     try {
-      bodyLatch.await();
+      bodyLatch.await(10, TimeUnit.SECONDS);
     } catch (InterruptedException ignore) {
       return getRuntime().getNil();
     }
@@ -72,7 +74,6 @@ public class RubyIORackInput extends RubyObject implements RackInput {
       buf.readBytes(dst, 0, readLength + 1);
       return RubyString.newString(getRuntime(), dst);
     }
-    // TODO this is not true;
     return getRuntime().getNil();
   }
 
@@ -94,7 +95,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
   @JRubyMethod(optional = 2)
   public IRubyObject read(ThreadContext context, IRubyObject[] args) {
     try {
-      bodyLatch.await();
+      bodyLatch.await(10, TimeUnit.SECONDS);
     } catch (InterruptedException ignore) {
       return getRuntime().getNil();
     }
