@@ -3,23 +3,16 @@ Jubilee
 
 A fast rack server build upon [vertx](http://vertx.io)
 
-Known Issues
-----------
-
-* Direct use of HttpServerResponse object in Ruby Response class is
-  potentially slow. see [Improving Java Integration
-  Performance](https://github.com/jruby/jruby/wiki/ImprovingJavaIntegrationPerformance)
-
 TODO
 ----------
 
-* Daemon mode
-* Try non-block IO
+* Daemon mode (WIP)
+* [TeeInput](https://github.com/defunkt/unicorn/blob/master/lib/unicorn/tee_input.rb)
 * Site(WIP)
 * benchmark: Get, static file, post
 
 * EventBus
-* WebSocket [need test]
+* WebSocket 
 
 Fixed
 -----------
@@ -52,10 +45,20 @@ puma: 1327rps after warm
 
 unicorn (worker 10): 1440rps
 
-Serve static file
------------
-
 Requirement
 ===========
 
 JRuby '~> 1.7.0'
+
+License
+========
+
+The same as JRuby and vertx
+
+
+Kudos
+========
+
+Inspired by [this
+post](http://blog.jayfields.com/2012/05/how-i-open-source.html), I
+decide to release it early
