@@ -1,6 +1,6 @@
 source :rubygems
 
-gem 'rack'
+gem 'rack', '~> 1.4.1'
 gem 'spoon'
 
 group :development do
