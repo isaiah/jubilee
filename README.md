@@ -36,12 +36,9 @@ Performance
 
 Get request for test/sinatra_app
 -----------
-
-Got rival performance as puma.
 (ab -c 20 -n 10000)
 
-jubilee: 1750rps after warm
-puma: 1327rps after warm
+1750rps after warm
 
 unicorn (worker 10): 1440rps
 
