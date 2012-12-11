@@ -32,29 +32,29 @@ Installation
 ```gem install jubilee```
 
 Performance
-===========
-
-Get request for test/sinatra_app
 -----------
-(ab -c 20 -n 10000)
+
+Get request for [sinatra test app](https://github.com/isaiah/jubilee/tree/master/test/sinatra_app):
+
+with ```ab -c 20 -n 10000```
 
 1750rps after warm
 
 unicorn (worker 10): 1440rps
 
 Requirement
-===========
+-----------
 
 JRuby '~> 1.7.0'
 
 License
-========
+--------
 
 The same as JRuby and vertx
 
 
 Kudos
-========
+--------
 
 Inspired by [this
 post](http://blog.jayfields.com/2012/05/how-i-open-source.html), I
