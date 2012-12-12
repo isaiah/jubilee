@@ -22,7 +22,7 @@ module Jubilee
       parse_options
       @config = Jubilee::Configuration.new(@options)
       @config.load
-      server = Jubilee::Server.new(@config.app, {port: @config.port, ssl: @config.ssl})
+      server = Jubilee::Server.new(@config.app, {port: @config.port, ssl: @config.ssl, keystore_path: @config.keystore_path, keystore_password: @config.keystore_password})
       server.start
       puts "Jubilee is listening on port #{@config.port}, press Ctrl+C to quit"
       starter = org.jruby.jubilee.deploy.Starter.new
@@ -38,6 +38,9 @@ module Jubilee
         environment: "development"
       }
       @parser = OptionParser.new do |o|
+        o.separator ""
+        o.separator "Server options:"
+
         #o.on "-c", "--config PATH", "Load PATH as a config file" do |arg|
         #  @options[:config_file] = arg
         #end
@@ -50,14 +53,24 @@ module Jubilee
         o.on "-p", "--port PORT", "Defind which PORT the server should bind" do |arg|
           @options[:port] = arg
         end
+        o.on "-e", "--environment ENV", "Rack environment" do |arg|
+          @options[:environment] = arg
+        end
+        o.separator ""
+        o.separator "SSL options:"
         o.on "--ssl", "Enable SSL connection" do 
           @options[:ssl] = true
         end
+        o.on "--ssl-keystore PATH", "SSL keystore path" do |arg|
+          @options[:keystore_path] = arg
+        end
+        o.on "--ssl-password PASS", "SSL keystore password" do |arg|
+          @options[:keystore_password] = arg
+        end
+        o.separator ""
+        o.separator "Common options:"
         o.on "--verbose", "Log low level debug information" do
           @options[:debug] = true
-        end
-        o.on "-e", "--environment ENV", "Rack environment" do |arg|
-          @options[:environment] = arg
         end
         o.on "-q", "--quiet" do
           @options[:quiet] = true

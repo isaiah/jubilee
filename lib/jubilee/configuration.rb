@@ -25,11 +25,14 @@ module Jubilee
     def ssl
       @options[:ssl]
     end
+    
+    def keystore_path
+      @options[:keystore_path]
+    end
 
-    #def self.load(config)
-    #  rackup_code = ::File.read(config)
-    #  eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, config)
-    #end
+    def keystore_password
+      @options[:keystore_password]
+    end
 
     private
     def load_rack_adapter(options, &block)
@@ -45,7 +48,6 @@ module Jubilee
         end
       end
       app
-      #Rack::Lint.new(Rack::CommonLogger.new(app, STDOUT))
     end
 
   end

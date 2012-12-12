@@ -46,7 +46,7 @@ class TestJubileeServer < MiniTest::Unit::TestCase
   def test_url_scheme_for_https
     app = lambda { |env| [200, {}, [env['rack.url_scheme']]] }
     server = Jubilee::Server.new(app, {port:@port, ssl:true, 
-                                 keystore: File.join(File.dirname(__FILE__), "../../examples/jubilee/server-keystore.jks"),
+                                 keystore_path: File.join(File.dirname(__FILE__), "../../examples/jubilee/server-keystore.jks"),
     keystore_password: "wibble"})
     server.start
     http = Net::HTTP.new @host, @port
