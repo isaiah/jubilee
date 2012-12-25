@@ -68,6 +68,12 @@ module Jubilee
           @options[:keystore_password] = arg
         end
         o.separator ""
+        o.separator "Event bus options"
+        o.on "--eventbus PREFIX", "Event bus prefix" do |arg|
+          @options[:eventbus_prefix] = arg
+        end
+
+        o.separator ""
         o.separator "Common options:"
         o.on "--verbose", "Log low level debug information" do
           @options[:debug] = true

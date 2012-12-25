@@ -7,6 +7,8 @@ import org.jruby.*;
 import org.jruby.runtime.*;
 import org.jruby.runtime.builtin.*;
 import org.jruby.anno.JRubyMethod;
+import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 public class Server extends RubyObject {
   final private Vertx vertx;
@@ -16,6 +18,7 @@ public class Server extends RubyObject {
   private boolean ssl = false;
   private String keyStorePath;
   private String keyStorePassword;
+  private String eventBusPrefix;
   private int port;
 
   public static void createServerClass(Ruby runtime) {
@@ -36,23 +39,44 @@ public class Server extends RubyObject {
     httpServer = vertx.createHttpServer();
   }
 
-  @JRubyMethod(name = "initialize", required = 2, optional = 3)
-  public IRubyObject initialize(ThreadContext context, IRubyObject[] args, Block block) {
-    this.port = RubyInteger.num2int(args[1]);
-    if (args.length > 2) {
-      this.ssl = args[2].isTrue();
+  /**
+   * Initialize jubilee server, take a rack application and a configuration hash as parameter
+   * @param context
+   * @param args
+   * @param block
+   * @return
+   */
+  @JRubyMethod(name = "initialize")
+  public IRubyObject initialize(ThreadContext context, IRubyObject app, IRubyObject config, Block block) {
+    Ruby runtime = getRuntime();
+    RubyHash options = config.convertToHash();
+    RubySymbol port_k = runtime.newSymbol("port");
+    RubySymbol ssl_k = runtime.newSymbol("ssl");
+    RubySymbol keystore_path_k = runtime.newSymbol("keystore_path");
+    RubySymbol keystore_password_k = runtime.newSymbol("keystore_password");
+    RubySymbol eventbus_prefix_k = runtime.newSymbol("eventbus_prefix");
+    this.port = RubyInteger.num2int(options.op_aref(context, port_k));
+    this.ssl = options.op_aref(context, ssl_k).isTrue();
+    this.app = new RackApplication(app, this.ssl);
+    if (options.has_key_p(keystore_path_k).isTrue()) {
+      this.keyStorePath = options.op_aref(context, keystore_path_k).toString();
+      this.keyStorePassword = options.op_aref(context, keystore_password_k).toString();
     }
-    this.app = new RackApplication(args[0], this.ssl);
-    if (args.length > 3)
-      this.keyStorePath = args[3].toString();
-    if (args.length > 4)
-      this.keyStorePassword = args[4].toString();
+    if (options.has_key_p(eventbus_prefix_k).isTrue()) {
+      this.eventBusPrefix = options.op_aref(context, eventbus_prefix_k).toString();
+    }
     running = false;
     return this;
   }
 
-  @JRubyMethod(name = "start", optional = 1)
-  public IRubyObject start(final ThreadContext context, final IRubyObject[] args, final Block block) {
+  /**
+   * Start http server, initialize states
+   * @param context
+   * @param block
+   * @return
+   */
+  @JRubyMethod(name = "start")
+  public IRubyObject start(final ThreadContext context, final Block block) {
     this.running = true;
     httpServer.setAcceptBacklog(10000);
     httpServer.requestHandler(new Handler<HttpServerRequest>() {
@@ -60,6 +84,11 @@ public class Server extends RubyObject {
         app.call(req);
       }
     });
+    if (eventBusPrefix != null) {
+      JsonObject config = new JsonObject().putString("prefix", eventBusPrefix);
+      // TODO read inbounds and outbounds from config file
+      vertx.createSockJSServer(httpServer).bridge(config, new JsonArray(), new JsonArray());
+    }
     if (ssl) httpServer.setSSL(true).setKeyStorePath(this.keyStorePath)
             .setKeyStorePassword(this.keyStorePassword);
     httpServer.listen(this.port);
