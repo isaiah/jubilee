@@ -20,6 +20,7 @@ public class Server extends RubyObject {
   private String keyStorePassword;
   private String eventBusPrefix;
   private int port;
+  private String host;
 
   public static void createServerClass(Ruby runtime) {
     RubyModule mJubilee = runtime.defineModule("Jubilee");
@@ -50,12 +51,18 @@ public class Server extends RubyObject {
   public IRubyObject initialize(ThreadContext context, IRubyObject app, IRubyObject config, Block block) {
     Ruby runtime = getRuntime();
     RubyHash options = config.convertToHash();
-    RubySymbol port_k = runtime.newSymbol("port");
+    RubySymbol port_k = runtime.newSymbol("Port");
+    RubySymbol host_k = runtime.newSymbol("Host");
     RubySymbol ssl_k = runtime.newSymbol("ssl");
     RubySymbol keystore_path_k = runtime.newSymbol("keystore_path");
     RubySymbol keystore_password_k = runtime.newSymbol("keystore_password");
     RubySymbol eventbus_prefix_k = runtime.newSymbol("eventbus_prefix");
     this.port = RubyInteger.num2int(options.op_aref(context, port_k));
+    if (options.has_key_p(host_k).isTrue()) {
+        this.host = options.op_aref(context, host_k).toString();
+    } else {
+        this.host = "0.0.0.0";
+    }
     this.ssl = options.op_aref(context, ssl_k).isTrue();
     this.app = new RackApplication(app, this.ssl);
     if (options.has_key_p(keystore_path_k).isTrue()) {
@@ -91,7 +98,7 @@ public class Server extends RubyObject {
     }
     if (ssl) httpServer.setSSL(true).setKeyStorePath(this.keyStorePath)
             .setKeyStorePassword(this.keyStorePassword);
-    httpServer.listen(this.port);
+    httpServer.listen(this.port, this.host);
     return this;
   }
 

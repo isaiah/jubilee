@@ -22,7 +22,7 @@ module Jubilee
       parse_options
       @config = Jubilee::Configuration.new(@options)
       @config.load
-      server = Jubilee::Server.new(@config.app, {port: @config.port, ssl: @config.ssl, keystore_path: @config.keystore_path, keystore_password: @config.keystore_password})
+      server = Jubilee::Server.new(@config.app, @options)
       server.start
       puts "Jubilee is listening on port #{@config.port}, press Ctrl+C to quit"
       starter = org.jruby.jubilee.deploy.Starter.new
@@ -33,7 +33,7 @@ module Jubilee
       @options = {
         debug: false,
         daemon: false,
-        port: 3215,
+        Port: 3215,
         ssl: false,
         environment: "development"
       }
@@ -51,7 +51,10 @@ module Jubilee
           @options[:chdir] = arg
         end
         o.on "-p", "--port PORT", "Defind which PORT the server should bind" do |arg|
-          @options[:port] = arg
+          @options[:Port] = arg
+        end
+        o.on "--host HOST", "Defind which HOST the server should bind, default 0.0.0.0" do |arg|
+          @options[:Host] = arg
         end
         o.on "-e", "--environment ENV", "Rack environment" do |arg|
           @options[:environment] = arg

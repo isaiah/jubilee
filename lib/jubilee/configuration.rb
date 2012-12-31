@@ -19,7 +19,11 @@ module Jubilee
     end
 
     def port
-      @options[:port]
+      @options[:Port]
+    end
+
+    def host
+      @options[:Host]
     end
 
     def ssl
