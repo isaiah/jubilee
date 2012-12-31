@@ -26,7 +26,7 @@ Jeweler::Tasks.new do |gem|
   gem.homepage = "http://github.com/isaiah/jubilee"
   gem.license = "MIT"
   gem.summary = %Q{JRuby webserver based on Vertx}
-  gem.description = %Q{Web Server that rocks!}
+  gem.description = %Q{Jubilee is a experimental webserver built for speed, it's based on Vertx.}
   gem.email = "issaria@gmail.com"
   gem.authors = ["Isaiah Peng"]
   # dependencies defined in Gemfile
