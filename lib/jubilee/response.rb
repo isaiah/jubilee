@@ -36,16 +36,19 @@ module Jubilee
     end
 
     def write_headers(response)
-      @headers.each do |key, value|
+      @headers.each do |key, values|
         case key
         when CONTENT_LENGTH
-          @content_length = value
+          @content_length = values
           next
         when TRANSFER_ENCODING
           @allow_chunked = false
           @content_length = nil
         end
-        response.putHeader(key, value)
+        # Multiple values are joined by \n
+        values.split(NEWLINE).each do |value|
+          response.putHeader(key, value)
+        end
       end
     end
 
