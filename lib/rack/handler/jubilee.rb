@@ -24,7 +24,6 @@ module Rack
         @server = ::Jubilee::Server.new(app, options)
 
         puts "Jubilee #{::Jubilee::Const::JUBILEE_VERSION} starting..."
-        puts "* Min threads: #{min}, max threads: #{max}"
         puts "* Environment: #{ENV['RACK_ENV']}"
         puts "* Listening on tcp://#{options[:Host]}:#{options[:Port]}"
 

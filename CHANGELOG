@@ -1,0 +1,5 @@
+Release 0.2.1
+=============
+
+Supoort multiple values for a header.
+Add Rack::MethodOverride to support DELETE, PUT, HEAD, OPTION methods.
