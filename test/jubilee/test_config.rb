@@ -8,7 +8,7 @@ class TestConfig < MiniTest::Unit::TestCase
   def test_load
     @config.load
     resp = [200, {"Content-Type" => "text/plain"}, ["embeded app"]]
-    skip "hard to test because of Rack::Lint"
-    #assert_equal resp, @config.app.call({})
+    #skip "hard to test because of Rack::Lint"
+    assert_equal resp, @config.app.call({})
   end
 end
