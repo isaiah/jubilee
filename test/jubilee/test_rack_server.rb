@@ -3,6 +3,7 @@ require 'rack/lint'
 require 'rack/commonlogger'
 
 class TestRackServer < MiniTest::Unit::TestCase
+  include Helpers
 
   class ErrorChecker
     def initialize(app)
@@ -43,6 +44,8 @@ class TestRackServer < MiniTest::Unit::TestCase
     
     @simple = lambda { |env| [200, { "X-Header" => "Works" }, ["Hello"]] }
     @checker = ErrorChecker.new ServerLint.new(@simple)
+    @host = "localhost"
+    @port = 3215
   end
 
   def teardown
@@ -85,6 +88,20 @@ class TestRackServer < MiniTest::Unit::TestCase
     hit(['http://127.0.0.1:3215/test/a/b/c'])
 
     assert_equal "/test/a/b/c", input['PATH_INFO']
+  end
+
+  def test_request_method
+    input = nil
+    @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
+    @server.start
+
+    POST('/test/a/b/c', {"_method" => "delete", "user" => 1})
+    assert_equal "DELETE", input['REQUEST_METHOD']
+
+    # it should not memorize env
+    POST('/test/a/b/c', {"foo" => "bar"})
+    assert_equal "POST", input['REQUEST_METHOD']
+
   end
 
   def test_query_string

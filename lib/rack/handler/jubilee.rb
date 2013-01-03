@@ -25,7 +25,7 @@ module Rack
 
         puts "Jubilee #{::Jubilee::Const::JUBILEE_VERSION} starting..."
         puts "* Environment: #{ENV['RACK_ENV']}"
-        puts "* Listening on tcp://#{options[:Host]}:#{options[:Port]}"
+        puts "* Listening on http://#{options[:Host]}:#{options[:Port]}"
 
         yield @server if block_given?
 
