@@ -21,18 +21,17 @@ import java.util.concurrent.*;
 public class RackApplication {
   private IRubyObject app;
   private boolean ssl;
-  private Buffer bodyBuf;
 
   private ExecutorService exec;
 
   public RackApplication(IRubyObject app, boolean ssl) {
     this.app = app;
     this.ssl = ssl;
-    bodyBuf = new Buffer(0);
     exec = Executors.newCachedThreadPool();
   }
 
   public void call(final HttpServerRequest request) {
+    final Buffer bodyBuf = new Buffer(0);
     final Ruby runtime = app.getRuntime();
     final CountDownLatch bodyLatch = new CountDownLatch(1);
     request.dataHandler(new Handler<Buffer>() {
