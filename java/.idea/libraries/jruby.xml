@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="jruby">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/.rbenv/versions/jruby-1.7.0/lib/jruby.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
