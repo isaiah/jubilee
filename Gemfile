@@ -1,7 +1,7 @@
 source :rubygems
 
-#gem 'rack', '~> 1.4.1'
-gem 'rack', path: "../../ruby/rack"
+gem 'rack', '~> 1.4.1'
+#gem 'rack', path: "../../ruby/rack"
 gem 'spoon'
 
 group :development do

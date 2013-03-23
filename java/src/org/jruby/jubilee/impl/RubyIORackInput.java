@@ -1,6 +1,6 @@
 package org.jruby.jubilee.impl;
 
-import org.jboss.netty.buffer.ChannelBuffer;
+import io.netty.buffer.ByteBuf;
 import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.jubilee.Const;
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * Time: 10:12 PM
  */
 public class RubyIORackInput extends RubyObject implements RackInput {
-  private ChannelBuffer buf;
+  private ByteBuf buf;
   private CountDownLatch bodyLatch;
 
   public static ObjectAllocator ALLOCATOR = new ObjectAllocator() {
@@ -44,7 +44,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
 
   public RubyIORackInput(Ruby runtime, Buffer buf, CountDownLatch bodyLatch) {
     this(runtime, createRubyIORackInputClass(runtime));
-    this.buf = buf.getChannelBuffer();
+    this.buf = buf.getByteBuf();
     this.bodyLatch = bodyLatch;
   }
 

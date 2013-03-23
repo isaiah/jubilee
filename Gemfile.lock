@@ -1,8 +1,3 @@
-PATH
-  remote: ../../ruby/rack
-  specs:
-    rack (1.4.1)
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -25,12 +20,18 @@ GEM
     lumberjack (1.0.2)
     method_source (0.8.1)
     multipart-post (1.1.5)
+    pry (0.9.10)
+      coderay (~> 1.0.5)
+      method_source (~> 0.8)
+      slop (~> 3.3.1)
     pry (0.9.10-java)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
       slop (~> 3.3.1)
       spoon (~> 0.0)
+    rack (1.4.5)
     rake (10.0.3)
+    rcov (0.9.11)
     rcov (0.9.11-java)
     rdoc (3.12)
       json (~> 1.4)
@@ -47,6 +48,6 @@ DEPENDENCIES
   jeweler
   multipart-post
   pry
-  rack!
+  rack (~> 1.4.1)
   rcov
   spoon
