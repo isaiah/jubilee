@@ -40,18 +40,11 @@ public class RackApplication {
         bodyBuf.appendBuffer(buffer);
       }
     });
-    // TODO optimize by use NullIO when there is no body here.
-    Runnable task = new Runnable() {
-      @Override
-      public void run() {
-        RackInput input = new RubyIORackInput(runtime, bodyBuf, bodyLatch);
-        RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
-        IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
-        RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
-        response.respond(request.response);
-      }
-    };
-    exec.execute(task);
+    RackInput input = new RubyIORackInput(runtime, bodyBuf, bodyLatch);
+    RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
+    IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
+    RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
+    response.respond(request.response);
     request.endHandler(new SimpleHandler() {
       @Override
       protected void handle() {
@@ -66,4 +59,5 @@ public class RackApplication {
     else
       exec.shutdown();
   }
+
 }
