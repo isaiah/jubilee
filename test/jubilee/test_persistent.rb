@@ -4,7 +4,7 @@ require 'socket'
 class TestPersistent < MiniTest::Unit::TestCase
   def setup
     @valid_request = "GET / HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"
-    @close_request = "GET / HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n"
+    @close_request = "GET / HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n"
     @http10_request = "GET / HTTP/1.0\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"
     @keep_request = "GET / HTTP/1.0\r\nHost: test.com\r\nContent-Type: text/plain\r\nConnection: Keep-Alive\r\n\r\n"
 
@@ -104,7 +104,7 @@ class TestPersistent < MiniTest::Unit::TestCase
 
     @client << @http10_request
 
-     assert_equal "HTTP/1.0 200 OK\r\nConnection: close\r\nx-header: Works\r\n\r\n", lines(4)
+    assert_equal "HTTP/1.0 200 OK\r\nx-header: Works\r\n\r\n", lines(3)
     assert_equal "HelloChunked", @client.read
   end
 
@@ -122,7 +122,7 @@ class TestPersistent < MiniTest::Unit::TestCase
     @client << @close_request
     sz = @body[0].size.to_s
 
-    assert_equal "HTTP/1.1 200 OK\r\nConnection: close\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(5)
+    assert_equal "HTTP/1.1 200 OK\r\nConnection: Close\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(5)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -130,7 +130,7 @@ class TestPersistent < MiniTest::Unit::TestCase
     @client << @http10_request
     sz = @body[0].size.to_s
 
-    assert_equal "HTTP/1.0 200 OK\r\nConnection: close\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(5)
+    assert_equal "HTTP/1.0 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -138,7 +138,7 @@ class TestPersistent < MiniTest::Unit::TestCase
     @client << @keep_request
     sz = @body[0].size.to_s
 
-    assert_equal "HTTP/1.0 200 OK\r\nConnection: keep-alive\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(5)
+    assert_equal "HTTP/1.0 200 OK\r\nConnection: Keep-Alive\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(5)
     assert_equal "Hello", @client.read(5)
   end
 
