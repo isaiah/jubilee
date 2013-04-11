@@ -22,6 +22,7 @@ unicorn (worker 10): 1440rps
 Requirement
 -----------
 
+java7 or above
 JRuby '~> 1.7.0'
 
 License
