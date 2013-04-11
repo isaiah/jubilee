@@ -1,6 +1,7 @@
+require 'version'
 module Jubilee
   module Const
-    JUBILEE_VERSION = VERSION = "0.2.1".freeze
+    JUBILEE_VERSION = VERSION
     HTTP_11 = "HTTP/1.1".freeze
     HTTP_10 = "HTTP/1.0".freeze
 

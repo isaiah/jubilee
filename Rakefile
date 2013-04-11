@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'bundler'
+require 'jubilee/version'
 
 include\
   begin
@@ -54,7 +55,7 @@ task :default => :test
 
 require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+  version = Jubilee::VERSION
 
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title = "rbtree-jruby #{version}"
