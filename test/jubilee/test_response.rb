@@ -24,21 +24,16 @@ class TestResponse < MiniTest::Unit::TestCase
     @host = "127.0.0.1"
     @port = 3215
 
-    redirect_test_io do
-      @server = Jubilee::Server.new @simple
-      @server.start
-    end
+    @server = Jubilee::Server.new @simple
+    @server.start
     sleep 0.1
     @client = TCPSocket.new @host, @port
   end
 
   def teardown
-    redirect_test_io do
-      File.truncate("test_stderr.#$$.log", 0)
-      @client.close
-      sleep 0.1 # in case server shutdown before request is submitted
-      @server.stop
-    end
+    @client.close
+    sleep 0.1 # in case server shutdown before request is submitted
+    @server.stop
   end
 
   def lines(count, s=@client)
@@ -247,7 +242,6 @@ class TestResponse < MiniTest::Unit::TestCase
     assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4, c2)
     assert_equal "Hello", c2.read(5)
   end
-=end
 
   def test_client_shutdown_writes
     bs = 15609315 * rand
@@ -275,4 +269,5 @@ class TestResponse < MiniTest::Unit::TestCase
     assert lines.grep(/^Unicorn::ClientShutdown: /).empty?
     assert_nil sock.close
   end
+=end
 end
