@@ -21,6 +21,27 @@ def hit(uris)
   end
 end
 
+def redirect_test_io
+  yield
+  #orig_err = STDERR.dup
+  #orig_out = STDOUT.dup
+  #STDERR.reopen("test_stderr.#{$$}.log", "a")
+  #STDOUT.reopen("test_stdout.#{$$}.log", "a")
+  #STDERR.sync = STDOUT.sync = true
+
+  #at_exit do
+  #  File.unlink("test_stderr.#{$$}.log") rescue nil
+  #  File.unlink("test_stdout.#{$$}.log") rescue nil
+  #end
+
+  #begin
+  #  yield
+  #ensure
+  #  STDERR.reopen(orig_err)
+  #  STDOUT.reopen(orig_out)
+  #end
+end
+
 module Helpers
   attr_reader :status, :response
 

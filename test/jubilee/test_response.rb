@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'timeout'
 require 'socket'
-class TestPersistent < MiniTest::Unit::TestCase
+class TestResponse < MiniTest::Unit::TestCase
   def setup
     @valid_request = "GET / HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"
     @close_request = "GET / HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n"
@@ -24,17 +24,21 @@ class TestPersistent < MiniTest::Unit::TestCase
     @host = "127.0.0.1"
     @port = 3215
 
-    @server = Jubilee::Server.new @simple
-    @server.start
-
+    redirect_test_io do
+      @server = Jubilee::Server.new @simple
+      @server.start
+    end
     sleep 0.1
     @client = TCPSocket.new @host, @port
   end
 
   def teardown
-    @client.close
-    sleep 0.1 # in case server shutdown before request is submitted
-    @server.stop
+    redirect_test_io do
+      File.truncate("test_stderr.#$$.log", 0)
+      @client.close
+      sleep 0.1 # in case server shutdown before request is submitted
+      @server.stop
+    end
   end
 
   def lines(count, s=@client)
@@ -244,4 +248,31 @@ class TestPersistent < MiniTest::Unit::TestCase
     assert_equal "Hello", c2.read(5)
   end
 =end
+
+  def test_client_shutdown_writes
+    bs = 15609315 * rand
+    sock = TCPSocket.new('127.0.0.1', @port)
+    sock.syswrite("PUT /hello HTTP/1.1\r\n")
+    sock.syswrite("Host: example.com\r\n")
+    sock.syswrite("Transfer-Encoding: chunked\r\n")
+    sock.syswrite("Trailer: X-Foo\r\n")
+    sock.syswrite("\r\n")
+    sock.syswrite("%x\r\n" % [ bs ])
+    sock.syswrite("F" * bs)
+    sock.syswrite("\r\n0\r\nX-")
+    "Foo: bar\r\n\r\n".each_byte do |x|
+      sock.syswrite x.chr
+      sleep 0.05
+    end
+    # we wrote the entire request before shutting down, server should
+    # continue to process our request and never hit EOFError on our sock
+    sock.shutdown(Socket::SHUT_WR)
+    buf = sock.read
+    assert_equal 'Hello', buf.split(/\r\n\r\n/).last
+    next_client = Net::HTTP.get(URI.parse("http://127.0.0.1:#@port/"))
+    assert_equal 'Hello', next_client
+    lines = File.readlines("test_stderr.#$$.log")
+    assert lines.grep(/^Unicorn::ClientShutdown: /).empty?
+    assert_nil sock.close
+  end
 end

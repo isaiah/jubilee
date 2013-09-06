@@ -42,7 +42,6 @@ class TestJubileeServer < MiniTest::Unit::TestCase
     skip
   end
 
-  
   def test_url_scheme_for_https
     app = lambda { |env| [200, {}, [env['rack.url_scheme']]] }
     server = Jubilee::Server.new(app, {port:@port, ssl:true, 
@@ -65,4 +64,5 @@ class TestJubileeServer < MiniTest::Unit::TestCase
     server.stop
     assert_equal "https", body
   end
+
 end
