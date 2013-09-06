@@ -6,7 +6,7 @@ import org.jruby.jubilee.impl.DefaultRackEnvironment;
 import org.jruby.jubilee.impl.RubyIORackInput;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.Handler;
-import org.vertx.java.core.SimpleHandler;
+import org.vertx.java.core.VoidHandler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 
@@ -48,11 +48,11 @@ public class RackApplication {
         RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
         IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
         RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
-        response.respond(request.response);
+        response.respond(request.response());
       }
     };
     exec.execute(task);
-    request.endHandler(new SimpleHandler() {
+    request.endHandler(new VoidHandler() {
       @Override
       protected void handle() {
         bodyLatch.countDown();

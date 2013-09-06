@@ -1,4 +1,3 @@
-require 'version'
 module Jubilee
   module Const
     JUBILEE_VERSION = VERSION

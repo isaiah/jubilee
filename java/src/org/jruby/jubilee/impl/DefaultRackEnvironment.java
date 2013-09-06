@@ -7,6 +7,7 @@ import org.jruby.jubilee.Const;
 import org.jruby.Ruby;
 import org.jruby.RubyHash;
 import org.jruby.jubilee.RackInput;
+import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 
 import java.util.Map;
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 public class DefaultRackEnvironment implements RackEnvironment {
   private RubyHash env;
-  private  Map<String, String> headers;
+  private MultiMap headers;
   private Ruby runtime;
 
   public DefaultRackEnvironment(final Ruby runtime, final HttpServerRequest request, RackInput input, boolean isSSL) {
@@ -61,11 +62,11 @@ public class DefaultRackEnvironment implements RackEnvironment {
     }
 
     env.put(Const.RACK_INPUT, input);
-    env.put(Const.REQUEST_METHOD, request.method);
-    env.put(Const.REQUEST_PATH, request.path);
-    env.put(Const.REQUEST_URI, request.uri);
-    env.put(Const.QUERY_STRING, orEmpty(request.query));
-    env.put(Const.REMOTE_ADDR, request.remoteAddr);
+    env.put(Const.REQUEST_METHOD, request.method());
+    env.put(Const.REQUEST_PATH, request.path());
+    env.put(Const.REQUEST_URI, request.uri());
+    env.put(Const.QUERY_STRING, orEmpty(request.query()));
+    env.put(Const.REMOTE_ADDR, request.remoteAddress());
     env.put(Const.HTTP_HOST, host);
     env.put(Const.HTTP_COOKIE, orEmpty(headers.get(Const.Vertx.COOKIE)));
     env.put(Const.HTTP_USER_AGENT, headers.get(Const.Vertx.USER_AGENT));
@@ -77,7 +78,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
     String contentLength;
     if ((contentLength = headers.get(Const.Vertx.CONTENT_LENGTH)) != null)
       env.put(Const.HTTP_CONTENT_LENGTH, contentLength);
-    env.put(Const.PATH_INFO, request.path);
+    env.put(Const.PATH_INFO, request.path());
 
     // Additional headers
     for (Map.Entry<String, String> var : Const.ADDITIONAL_HEADERS.entrySet())
@@ -93,6 +94,6 @@ public class DefaultRackEnvironment implements RackEnvironment {
   }
 
   private void setRackHeader(String vertxHeader, String rackHeader) {
-    if (headers.containsKey(vertxHeader)) env.put(rackHeader, headers.get(vertxHeader));
+    if (headers.contains(vertxHeader)) env.put(rackHeader, headers.get(vertxHeader));
   }
 }

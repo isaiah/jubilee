@@ -36,7 +36,7 @@ public class Server extends RubyObject {
 
   public Server(Ruby ruby, RubyClass rubyClass) {
     super(ruby, rubyClass);
-    vertx = Vertx.newVertx();
+    vertx = VertxFactory.newVertx();
     httpServer = vertx.createHttpServer();
   }
 
@@ -110,7 +110,8 @@ public class Server extends RubyObject {
    */
   @JRubyMethod(name = "persistent_timeout=")
   public IRubyObject setPersistentTimeout(final ThreadContext context, final IRubyObject timeout) {
-    httpServer.setPersistentTimeout(RubyInteger.fix2long(timeout) * 1000);
+    // FIXME
+    //httpServer.setPersistentTimeout(RubyInteger.fix2long(timeout) * 1000);
     return this;
   }
 

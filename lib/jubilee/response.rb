@@ -32,7 +32,7 @@ module Jubilee
 
     private
     def write_status(response)
-      response.statusCode = @status
+      response.setStatusCode(@status)
     end
 
     def write_headers(response)
