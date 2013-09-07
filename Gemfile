@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack', '~> 1.4.1'
 #gem 'rack', path: "../../ruby/rack"
-gem 'spoon'
+gem 'spoon', '~> 0.0.4'
 
 group :development do
   gem 'jeweler'
