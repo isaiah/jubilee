@@ -24,10 +24,10 @@ public class RackApplication {
 
   private ExecutorService exec;
 
-  public RackApplication(IRubyObject app, boolean ssl) {
+  public RackApplication(IRubyObject app, boolean ssl, int numberOfWorkers) {
     this.app = app;
     this.ssl = ssl;
-    exec = Executors.newCachedThreadPool();
+    exec = Executors.newFixedThreadPool(numberOfWorkers);
   }
 
   public void call(final HttpServerRequest request) {

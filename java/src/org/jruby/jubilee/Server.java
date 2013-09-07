@@ -19,6 +19,7 @@ public class Server extends RubyObject {
   private String keyStorePath;
   private String keyStorePassword;
   private String eventBusPrefix;
+  private int numberOfWorkers;
   private int port;
   private String host;
 
@@ -57,14 +58,17 @@ public class Server extends RubyObject {
     RubySymbol keystore_path_k = runtime.newSymbol("keystore_path");
     RubySymbol keystore_password_k = runtime.newSymbol("keystore_password");
     RubySymbol eventbus_prefix_k = runtime.newSymbol("eventbus_prefix");
-    this.port = RubyInteger.num2int(options.op_aref(context, port_k));
+    RubySymbol number_of_workers_k = runtime.newSymbol("number_of_workers");
+    this.port = RubyInteger.fix2int(options.op_aref(context, port_k));
     if (options.has_key_p(host_k).isTrue()) {
         this.host = options.op_aref(context, host_k).toString();
     } else {
         this.host = "0.0.0.0";
     }
     this.ssl = options.op_aref(context, ssl_k).isTrue();
-    this.app = new RackApplication(app, this.ssl);
+    if (options.has_key_p(number_of_workers_k).isTrue())
+      this.numberOfWorkers = RubyInteger.fix2int(options.op_aref(context, number_of_workers_k));
+    this.app = new RackApplication(app, this.ssl, this.numberOfWorkers);
     if (options.has_key_p(keystore_path_k).isTrue()) {
       this.keyStorePath = options.op_aref(context, keystore_path_k).toString();
       this.keyStorePassword = options.op_aref(context, keystore_password_k).toString();
