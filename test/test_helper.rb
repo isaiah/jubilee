@@ -21,6 +21,17 @@ def hit(uris)
   end
 end
 
+# which(1) exit codes cannot be trusted on some systems
+# We use UNIX shell utilities in some tests because we don't trust
+# ourselves to write Ruby 100% correctly :)
+def which(bin)
+  ex = ENV['PATH'].split(/:/).detect do |x|
+    x << "/#{bin}"
+    File.executable?(x)
+  end or warn "`#{bin}' not found in PATH=#{ENV['PATH']}"
+  ex
+end
+
 def redirect_test_io
   yield
   #orig_err = STDERR.dup

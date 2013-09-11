@@ -1,5 +1,7 @@
 package org.jruby.jubilee;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.jruby.Ruby;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.DefaultRackEnvironment;
@@ -11,6 +13,7 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,20 +34,20 @@ public class RackApplication {
   }
 
   public void call(final HttpServerRequest request) {
-    final Buffer bodyBuf = new Buffer(0);
+    final ByteBuf bodyBuf = Unpooled.unreleasableBuffer(Unpooled.buffer(0, Integer.MAX_VALUE));
     final Ruby runtime = app.getRuntime();
-    final CountDownLatch bodyLatch = new CountDownLatch(1);
+    final AtomicBoolean eof = new AtomicBoolean(false);
     request.dataHandler(new Handler<Buffer>() {
       @Override
       public void handle(Buffer buffer) {
-        bodyBuf.appendBuffer(buffer);
+        bodyBuf.writeBytes(buffer.getBytes());
       }
     });
     // TODO optimize by use NullIO when there is no body here.
     Runnable task = new Runnable() {
       @Override
       public void run() {
-        RackInput input = new RubyIORackInput(runtime, bodyBuf, bodyLatch);
+        RackInput input = new RubyIORackInput(runtime, bodyBuf, eof);
         RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
         IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
         RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
@@ -55,7 +58,7 @@ public class RackApplication {
     request.endHandler(new VoidHandler() {
       @Override
       protected void handle() {
-        bodyLatch.countDown();
+        eof.set(true);
       }
     });
   }

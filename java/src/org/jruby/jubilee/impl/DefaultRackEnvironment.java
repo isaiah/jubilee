@@ -1,6 +1,5 @@
 package org.jruby.jubilee.impl;
 
-import org.jruby.RubyArray;
 import org.jruby.RubyString;
 import org.jruby.jubilee.RackEnvironment;
 import org.jruby.jubilee.Const;
@@ -19,81 +18,82 @@ import java.util.Map;
  * Time: 11:40 AM
  */
 public class DefaultRackEnvironment implements RackEnvironment {
-  private RubyHash env;
-  private MultiMap headers;
-  private Ruby runtime;
+    private RubyHash env;
+    private MultiMap headers;
+    private Ruby runtime;
 
-  public DefaultRackEnvironment(final Ruby runtime, final HttpServerRequest request, RackInput input, boolean isSSL) {
+    public DefaultRackEnvironment(final Ruby runtime, final HttpServerRequest request, RackInput input, boolean isSSL) {
 
-    this.runtime = runtime;
-    // DEFAULT
-    env = RubyHash.newHash(runtime);
-    env.put(Const.RACK_VERSION, Const.RackVersion(runtime));
-    env.put(Const.RACK_ERRORS, new RubyIORackErrors(runtime));
-    env.put(Const.RACK_MULTITHREAD, true);
-    env.put(Const.RACK_MULTIPROCESS, false);
-    env.put(Const.RACK_RUNONCE, true);
-    if (isSSL)
-      env.put(Const.URL_SCHEME, Const.HTTPS);
-    else
-      env.put(Const.URL_SCHEME, Const.HTTP);
-    env.put(Const.SCRIPT_NAME, "");
+        this.runtime = runtime;
+        // DEFAULT
+        env = RubyHash.newHash(runtime);
+        env.put(Const.RACK_VERSION, Const.RackVersion(runtime));
+        env.put(Const.RACK_ERRORS, new RubyIORackErrors(runtime));
+        env.put(Const.RACK_MULTITHREAD, true);
+        env.put(Const.RACK_MULTIPROCESS, false);
+        env.put(Const.RACK_RUNONCE, true);
+        if (isSSL)
+            env.put(Const.URL_SCHEME, Const.HTTPS);
+        else
+            env.put(Const.URL_SCHEME, Const.HTTP);
+        env.put(Const.SCRIPT_NAME, "");
 
-    env.put(Const.SERVER_PROTOCOL, Const.HTTP_11);
-    env.put(Const.SERVER_SOFTWARE, Const.JUBILEE_VERSION);
-    env.put(Const.GATEWAY_INTERFACE, Const.CGI_VER);
+        env.put(Const.SERVER_PROTOCOL, Const.HTTP_11);
+        env.put(Const.SERVER_SOFTWARE, Const.JUBILEE_VERSION);
+        env.put(Const.GATEWAY_INTERFACE, Const.CGI_VER);
 
-    // Parse request headers
-    headers = request.headers();
-    String host;
-    if ((host = headers.get(Const.Vertx.HOST)) != null) {
-      int colon = host.indexOf(":");
-      if (colon > 0) {
-        env.put(Const.SERVER_NAME, host.substring(0, colon));
-        env.put(Const.SERVER_PORT, host.substring(colon + 1));
-      } else {
-        env.put(Const.SERVER_NAME, host);
-        env.put(Const.SERVER_PORT, Const.PORT_80);
-      }
+        // Parse request headers
+        headers = request.headers();
+        String host;
+        if ((host = headers.get(Const.Vertx.HOST)) != null) {
+            int colon = host.indexOf(":");
+            if (colon > 0) {
+                env.put(Const.SERVER_NAME, host.substring(0, colon));
+                env.put(Const.SERVER_PORT, host.substring(colon + 1));
+            } else {
+                env.put(Const.SERVER_NAME, host);
+                env.put(Const.SERVER_PORT, Const.PORT_80);
+            }
 
-    } else {
-      env.put(Const.SERVER_NAME, Const.LOCALHOST);
-      env.put(Const.SERVER_PORT, Const.PORT_80);
+        } else {
+            env.put(Const.SERVER_NAME, Const.LOCALHOST);
+            env.put(Const.SERVER_PORT, Const.PORT_80);
+        }
+
+        env.put(Const.RACK_INPUT, input);
+        env.put(Const.REQUEST_METHOD, request.method());
+        env.put(Const.REQUEST_PATH, request.path());
+        env.put(Const.REQUEST_URI, request.uri());
+        env.put(Const.QUERY_STRING, orEmpty(request.query()));
+        env.put(Const.REMOTE_ADDR, request.remoteAddress().getHostString());
+        env.put(Const.HTTP_HOST, host);
+        env.put(Const.HTTP_COOKIE, orEmpty(headers.get(Const.Vertx.COOKIE)));
+        env.put(Const.HTTP_USER_AGENT, headers.get(Const.Vertx.USER_AGENT));
+        env.put(Const.HTTP_ACCEPT, headers.get(Const.Vertx.ACCEPT));
+        env.put(Const.HTTP_ACCEPT_LANGUAGE, orEmpty(headers.get(Const.Vertx.ACCEPT_LANGUAGE)));
+        env.put(Const.HTTP_ACCEPT_ENCODING, orEmpty(headers.get(Const.Vertx.ACCEPT_ENCODING)));
+        env.put(Const.HTTP_CONNECTION, orEmpty(headers.get(Const.Vertx.CONNECTION)));
+        env.put(Const.HTTP_CONTENT_TYPE, orEmpty(headers.get(Const.Vertx.CONTENT_TYPE)));
+
+        String contentLength;
+        if ((contentLength = headers.get(Const.Vertx.CONTENT_LENGTH)) != null)
+            env.put(Const.HTTP_CONTENT_LENGTH, contentLength);
+        env.put(Const.PATH_INFO, request.path());
+
+        // Additional headers
+        for (Map.Entry<String, String> var : Const.ADDITIONAL_HEADERS.entrySet())
+            setRackHeader(var.getKey(), var.getValue());
     }
 
-    env.put(Const.RACK_INPUT, input);
-    env.put(Const.REQUEST_METHOD, request.method());
-    env.put(Const.REQUEST_PATH, request.path());
-    env.put(Const.REQUEST_URI, request.uri());
-    env.put(Const.QUERY_STRING, orEmpty(request.query()));
-    env.put(Const.REMOTE_ADDR, request.remoteAddress().getHostString());
-    env.put(Const.HTTP_HOST, host);
-    env.put(Const.HTTP_COOKIE, orEmpty(headers.get(Const.Vertx.COOKIE)));
-    env.put(Const.HTTP_USER_AGENT, headers.get(Const.Vertx.USER_AGENT));
-    env.put(Const.HTTP_ACCEPT, headers.get(Const.Vertx.ACCEPT));
-    env.put(Const.HTTP_ACCEPT_LANGUAGE, orEmpty(headers.get(Const.Vertx.ACCEPT_LANGUAGE)));
-    env.put(Const.HTTP_ACCEPT_ENCODING, orEmpty(headers.get(Const.Vertx.ACCEPT_ENCODING)));
-    env.put(Const.HTTP_CONNECTION, orEmpty(headers.get(Const.Vertx.CONNECTION)));
-    env.put(Const.HTTP_CONTENT_TYPE, orEmpty(headers.get(Const.Vertx.CONTENT_TYPE)));
-    String contentLength;
-    if ((contentLength = headers.get(Const.Vertx.CONTENT_LENGTH)) != null)
-      env.put(Const.HTTP_CONTENT_LENGTH, contentLength);
-    env.put(Const.PATH_INFO, request.path());
+    public RubyHash getEnv() {
+        return env;
+    }
 
-    // Additional headers
-    for (Map.Entry<String, String> var : Const.ADDITIONAL_HEADERS.entrySet())
-      setRackHeader(var.getKey(), var.getValue());
-  }
+    private RubyString orEmpty(String jString) {
+        return jString == null ? RubyString.newEmptyString(runtime) : RubyString.newString(runtime, jString);
+    }
 
-  public RubyHash getEnv() {
-    return env;
-  }
-
-  private RubyString orEmpty(String jString) {
-    return jString == null ? RubyString.newEmptyString(runtime) : RubyString.newString(runtime, jString);
-  }
-
-  private void setRackHeader(String vertxHeader, String rackHeader) {
-    if (headers.contains(vertxHeader)) env.put(rackHeader, headers.get(vertxHeader));
-  }
+    private void setRackHeader(String vertxHeader, String rackHeader) {
+        if (headers.contains(vertxHeader)) env.put(rackHeader, headers.get(vertxHeader));
+    }
 }
