@@ -62,14 +62,18 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     public IRubyObject gets(ThreadContext context) {
         if (isEOF())
             return getRuntime().getNil();
-        int lineEnd = buf.indexOf(buf.readerIndex(), buf.capacity(), Const.EOL);
-        int readLength;
-        if ((readLength = lineEnd - buf.readerIndex()) > 0) {
-            byte[] dst = new byte[readLength + 1];
-            buf.readBytes(dst, 0, readLength + 1);
-            return RubyString.newString(getRuntime(), dst);
-        }
-        return getRuntime().getNil();
+        int lineEnd = -1;
+        while (lineEnd == -1 && !isEOF())
+            lineEnd = buf.indexOf(buf.readerIndex(), buf.writerIndex(), Const.EOL);
+
+        // No line break found, read all
+        if (lineEnd == -1)
+            return readAll(RubyString.newEmptyString(getRuntime()));
+
+        int readLength = lineEnd - buf.readerIndex();
+        byte[] dst = new byte[readLength + 1];
+        buf.readBytes(dst, 0, readLength + 1);
+        return RubyString.newString(getRuntime(), dst);
     }
 
     /**
@@ -164,12 +168,12 @@ public class RubyIORackInput extends RubyObject implements RackInput {
         return buf.readableBytes() == 0 && eof.get();
     }
 
-    private RubyString readAll(RubyString dst) {
+    private IRubyObject readAll(RubyString dst) {
         while(!eof.get())
             getRuntime().getOutputStream().println("waiting endhandler");
         byte[] data = new byte[buf.readableBytes()];
         dst.cat(data);
         buf.readBytes(data);
-        return dst;
+        return dst.isEmpty() ? getRuntime().getNil() : dst;
     }
 }
