@@ -1,10 +1,10 @@
 package org.jruby.jubilee.impl;
 
-import org.jruby.RubyString;
-import org.jruby.jubilee.RackEnvironment;
-import org.jruby.jubilee.Const;
 import org.jruby.Ruby;
 import org.jruby.RubyHash;
+import org.jruby.RubyString;
+import org.jruby.jubilee.Const;
+import org.jruby.jubilee.RackEnvironment;
 import org.jruby.jubilee.RackInput;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;

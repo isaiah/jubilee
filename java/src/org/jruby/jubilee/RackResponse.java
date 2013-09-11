@@ -2,8 +2,6 @@ package org.jruby.jubilee;
 
 import org.vertx.java.core.http.HttpServerResponse;
 
-import java.util.Map;
-
 /**
  * Created with IntelliJ IDEA.
  * User: isaiah

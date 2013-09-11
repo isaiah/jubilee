@@ -12,7 +12,8 @@ import org.vertx.java.core.VoidHandler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -47,7 +48,7 @@ public class RackApplication {
     Runnable task = new Runnable() {
       @Override
       public void run() {
-        RackInput input = new RubyIORackInput(runtime, bodyBuf, eof);
+        RackInput input = new RubyIORackInput(runtime, request, bodyBuf, eof);
         RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
         IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
         RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);

@@ -1,6 +1,5 @@
 # -*- encoding: binary -*-
 
-# Copyright (c) 2009 Eric Wong
 require 'test_helper'
 require 'digest/md5'
 
@@ -12,29 +11,32 @@ class TestUpload < MiniTest::Unit::TestCase
     @hdr = {'Content-Type' => 'text/plain', 'Content-Length' => '0'}
     @bs = 4096
     @count = 256
+    @server = nil
+    @sha1 = Digest::SHA1.new
 
     # we want random binary data to test 1.9 encoding-aware IO craziness
     @random = File.open('/dev/urandom','rb')
-    @sha1 = Digest::SHA1.new
     @sha1_app = lambda do |env|
+      sha1 = Digest::SHA1.new
       input = env['rack.input']
       resp = {}
 
-      @sha1.reset
       i = 0
       while buf = input.read(@bs)
-        @sha1.update(buf)
+        sha1.update(buf)
         i += 1
       end
-      resp[:sha1] = @sha1.hexdigest
+      resp[:sha1] = sha1.hexdigest
 
       # rewind and read again
       input.rewind
-      @sha1.reset
-      @sha1.update(input.read(@bs))
-      resp[:sha1] = @sha1.hexdigest
+      sha1.reset
 
-      if resp[:sha1] == @sha1.hexdigest
+      while buf = input.read(@bs)
+        sha1.update(buf)
+      end
+
+      if resp[:sha1] == sha1.hexdigest
         resp[:sysread_read_byte_match] = true
       end
       resp[:content_md5] = env['HTTP_CONTENT_MD5']
@@ -160,9 +162,7 @@ class TestUpload < MiniTest::Unit::TestCase
   # encoding-aware IO objects correctly.  Thus this test uses shell
   # utilities that should always operate on files/sockets on a
   # byte-level.
-=begin
   def test_uncomfortable_with_onenine_encodings
-    skip
     # POSIX doesn't require all of these to be present on a system
     which('curl') or return
     which('sha1sum') or return
@@ -176,11 +176,13 @@ class TestUpload < MiniTest::Unit::TestCase
            "dd #@random to #{tmp}")
     sha1_re = %r!\b([a-f0-9]{40})\b!
     sha1_out = `sha1sum #{tmp.path}`
+
     assert $?.success?, 'sha1sum ran OK'
 
     assert_match(sha1_re, sha1_out)
     sha1 = sha1_re.match(sha1_out)[1]
     resp = `curl -isSfN -T#{tmp.path} http://#@addr:#@port/`
+
     assert $?.success?, 'curl ran OK'
     assert_match(%r!\b#{sha1}\b!, resp)
     assert_match(/sysread_read_byte_match/, resp)
@@ -201,6 +203,7 @@ class TestUpload < MiniTest::Unit::TestCase
     assert_match(/sysread_read_byte_match/, resp)
   end
 
+=begin
   def test_chunked_upload_via_curl
     # POSIX doesn't require all of these to be present on a system
     which('curl') or return

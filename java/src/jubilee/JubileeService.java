@@ -1,12 +1,11 @@
 package jubilee;
 
 import org.jruby.Ruby;
+import org.jruby.jubilee.Server;
 import org.jruby.jubilee.impl.NullIO;
 import org.jruby.jubilee.impl.RubyIORackErrors;
 import org.jruby.jubilee.impl.RubyIORackInput;
 import org.jruby.runtime.load.BasicLibraryService;
-
-import org.jruby.jubilee.Server;
 
 import java.io.IOException;
 

@@ -9,10 +9,8 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.vertx.java.core.buffer.Buffer;
+import org.vertx.java.core.http.HttpServerRequest;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -22,6 +20,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Time: 10:12 PM
  */
 public class RubyIORackInput extends RubyObject implements RackInput {
+    private HttpServerRequest request;
+    private int len;
+    private boolean chunked;
     private ByteBuf buf;
     private AtomicBoolean eof;
 
@@ -43,8 +44,12 @@ public class RubyIORackInput extends RubyObject implements RackInput {
         super(runtime, metaClass);
     }
 
-    public RubyIORackInput(Ruby runtime, ByteBuf buf, AtomicBoolean eof) {
+    public RubyIORackInput(Ruby runtime, HttpServerRequest request, ByteBuf buf, AtomicBoolean eof) {
         this(runtime, createRubyIORackInputClass(runtime));
+        this.request = request;
+        String hdr = request.headers().get(Const.Vertx.CONTENT_LENGTH);
+        this.chunked = hdr == null;
+        this.len = this.chunked ? 0 : Integer.parseInt(hdr);
         this.buf = buf;
         this.eof = eof;
     }
@@ -72,7 +77,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
 
         int readLength = lineEnd - buf.readerIndex();
         byte[] dst = new byte[readLength + 1];
-        buf.readBytes(dst, 0, readLength + 1);
+        buf.readBytes(dst);
         return RubyString.newString(getRuntime(), dst);
     }
 
@@ -112,7 +117,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
         byte[] buffer = new byte[length];
         int toRead = length;
         while (toRead > 0 && !isEOF()) {
-            int len = Math.min(toRead, buf.readableBytes());
+            int len = Math.min(toRead, readableBytes());
             buf.readBytes(buffer, length - toRead, len);
             toRead = toRead - len;
         }
@@ -162,6 +167,13 @@ public class RubyIORackInput extends RubyObject implements RackInput {
         return getRuntime().getNil();
     }
 
+    private int readableBytes() {
+      if (! this.chunked) {
+        return Math.min(buf.readableBytes(), this.len - buf.readerIndex());
+      }
+      return buf.readableBytes();
+    }
+
     private boolean isEOF() {
         while (buf.readableBytes() == 0 && !eof.get())
             ; // wait while there is nothing to read
@@ -169,9 +181,11 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     }
 
     private IRubyObject readAll(RubyString dst) {
+        buf.readerIndex(0);
         while(!eof.get())
-            getRuntime().getOutputStream().println("waiting endhandler");
-        byte[] data = new byte[buf.readableBytes()];
+            ; // wait until all data received
+        int length = this.chunked ? buf.readableBytes() : Math.min(this.len, buf.readableBytes());
+        byte[] data = new byte[length];
         dst.cat(data);
         buf.readBytes(data);
         return dst.isEmpty() ? getRuntime().getNil() : dst;

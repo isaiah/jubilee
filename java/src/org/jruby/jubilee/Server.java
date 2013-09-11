@@ -1,12 +1,16 @@
 package org.jruby.jubilee;
 
-import org.vertx.java.core.*;
-import org.vertx.java.core.http.*;
-
 import org.jruby.*;
-import org.jruby.runtime.*;
-import org.jruby.runtime.builtin.*;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.runtime.Block;
+import org.jruby.runtime.ObjectAllocator;
+import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
+import org.vertx.java.core.Handler;
+import org.vertx.java.core.Vertx;
+import org.vertx.java.core.VertxFactory;
+import org.vertx.java.core.http.HttpServer;
+import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
