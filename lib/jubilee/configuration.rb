@@ -1,5 +1,7 @@
 module Jubilee
   class Configuration
+    attr_reader :app
+
     def initialize(options, &block)
       @options = options
       @block = block
@@ -7,15 +9,6 @@ module Jubilee
 
     def load
       @app = load_rack_adapter(@options, &@block)
-    end
-
-    def app
-      if !@options[:quiet] and @options[:environment] == "development"
-        logger = @options[:logger] || STDOUT
-        Rack::CommonLogger.new(@app, logger)
-      else
-        @app
-      end
     end
 
     def port
@@ -41,18 +34,36 @@ module Jubilee
     private
     def load_rack_adapter(options, &block)
       if block
-        app = Rack::Builder.new(&block).to_app
+        inner_app = Rack::Builder.new(&block).to_app
       else
         if options[:rackup]
           Kernel.load(options[:rackup])
-          app = Object.const_get(File.basename(options[:rackup], '.rb').capitalize.to_sym).new
+          inner_app = Object.const_get(File.basename(options[:rackup], '.rb').capitalize.to_sym).new
         else
           Dir.chdir options[:chdir] if options[:chdir]
-          app, opts = Rack::Builder.parse_file "config.ru"
+          inner_app, opts = Rack::Builder.parse_file "config.ru"
         end
       end
-      app
+      case ENV["RACK_ENV"]
+      when "development"
+        Rack::Builder.new do
+          use Rack::ContentLength
+          use Rack::Chunked
+          use Rack::CommonLogger, $stderr
+          use Rack::ShowExceptions
+          use Rack::Lint
+          run inner_app
+        end.to_app
+      when "deployment"
+        Rack::Builder.new do
+          use Rack::ContentLength
+          use Rack::Chunked
+          use Rack::CommonLogger, $stderr
+          run inner_app
+        end.to_app
+      else
+        inner_app
+      end
     end
-
   end
 end
