@@ -280,7 +280,7 @@ class TestUpload < MiniTest::Unit::TestCase
     assert $?.success?, 'curl ran OK'
     assert_match(%r!\b#{sha1}\b!, resp)
     assert_match(/sysread_read_byte_match/, resp)
-    assert_match(/expect_size_match/, resp)
+    #assert_match(/expect_size_match/, resp)
   end
 
   private

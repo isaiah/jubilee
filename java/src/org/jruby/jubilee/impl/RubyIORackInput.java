@@ -11,6 +11,7 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.http.HttpServerRequest;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -121,6 +122,8 @@ public class RubyIORackInput extends RubyObject implements RackInput {
             buf.readBytes(buffer, length - toRead, len);
             toRead = toRead - len;
         }
+        if (toRead > 0)
+            buffer = Arrays.copyOfRange(buffer, 0, length - toRead);
         return dst.cat(buffer);
     }
 
