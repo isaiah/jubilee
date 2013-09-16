@@ -1,6 +1,8 @@
 package org.jruby.jubilee.impl;
 
 import io.netty.buffer.ByteBuf;
+import org.jcodings.specific.ASCIIEncoding;
+import org.jcodings.Encoding;
 import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.jubilee.Const;
@@ -21,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Time: 10:12 PM
  */
 public class RubyIORackInput extends RubyObject implements RackInput {
+    private Encoding BINARY = ASCIIEncoding.INSTANCE;
     private HttpServerRequest request;
     private int len;
     private boolean chunked;
@@ -66,6 +69,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     @Override
     @JRubyMethod
     public IRubyObject gets(ThreadContext context) {
+      RubyString line = RubyString.newEmptyString(getRuntime(), BINARY);
         if (isEOF())
             return getRuntime().getNil();
         int lineEnd = -1;
@@ -74,12 +78,12 @@ public class RubyIORackInput extends RubyObject implements RackInput {
 
         // No line break found, read all
         if (lineEnd == -1)
-            return readAll(RubyString.newEmptyString(getRuntime()));
+            return readAll(line);
 
         int readLength = lineEnd - buf.readerIndex();
         byte[] dst = new byte[readLength + 1];
         buf.readBytes(dst);
-        return RubyString.newString(getRuntime(), dst);
+        return line.cat(dst);
     }
 
     /**
@@ -99,7 +103,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     @Override
     @JRubyMethod(optional = 2)
     public IRubyObject read(ThreadContext context, IRubyObject[] args) {
-        RubyString dst = RubyString.newEmptyString(getRuntime());
+        RubyString dst = RubyString.newEmptyString(getRuntime(), BINARY);
         if (isEOF())
             return getRuntime().getNil();
         int length;
