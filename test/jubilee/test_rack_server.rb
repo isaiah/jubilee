@@ -50,6 +50,7 @@ class TestRackServer < MiniTest::Unit::TestCase
 
   def teardown
     @server.stop
+    sleep 0.1
   end
 
   def test_lint
