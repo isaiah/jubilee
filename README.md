@@ -16,7 +16,7 @@ In short, Vertx is nodejs on the JVM, only much more faster, checkout the awesom
 [benchmarks](http://vertxproject.wordpress.com/2012/05/09/vert-x-vs-node-js-simple-http-benchmarks/)
 
 By using Vertx, jubilee inherent advantages in terms of performance, and all
-the [other cool features of Vertx](#Roadmap).
+the [other cool features of Vertx](#roadmap).
 
 Installation
 -----------
