@@ -44,28 +44,11 @@ module Jubilee
           inner_app, opts = Rack::Builder.parse_file "config.ru"
         end
       end
-      case @options[:environment]
-      when "development"
-        Rack::Builder.new do
-          use Rack::ContentLength
-          use Rack::Chunked
-          use Rack::MethodOverride
-          use Rack::CommonLogger, $stderr
-          use Rack::ShowExceptions
-          use Rack::Lint
-          run inner_app
-        end.to_app
-      when "deployment", "production"
-        Rack::Builder.new do
-          use Rack::ContentLength
-          use Rack::Chunked
-          use Rack::MethodOverride
-          use Rack::CommonLogger, $stderr
-          run inner_app
-        end.to_app
-      else
-        inner_app
-      end
+      Rack::Builder.new do
+        use Rack::MethodOverride
+        use Rack::CommonLogger, $stderr
+        run inner_app
+      end.to_app
     end
   end
 end
