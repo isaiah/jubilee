@@ -69,6 +69,7 @@ class TestRackServer < MiniTest::Unit::TestCase
     @server = Jubilee::Server.new @checker
 
     @server.start
+    sleep 0.1
 
     big = "x" * (1024 * 16)
 
@@ -92,8 +93,9 @@ class TestRackServer < MiniTest::Unit::TestCase
 
   def test_request_method
     input = nil
-    @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
+    @server = Jubilee::Server.new(Rack::MethodOverride.new(lambda { |env| input = env; @simple.call(env) }))
     @server.start
+    sleep 0.1
 
     POST('/test/a/b/c', {"_method" => "delete", "user" => 1})
     assert_equal "DELETE", input['REQUEST_METHOD']
@@ -119,6 +121,7 @@ class TestRackServer < MiniTest::Unit::TestCase
     input = nil
     @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
     @server.start
+    sleep 0.1
 
     req = Net::HTTP::Post::Multipart.new("/", "foo" => "bar")
     resp = Net::HTTP.start('localhost', 3215) do |http|

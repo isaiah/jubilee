@@ -6,6 +6,7 @@ require 'net/http'
 require 'net/http/post/multipart'
 require 'yaml'
 def hit(uris)
+  sleep 0.1
   uris.map do |u|
     res = nil
 

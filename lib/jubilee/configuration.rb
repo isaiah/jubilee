@@ -49,6 +49,7 @@ module Jubilee
         Rack::Builder.new do
           use Rack::ContentLength
           use Rack::Chunked
+          use Rack::MethodOverride
           use Rack::CommonLogger, $stderr
           use Rack::ShowExceptions
           use Rack::Lint
@@ -58,6 +59,7 @@ module Jubilee
         Rack::Builder.new do
           use Rack::ContentLength
           use Rack::Chunked
+          use Rack::MethodOverride
           use Rack::CommonLogger, $stderr
           run inner_app
         end.to_app

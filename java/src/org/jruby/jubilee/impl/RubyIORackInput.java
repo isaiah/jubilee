@@ -191,11 +191,11 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     private IRubyObject readAll(RubyString dst) {
         buf.readerIndex(0);
         while(!eof.get())
-            ; // wait until all data received
+          ; // wait until all data received
         int length = this.chunked ? buf.readableBytes() : Math.min(this.len, buf.readableBytes());
         byte[] data = new byte[length];
-        dst.cat(data);
         buf.readBytes(data);
+        dst.cat(data);
         return dst.isEmpty() ? getRuntime().getNil() : dst;
     }
 }
