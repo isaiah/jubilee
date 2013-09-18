@@ -35,7 +35,7 @@ module Jubilee
         daemon: false,
         Port: 3215,
         ssl: false,
-        environment: "development"
+        environment: ENV["RACK_ENV"] || "development"
       }
       @parser = OptionParser.new do |o|
         o.separator ""

@@ -44,7 +44,7 @@ module Jubilee
           inner_app, opts = Rack::Builder.parse_file "config.ru"
         end
       end
-      case ENV["RACK_ENV"]
+      case @options[:environment]
       when "development"
         Rack::Builder.new do
           use Rack::ContentLength
@@ -55,7 +55,7 @@ module Jubilee
           use Rack::Lint
           run inner_app
         end.to_app
-      when "deployment"
+      when "deployment", "production"
         Rack::Builder.new do
           use Rack::ContentLength
           use Rack::Chunked
