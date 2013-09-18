@@ -44,11 +44,12 @@ module Jubilee
           inner_app, opts = Rack::Builder.parse_file "config.ru"
         end
       end
-      Rack::Builder.new do
-        use Rack::MethodOverride
-        use Rack::CommonLogger, $stderr
-        run inner_app
-      end.to_app
+      inner_app
+      #Rack::Builder.new do
+      #  use Rack::MethodOverride
+      #  use Rack::CommonLogger, $stderr
+      #  run inner_app
+      #end.to_app
     end
   end
 end
