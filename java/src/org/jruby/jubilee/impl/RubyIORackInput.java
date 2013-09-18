@@ -11,6 +11,8 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.ByteList;
+import org.jruby.util.StringSupport;
 import org.vertx.java.core.http.HttpServerRequest;
 
 import java.util.Arrays;
@@ -103,7 +105,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     @Override
     @JRubyMethod(optional = 2)
     public IRubyObject read(ThreadContext context, IRubyObject[] args) {
-        RubyString dst = RubyString.newEmptyString(getRuntime(), BINARY);
+        RubyString dst = RubyString.newStringNoCopy(getRuntime(), new ByteList(), BINARY, StringSupport.CR_VALID);
         if (isEOF())
             return getRuntime().getNil();
         int length;
@@ -126,9 +128,8 @@ public class RubyIORackInput extends RubyObject implements RackInput {
             buf.readBytes(buffer, length - toRead, len);
             toRead = toRead - len;
         }
-        if (toRead > 0)
-            buffer = Arrays.copyOfRange(buffer, 0, length - toRead);
-        return dst.cat(buffer);
+        if (toRead > 0) length -= toRead;
+        return dst.cat(buffer, 0, length);
     }
 
     /**
