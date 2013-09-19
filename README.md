@@ -46,10 +46,39 @@ or
 
     $ rackup -s jubilee
 
+Event Bus
+=========
+
+Event Bus is a pub/sub mechanism, it can be used from server to server, server
+to client and client to client, with the same API!
+
+Examples
+--------
+
+Start jubilee in a rack application with:
+
+```
+$ jubilee --eventbus /eventbus
+```
+
+In one brower:
+
+```coffeescript
+JubileeEventBus = new vertx.EventBus("http://localhost:3215/eventbus")
+JubileeEventBus.registerHandler "test", (data) ->
+  console.info(data)
+
+```
+
+In another:
+
+```coffeescript
+JubileeEventBus = new vertx.EventBus("http://localhost:3215/eventbus")
+JubileeEventBus.send("test", "hello, world")
+```
+
 Roadmap
 -----------
-
-  Eventbus support
 
   Shared data
 
