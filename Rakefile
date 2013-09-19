@@ -27,7 +27,7 @@ Jeweler::Tasks.new do |gem|
   gem.name = "jubilee"
   gem.homepage = "http://github.com/isaiah/jubilee"
   gem.license = "MIT"
-  gem.summary = %Q{JRuby webserver based on Vertx}
+  gem.summary = %Q{More than a server for rack applications.}
   gem.description = %Q{Jubilee is a experimental webserver built for speed, it's based on Vertx.}
   gem.email = "issaria@gmail.com"
   gem.authors = ["Isaiah Peng"]

@@ -61,20 +61,21 @@ Start jubilee in a rack application with:
 $ jubilee --eventbus /eventbus
 ```
 
-In one brower:
+In one browser:
 
-```coffeescript
-JubileeEventBus = new vertx.EventBus("http://localhost:3215/eventbus")
-JubileeEventBus.registerHandler "test", (data) ->
-  console.info(data)
+```javascript
+JubileeEventBus = new vertx.EventBus("http://localhost:3215/eventbus");
+JubileeEventBus.registerHandler("test", function(data){
+  console.info(data);
+});
 
 ```
 
 In another:
 
-```coffeescript
-JubileeEventBus = new vertx.EventBus("http://localhost:3215/eventbus")
-JubileeEventBus.send("test", "hello, world")
+```javascript
+JubileeEventBus = new vertx.EventBus("http://localhost:3215/eventbus");
+JubileeEventBus.send("test", "hello, world");
 ```
 
 Roadmap
