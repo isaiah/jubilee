@@ -63,7 +63,7 @@ public class Server extends RubyObject {
     RubySymbol keystore_password_k = runtime.newSymbol("keystore_password");
     RubySymbol eventbus_prefix_k = runtime.newSymbol("eventbus_prefix");
     RubySymbol number_of_workers_k = runtime.newSymbol("number_of_workers");
-    this.port = RubyInteger.fix2int(options.op_aref(context, port_k));
+    this.port = Integer.parseInt(options.op_aref(context, port_k).toString());
     if (options.has_key_p(host_k).isTrue()) {
         this.host = options.op_aref(context, host_k).toString();
     } else {
@@ -71,7 +71,7 @@ public class Server extends RubyObject {
     }
     this.ssl = options.op_aref(context, ssl_k).isTrue();
     if (options.has_key_p(number_of_workers_k).isTrue())
-      this.numberOfWorkers = RubyInteger.fix2int(options.op_aref(context, number_of_workers_k));
+      this.numberOfWorkers = Integer.parseInt(options.op_aref(context, number_of_workers_k).toString());
     this.app = new RackApplication(app, this.ssl, this.numberOfWorkers);
     if (options.has_key_p(keystore_path_k).isTrue()) {
       this.keyStorePath = options.op_aref(context, keystore_path_k).toString();
@@ -101,8 +101,10 @@ public class Server extends RubyObject {
     });
     if (eventBusPrefix != null) {
       JsonObject config = new JsonObject().putString("prefix", eventBusPrefix);
+        JsonArray allowAll = new JsonArray();
+        allowAll.add(new JsonObject());
       // TODO read inbounds and outbounds from config file
-      vertx.createSockJSServer(httpServer).bridge(config, new JsonArray(), new JsonArray());
+      vertx.createSockJSServer(httpServer).bridge(config, allowAll, allowAll);
     }
     if (ssl) httpServer.setSSL(true).setKeyStorePath(this.keyStorePath)
             .setKeyStorePassword(this.keyStorePassword);

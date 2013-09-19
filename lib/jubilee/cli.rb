@@ -56,7 +56,7 @@ module Jubilee
           @options[:chdir] = arg
         end
         o.on "-p", "--port PORT", "Defind which PORT the server should bind" do |arg|
-          @options[:Port] = arg
+          @options[:Port] = arg.to_i
         end
         o.on "--host HOST", "Defind which HOST the server should bind, default 0.0.0.0" do |arg|
           @options[:Host] = arg

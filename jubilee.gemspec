@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "jubilee"
-  s.version = "0.5.0"
+  s.version = "0.6.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Isaiah Peng"]
@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
     "examples/jubilee/server-keystore.jks",
     "examples/ssl/ServerTest.java",
     "examples/ssl/webroot/index.html",
+    "jars/jackson-annotations-2.2.2.jar",
     "jars/jackson-core-2.2.2.jar",
     "jars/jackson-databind-2.2.2.jar",
     "jars/netty-all-4.0.4.Final.jar",
