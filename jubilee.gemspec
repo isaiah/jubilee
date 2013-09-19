@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "jubilee"
-  s.version = "0.4.1"
+  s.version = "0.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Isaiah Peng"]
-  s.date = "2013-09-16"
+  s.date = "2013-09-19"
   s.description = "Jubilee is a experimental webserver built for speed, it's based on Vertx."
   s.email = "issaria@gmail.com"
   s.executables = ["jubilee", "jubilee_d"]
