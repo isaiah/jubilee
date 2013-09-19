@@ -3,7 +3,7 @@
 Jubilee
 =========
 
-A fast rack server build upon [vertx 2.0](http://vertx.io).
+An experimental rack server built upon [vertx 2.0](http://vertx.io).
 
 Why another rack server?
 ------------------------
@@ -80,6 +80,8 @@ JubileeEventBus.send("test", "hello, world");
 
 Roadmap
 -----------
+
+  Event Bus (wip)
 
   Shared data
 
