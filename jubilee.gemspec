@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
     "examples/ssl/ServerTest.java",
     "examples/ssl/webroot/index.html",
     "jars/jackson-core-2.2.2.jar",
+    "jars/jackson-databind-2.2.2.jar",
     "jars/netty-all-4.0.4.Final.jar",
     "jars/vertx-core-2.1.0-SNAPSHOT.jar",
     "java/src/jubilee/JubileeService.java",
