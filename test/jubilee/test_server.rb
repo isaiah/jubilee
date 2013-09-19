@@ -29,7 +29,6 @@ class TestJubileeServer < MiniTest::Unit::TestCase
 
   def test_server_embeded
     config = Jubilee::Configuration.new(rackup: File.join(File.dirname(__FILE__), "../config/app.rb"))
-    config.load
     @server = Jubilee::Server.new(config.app)
     @server.start
     sleep 0.1

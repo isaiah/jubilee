@@ -7,8 +7,14 @@ module Jubilee
       @block = block
     end
 
-    def load
-      @app = load_rack_adapter(@options, &@block)
+    def app
+      @app ||= load_rack_adapter(@options, &@block)
+      if !@options[:quiet] and @options[:environment] == "development"
+        logger = @options[:logger] || STDOUT
+        Rack::CommonLogger.new(@app, logger)
+      else
+        @app
+      end
     end
 
     def port

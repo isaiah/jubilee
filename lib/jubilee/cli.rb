@@ -21,7 +21,6 @@ module Jubilee
     def run
       parse_options
       @config = Jubilee::Configuration.new(@options)
-      @config.load
       server = Jubilee::Server.new(@config.app, @options)
       server.start
       puts "Jubilee is listening on port #{@config.port}, press Ctrl+C to quit"
