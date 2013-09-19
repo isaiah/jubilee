@@ -4,7 +4,10 @@ require 'spoon'
 
 file_actions = Spoon::FileActions.new
 file_actions.close(1)
-file_actions.open(1, "log/development.log", File::WRONLY | File::TRUNC | File::CREAT, 0600)
+file_actions.open(1, "log/jubilee.stdout.log", File::WRONLY | File::TRUNC | File::CREAT, 0600)
+file_actions.close(2)
+file_actions.open(2, "log/jubilee.stderr.log", File::WRONLY | File::TRUNC | File::CREAT, 0600)
+
 spawn_attr = Spoon::SpawnAttributes.new
-pid = Spoon.posix_spawn('jubilee', file_actions, spawn_attr, *ARGV)
-open("tmp/jubilee.pid"){|f| f.write(pid) }
+pid = Spoon.posix_spawn('jubilee', file_actions, spawn_attr, ARGV)
+open("tmp/jubilee.pid", "w"){|f| f.write(pid) }

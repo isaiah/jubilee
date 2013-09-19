@@ -12,20 +12,26 @@ module Jubilee
     end
 
     def parse_options
-      @parser.parse! @argv
+      argv = @argv.dup
+      @parser.parse! argv
       if @argv.last
-        @options[:rackup] = @argv.shift
+        @options[:rackup] = argv.shift
       end
     end
 
     def run
       parse_options
-      @config = Jubilee::Configuration.new(@options)
-      server = Jubilee::Server.new(@config.app, @options)
-      server.start
-      puts "Jubilee is listening on port #{@config.port}, press Ctrl+C to quit"
-      starter = org.jruby.jubilee.deploy.Starter.new
-      starter.block
+      if @options[:daemon]
+        puts "Starting Jubilee in daemon mode..."
+        `jubilee_d #{(@argv - ["-d", "--daemon"]).join(" ")}`
+      else
+        @config = Jubilee::Configuration.new(@options)
+        server = Jubilee::Server.new(@config.app, @options)
+        server.start
+        puts "Jubilee is listening on port #{@config.port}, press Ctrl+C to quit"
+        starter = org.jruby.jubilee.deploy.Starter.new
+        starter.block
+      end
     end
 
     def setup_options
@@ -43,9 +49,9 @@ module Jubilee
         #o.on "-c", "--config PATH", "Load PATH as a config file" do |arg|
         #  @options[:config_file] = arg
         #end
-        #o.on "-d", "--daemon", "Daemonize the server" do
-        #  @options[:daemon] = true
-        #end
+        o.on "-d", "--daemon", "Daemonize the server" do
+          @options[:daemon] = true
+        end
         o.on "--dir DIR", "Change to DIR before starting" do |arg|
           @options[:chdir] = arg
         end
