@@ -19,10 +19,32 @@ By using Vertx, jubilee inherent advantages in terms of performance, and all
 the [other cool features of Vertx](#roadmap).
 
 Installation
+------------
+
+    $ jruby -S gem install jubilee
+
+Jubilee requires JRuby 1.7.0 or later, JDK 7+
+
+Get started
 -----------
 
-```gem install jubilee```
+    $ cd a-rack-app
+    $ jruby -S jubilee
 
+Setup
+-----
+
+If you use bundler, you might want to add `jubilee` to your Gemfile
+
+    $ jubilee
+
+or if you prefer to use the rack handler(e.g. development) use:
+
+    $ rails s jubilee
+
+or
+
+    $ rackup -s jubilee
 
 Roadmap
 -----------
@@ -32,13 +54,6 @@ Roadmap
   Shared data
 
   Clustering
-
-Requirements
-------------
-
-Java7 or above
-
-JRuby '~> 1.7.0'
 
 License
 --------
