@@ -33,7 +33,7 @@ module Vertx
   # @author {http://tfox.org Tim Fox}
   class SharedData
 
-    @@j_sd = org.vertx.java.platform.impl.JRubyVerticleFactory.vertx.sharedData()
+    @@j_sd = org.jruby.jubilee.vertx.JubileeVertx.vertx().sharedData()
 
     # Return a Hash with the specific name. All invocations of this method with the same value of name
     # are guaranteed to return the same Hash instance.

@@ -53,7 +53,7 @@ module Vertx
 
     @@handler_map = {}
 
-    @@j_eventbus = org.vertx.java.platform.impl.JRubyVerticleFactory.vertx.eventBus()
+    @@j_eventbus = org.jruby.jubilee.vertx.JubileeVertx.vertx().eventBus()
 
     # Send a message on the event bus
     # @param message [Hash] The message to send

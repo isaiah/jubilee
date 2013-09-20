@@ -14,15 +14,6 @@
 
 include Java
 
-require 'vertx/timers'
 require 'vertx/buffer'
-require 'vertx/file_system'
-require 'vertx/http'
-require 'vertx/net'
-require 'vertx/parsetools'
-require 'vertx/streams'
-require 'vertx/shared_data'
 require 'vertx/event_bus'
-require 'vertx/sock_js'
-require 'vertx/dns'
 

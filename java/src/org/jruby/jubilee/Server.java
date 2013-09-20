@@ -2,6 +2,7 @@ package org.jruby.jubilee;
 
 import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.jubilee.vertx.JubileeVertx;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
@@ -41,7 +42,7 @@ public class Server extends RubyObject {
 
   public Server(Ruby ruby, RubyClass rubyClass) {
     super(ruby, rubyClass);
-    vertx = VertxFactory.newVertx();
+    vertx = JubileeVertx.vertx();
     httpServer = vertx.createHttpServer();
   }
 

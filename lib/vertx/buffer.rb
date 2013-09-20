@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'core/shared_data'
+require 'vertx/shared_data'
 
 module Vertx
 
