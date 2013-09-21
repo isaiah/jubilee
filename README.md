@@ -3,7 +3,7 @@
 Jubilee
 =========
 
-An experimental rack server built upon [vertx 2.0](http://vertx.io).
+An rack server with [vertx 2.0](http://vertx.io) built in.
 
 Why another rack server?
 ------------------------
@@ -16,14 +16,18 @@ In short, Vertx is nodejs on the JVM, only much more faster, checkout the awesom
 [benchmarks](http://vertxproject.wordpress.com/2012/05/09/vert-x-vs-node-js-simple-http-benchmarks/)
 
 By using Vertx, jubilee inherent advantages in terms of performance, and all
-the [other cool features of Vertx](#roadmap).
+the other cool features of Vertx:
+
+[Event Bus](#example_tbd)
+[SharedData](#example_tbd)
+[Clustering](#example_tbd)
 
 Installation
 ------------
 
     $ jruby -S gem install jubilee
 
-Jubilee requires JRuby 1.7.0 or later, JDK 7+
+Jubilee requires JRuby 1.7.0 or later, and JDK 7+
 
 Get started
 -----------
@@ -55,7 +59,8 @@ to client and client to client, with the same API!
 Examples
 --------
 
-Start jubilee in a rack application with:
+Assume necessary javascript files are loaded in the page, start jubilee in a 
+rack application with:
 
 ```
 $ jubilee --eventbus /eventbus
@@ -77,15 +82,6 @@ In another:
 JubileeEventBus = new vertx.EventBus("http://localhost:3215/eventbus");
 JubileeEventBus.send("test", "hello, world");
 ```
-
-Roadmap
------------
-
-  Event Bus (wip)
-
-  Shared data
-
-  Clustering
 
 License
 --------
