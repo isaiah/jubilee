@@ -26,7 +26,7 @@ module Jubilee
         `jubilee_d #{(@argv - ["-d", "--daemon"]).join(" ")}`
       else
         @config = Jubilee::Configuration.new(@options)
-        server = Jubilee::Server.new(@config.app, @options)
+        server = Jubilee::Server.new(@config.app, @config)
         server.start
         puts "Jubilee is listening on port #{@config.port}, press Ctrl+C to quit"
         starter = org.jruby.jubilee.deploy.Starter.new
@@ -46,14 +46,14 @@ module Jubilee
         o.separator ""
         o.separator "Server options:"
 
-        #o.on "-c", "--config PATH", "Load PATH as a config file" do |arg|
-        #  @options[:config_file] = arg
-        #end
+        o.on "-c", "--config PATH", "Load PATH as a config file" do |arg|
+          @options[:config_file] = arg
+        end
         o.on "-d", "--daemon", "Daemonize the server" do
           @options[:daemon] = true
         end
         o.on "--dir DIR", "Change to DIR before starting" do |arg|
-          @options[:chdir] = arg
+          @options[:working_directory] = arg
         end
         o.on "-p", "--port PORT", "Defind which PORT the server should bind" do |arg|
           @options[:Port] = arg.to_i
