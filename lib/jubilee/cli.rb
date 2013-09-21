@@ -26,7 +26,7 @@ module Jubilee
         `jubilee_d #{(@argv - ["-d", "--daemon"]).join(" ")}`
       else
         @config = Jubilee::Configuration.new(@options)
-        server = Jubilee::Server.new(@config.app, @config)
+        server = Jubilee::Server.new(@config.app, @config.options)
         server.start
         puts "Jubilee is listening on port #{@config.port}, press Ctrl+C to quit"
         starter = org.jruby.jubilee.deploy.Starter.new

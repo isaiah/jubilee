@@ -1,16 +1,20 @@
 # -*- encoding: binary -*-
 
-# Implements a simple DSK for configuring a Jubilee server
-#
-# See https://github.com/isaiah/jubilee/examples/jubilee.conf.rb
-# for example configuration files.
 module Jubilee
+  # Implements a simple DSL for configuring a Jubilee server
+  #
+  # See https://github.com/isaiah/jubilee/examples/jubilee.conf.rb
+  # for example configuration files.
   class Configuration
-    attr_reader :app
+
+    attr_accessor :config_file
+    attr_reader :options
 
     def initialize(options, &block)
-      @options = options
+      config_file = options.delete(:config_file)
+      @options = options.dup
       @block = block
+
       reload
     end
 
