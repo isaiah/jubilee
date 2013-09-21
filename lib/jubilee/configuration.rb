@@ -38,9 +38,8 @@ module Jubilee
     #   listen 3000 # listen to port 3000 on all TCP interfaces
     #   listen "127.0.0.1:3000"  # listen to port 3000 on the loopback interface
     #   listen "[::1]:3000" # listen to port 3000 on the IPv6 loopback interface
-    def listen(address, options = {})
+    def listen(address)
       @options[:host], @options[:port] = expand_addr(address)
-      @options.merge! options
     end
 
     # sets the working directory for jubilee
@@ -70,9 +69,12 @@ module Jubilee
       @options[:event_bus][:outbound] = options[:outbound]
     end
 
-    # Set the port to be discovered by other jubilee instances in the network
-    def clustering(port)
-      set_int(:cluster_port, port, 1025)
+    # Set the host and port to be discovered by other jubilee instances in the network
+    # +address+ may be an Integer port number for a TCP port or an
+    # "IP_ADDRESS:PORT" for TCP listeners, or "IP_ADDRESS" and let the system
+    # to assign a port
+    def clustering(address)
+      @options[:cluster_host], @options[:cluster_port] = expand_addr(address)
     end
 
     # enable debug messages
@@ -125,14 +127,16 @@ module Jubilee
     end
 
     def expand_addr(addr)
-      return "0.0.0.0:#{addr}" if addr === Integer
+      return ["0.0.0.0", addr] if addr === Integer
       case addr
       when %r{\A(?:\*:)?(\d+)\z}
-        "0.0.0.0:#$1"
+        ["0.0.0.0", $1]
       when %r{\A\[([a-fA-F0-9:]+)\]:(\d+)\z}, %r{\A(.*):(\d+)\z}
         canonicalize_tcp($1, $2.to_i)
+      when %r{\A?:\*\z}
+        [addr, nil]
       else
-        addr
+        raise ArgumentError, "unrecognizable address #{var}=#{addr.inspect}"
       end
     end
 
@@ -163,7 +167,7 @@ module Jubilee
     def canonicalize_tcp(addr, port)
       packed = Socket.pack_sockaddr_in(port, addr)
       port, addr = Socket.unpack_sockaddr_in(packed)
-      /:/ =~ addr ? "[#{addr}]:#{port}" : "#{addr}:#{port}"
+      /:/ =~ addr ? ["[#{addr}]",port] : [addr, port]
     end
   end
 end

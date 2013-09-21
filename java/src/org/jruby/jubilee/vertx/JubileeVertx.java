@@ -12,12 +12,27 @@ import org.vertx.java.core.shareddata.SharedData;
  * Time: 15:24
  */
 public class JubileeVertx {
-    private static Vertx vertx;
+    public static Vertx vertx;
     private JubileeVertx() {
     }
+    public static synchronized Vertx init(int port, String host) {
+        if (vertx != null) return vertx;
+        vertx = VertxFactory.newVertx(port, host);
+        return vertx;
+    }
+    public static synchronized Vertx init(String host) {
+        if (vertx != null) return vertx;
+        vertx = VertxFactory.newVertx(host);
+        return vertx;
+    }
+    public static synchronized Vertx init() {
+        if (vertx != null) return vertx;
+        vertx = VertxFactory.newVertx();
+        return vertx;
+    }
 
-    public static synchronized Vertx vertx() {
-        if (vertx == null) vertx = VertxFactory.newVertx();
+    public synchronized static Vertx vertx() {
+        if (vertx == null) init();
         return vertx;
     }
 }

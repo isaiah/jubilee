@@ -76,9 +76,15 @@ module Jubilee
           @options[:keystore_password] = arg
         end
         o.separator ""
-        o.separator "Event bus options"
-        o.on "--eventbus PREFIX", "Event bus prefix" do |arg|
+        o.separator "Event bus options:"
+        o.on "--eventbus PREFIX", "Event bus prefix, use allow-all policy by default" do |arg|
           @options[:eventbus_prefix] = arg
+        end
+
+        o.separator ""
+        o.separator "Clustering options:"
+        o.on "--cluster", "Enable clustering" do
+          @options[:cluster_host] = "0.0.0.0"
         end
 
         o.separator ""
