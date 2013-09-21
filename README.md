@@ -18,9 +18,11 @@ In short, Vertx is nodejs on the JVM, only much more faster, checkout the awesom
 By using Vertx, jubilee inherent advantages in terms of performance, and all
 the other cool features of Vertx:
 
-[Event Bus](#example_tbd)
-[SharedData](#example_tbd)
-[Clustering](#example_tbd)
+* [EventBus](https://github.com/isaiah/jubilee/wiki/Event-Bus)
+* [SharedData](https://github.com/isaiah/jubilee/wiki/SharedData)
+* [Clustering](https://github.com/isaiah/jubilee/wiki/Clustering)
+
+
 
 Installation
 ------------
