@@ -28,7 +28,7 @@ module Jubilee
         @config = Jubilee::Configuration.new(@options)
         server = Jubilee::Server.new(@config.app, @config.options)
         server.start
-        puts "Jubilee is listening on port #{@config.port}, press Ctrl+C to quit"
+        puts "Jubilee is listening on port #{@config.options[:Port]}, press Ctrl+C to quit"
         starter = org.jruby.jubilee.deploy.Starter.new
         starter.block
       end

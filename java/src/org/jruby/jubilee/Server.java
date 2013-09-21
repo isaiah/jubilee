@@ -84,9 +84,9 @@ public class Server extends RubyObject {
 
         /* init vertx */
         if (options.has_key_p(cluster_host_k).isTrue()) {
-            this.clusterPort = Integer.parseInt(options.op_aref(context, cluster_port_k).toString());
-            if (options.has_key_p(cluster_host_k).isTrue()) {
-                this.clusterHost = options.op_aref(context, cluster_host_k).toString();
+            this.clusterHost = options.op_aref(context, cluster_host_k).toString();
+            if (options.has_key_p(cluster_port_k).isTrue()) {
+                this.clusterPort = Integer.parseInt(options.op_aref(context, cluster_port_k).toString());
                 this.vertx = JubileeVertx.init(clusterPort, clusterHost);
             }
             this.vertx = JubileeVertx.init(clusterHost);
