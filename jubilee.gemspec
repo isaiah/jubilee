@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Isaiah Peng"]
-  s.date = "2013-09-19"
+  s.date = "2013-09-21"
   s.description = "Jubilee is a experimental webserver built for speed, it's based on Vertx."
   s.email = "issaria@gmail.com"
   s.executables = ["jubilee", "jubilee_d"]
@@ -28,10 +28,12 @@ Gem::Specification.new do |s|
     "VERSION",
     "bin/jubilee",
     "bin/jubilee_d",
+    "examples/jubilee.conf.rb",
     "examples/jubilee/keystore.jks",
     "examples/jubilee/server-keystore.jks",
     "examples/ssl/ServerTest.java",
     "examples/ssl/webroot/index.html",
+    "jars/hazelcast-2.6.jar",
     "jars/jackson-annotations-2.2.2.jar",
     "jars/jackson-core-2.2.2.jar",
     "jars/jackson-databind-2.2.2.jar",
@@ -50,6 +52,7 @@ Gem::Specification.new do |s|
     "java/src/org/jruby/jubilee/impl/NullIO.java",
     "java/src/org/jruby/jubilee/impl/RubyIORackErrors.java",
     "java/src/org/jruby/jubilee/impl/RubyIORackInput.java",
+    "java/src/org/jruby/jubilee/vertx/JubileeVertx.java",
     "jubilee.gemspec",
     "lib/jubilee.rb",
     "lib/jubilee/application.rb",
@@ -64,23 +67,12 @@ Gem::Specification.new do |s|
     "lib/vertx.rb",
     "lib/vertx/README.md",
     "lib/vertx/buffer.rb",
-    "lib/vertx/dns.rb",
     "lib/vertx/event_bus.rb",
-    "lib/vertx/file_system.rb",
-    "lib/vertx/http.rb",
-    "lib/vertx/net.rb",
-    "lib/vertx/parsetools.rb",
     "lib/vertx/shared_data.rb",
-    "lib/vertx/sock_js.rb",
-    "lib/vertx/ssl_support.rb",
-    "lib/vertx/streams.rb",
-    "lib/vertx/tcp_support.rb",
-    "lib/vertx/timers.rb",
-    "lib/vertx/wrapped_handler.rb",
     "test/.ruby-version",
     "test/config/app.rb",
     "test/jubilee/test_cli.rb",
-    "test/jubilee/test_config.rb",
+    "test/jubilee/test_configuration.rb",
     "test/jubilee/test_rack_server.rb",
     "test/jubilee/test_response.rb",
     "test/jubilee/test_server.rb",

@@ -59,7 +59,6 @@ module Jubilee
       set_int(:worker_threads, nr, 1)
     end
 
-    # TODO more precise
     # set the event bus bridge prefix, prefix, options
     # eventbus /eventbus, inbound: {foo:bar}, outbound: {foo: bar}
     # will set the event bus prefix as eventbus "/eventbus", it can be
