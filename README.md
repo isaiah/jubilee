@@ -3,9 +3,9 @@
 Jubilee
 =========
 
-> "A web framework for Vert.x" You said.
+> "We need a web framework for Vertx.", you said.
 
-> "But why not use Vert.x in your Rails applications, it's the most productive web framework ever existed.".
+> "But why not use Vertx in your Rails applications, it's the most productive web framework ever created."
 
 The Answer is Jubilee, an rack server with [vertx 2.0](http://vertx.io) awesomeness builtin.
 
