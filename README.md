@@ -61,8 +61,8 @@ to client and client to client, with the same API!
 Examples
 --------
 
-Assume necessary javascript files are loaded in the page, start jubilee in a 
-rack application with:
+Assume necessary javascript files are loaded in the page (they can be found [here](https://github.com/isaiah/jubilee/tree/master/examples/client)),
+start jubilee in a rack application with:
 
 ```
 $ jubilee --eventbus /eventbus
@@ -71,8 +71,8 @@ $ jubilee --eventbus /eventbus
 In one browser:
 
 ```javascript
-JubileeEventBus = new vertx.EventBus("http://localhost:3215/eventbus");
-JubileeEventBus.registerHandler("test", function(data){
+var eb = new vertx.EventBus("/eventbus");
+eb.registerHandler("test", function(data){
   console.info(data);
 });
 
@@ -81,9 +81,12 @@ JubileeEventBus.registerHandler("test", function(data){
 In another:
 
 ```javascript
-JubileeEventBus = new vertx.EventBus("http://localhost:3215/eventbus");
-JubileeEventBus.send("test", "hello, world");
+var eb = new vertx.EventBus("/eventbus");
+eb.send("test", "hello, world");
 ```
+
+For more advanced examples, checkout the
+[chatapp](https://github.com/isaiah/jubilee/tree/master/examples/chatapp).
 
 License
 --------
