@@ -1,7 +1,11 @@
 GEM
   specs:
+    ffi (1.9.0-java)
     haml (4.0.3)
       tilt
+    jubilee (1.0.0.beta1)
+      rack (>= 1.4.1)
+      spoon (~> 0.0.4)
     rack (1.5.2)
     rack-protection (1.5.0)
       rack
@@ -9,6 +13,8 @@ GEM
       rack (~> 1.4)
       rack-protection (~> 1.4)
       tilt (~> 1.3, >= 1.3.4)
+    spoon (0.0.4)
+      ffi
     tilt (1.4.1)
 
 PLATFORMS
@@ -16,4 +22,5 @@ PLATFORMS
 
 DEPENDENCIES
   haml
+  jubilee (= 1.0.0.beta1)
   sinatra
