@@ -27,7 +27,7 @@ the other cool features of Vertx:
 Installation
 ------------
 
-    $ jruby -S gem install jubilee
+    $ jruby -S gem install jubilee --pre
 
 Jubilee requires JRuby 1.7.0 or later, and JDK 7+
 
