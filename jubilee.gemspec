@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "jubilee"
-  s.version = "0.6.0"
+  s.version = "1.0.0a"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Isaiah Peng"]
-  s.date = "2013-09-21"
+  s.date = "2013-09-22"
   s.description = "Jubilee is a experimental webserver built for speed, it's based on Vertx."
   s.email = "issaria@gmail.com"
   s.executables = ["jubilee", "jubilee_d"]
@@ -28,11 +28,11 @@ Gem::Specification.new do |s|
     "VERSION",
     "bin/jubilee",
     "bin/jubilee_d",
+    "examples/client/sockjs-0.3.4.min.js",
+    "examples/client/vertxbus.js",
     "examples/jubilee.conf.rb",
     "examples/jubilee/keystore.jks",
     "examples/jubilee/server-keystore.jks",
-    "examples/ssl/ServerTest.java",
-    "examples/ssl/webroot/index.html",
     "jars/hazelcast-2.6.jar",
     "jars/jackson-annotations-2.2.2.jar",
     "jars/jackson-core-2.2.2.jar",
