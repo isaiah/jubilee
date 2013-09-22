@@ -2,7 +2,7 @@
 
 Jubilee
 =========
-
+ 
 > "We need a web framework for Vertx.", you said.
 
 > "But why not use Vertx in your Rails applications, it's the most productive web framework ever created."
@@ -12,9 +12,9 @@ The Answer is Jubilee, an rack server with [vertx 2.0](http://vertx.io) awesomen
 Why another rack server?
 ------------------------
 
-"Vert.x is a lightweight, high performance application platform for the JVM
-that's designed for modern mobile, web, and enterprise applications."
-      -- vertx.io site
+> "Vert.x is a lightweight, high performance application platform for the JVM
+> that's designed for modern mobile, web, and enterprise applications."
+>      - vertx.io site
 
 In short, Vertx is nodejs on the JVM, only much more faster, checkout the awesome
 [benchmarks](http://vertxproject.wordpress.com/2012/05/09/vert-x-vs-node-js-simple-http-benchmarks/)
