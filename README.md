@@ -7,7 +7,7 @@ Jubilee
 
 > "But why not use Vertx in your Rails applications, it's the most productive web framework ever created."
 
-The Answer is Jubilee, an rack server with [vertx 2.0](http://vertx.io) awesomeness builtin.
+The Answer is Jubilee, a rack server with [vertx 2.0](http://vertx.io) awesomeness builtin.
 
 Why another rack server?
 ------------------------
