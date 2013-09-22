@@ -73,8 +73,17 @@ module Jubilee
     # +address+ may be an Integer port number for a TCP port or an
     # "IP_ADDRESS:PORT" for TCP listeners, or "IP_ADDRESS" and let the system
     # to assign a port
+    #
+    #    clustering true # enable cluster mode, default to "0.0.0.0:5701"
+    #    clustering "0.0.0.0"
+    #    clustering "0.0.0.0:5701"
+    #    clustering 5701
     def clustering(address)
-      @options[:cluster_host], @options[:cluster_port] = expand_addr(address)
+      if addr == true
+        @options[:cluster_host] = "0.0.0.0"
+      else
+        @options[:cluster_host], @options[:cluster_port] = expand_addr(address)
+      end
     end
 
     # enable debug messages

@@ -1,9 +1,6 @@
 # Listen to port 3000
 listen 3000
 
-# daemonize mode
-daemonize false
-
 # the number of workers to serve client
 worker_threads 4
 
