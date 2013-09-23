@@ -1,0 +1,6 @@
+Known issues
+============
+
+* Doesn't provide a way to stop daemonized instances
+
+* Doesn't support rack async.callback
