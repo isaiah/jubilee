@@ -6,6 +6,7 @@ module Jubilee
 
     def initialize(array)
       @status, @headers, @body = *array
+      @status = @status.to_i
       @content_length = nil
       if @body.kind_of? Array and @body.size == 1
         @content_length = @body[0].bytesize
