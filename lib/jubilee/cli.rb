@@ -21,6 +21,9 @@ module Jubilee
 
     def run
       parse_options
+
+      ENV["RACK_ENV"] = @options[:environment]
+
       if @options[:daemon]
         puts "Starting Jubilee in daemon mode..."
         `jubilee_d #{(@argv - ["-d", "--daemon"]).join(" ")}`
