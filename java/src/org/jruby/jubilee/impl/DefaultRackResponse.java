@@ -16,7 +16,8 @@ public class DefaultRackResponse implements RackResponse {
     private int statusCode;
     private RubyHash headers;
     private IRubyObject body;
-    private int contentLength;
+    private int contentLength = 0;
+    private boolean contentLengthSet = false;
     private ThreadContext context;
 
     public DefaultRackResponse(ThreadContext context, IRubyObject statusCode, IRubyObject headers, IRubyObject body) {
@@ -37,16 +38,15 @@ public class DefaultRackResponse implements RackResponse {
             @Override
             public void visit(IRubyObject key, IRubyObject val) {
                 if (key.asJavaString().equals(Const.CONTENT_LENGTH)) {
-                    contentLength = (int) val.convertToInteger().getLongValue();
-                } else {
-                    response.putHeader(key.asJavaString(), val.asJavaString());
+                    contentLengthSet = true;
                 }
+                response.putHeader(key.asJavaString(), val.asJavaString());
             }
         });
         // FIXME: other no body response
         if (this.statusCode > 200) {
-            if (this.contentLength != 0)
-                response.putHeader(Const.CONTENT_LENGTH, new Integer(this.contentLength).toString());
+            if (this.contentLength != 0 && !contentLengthSet)
+                response.putHeader(Const.CONTENT_LENGTH, this.contentLength + "");
             else
                 response.setChunked(true);
 
