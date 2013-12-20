@@ -29,6 +29,7 @@ public class RackApplication {
   private IRubyObject app;
   private boolean ssl;
   private ThreadContext context;
+  private ByteBuf bodyBuf;
 
   private ExecutorService exec;
 
@@ -38,17 +39,19 @@ public class RackApplication {
     this.context = context;
 
     exec = Executors.newFixedThreadPool(numberOfWorkers);
+
+    this.bodyBuf = Unpooled.unreleasableBuffer(Unpooled.buffer(0, Integer.MAX_VALUE));
   }
 
   public void call(final HttpServerRequest request) {
-    final ByteBuf bodyBuf = Unpooled.unreleasableBuffer(Unpooled.buffer(0, Integer.MAX_VALUE));
+    bodyBuf.clear();
     final Ruby runtime = this.context.runtime;
     final AtomicBoolean eof = new AtomicBoolean(false);
     request.dataHandler(new Handler<Buffer>() {
-      @Override
-      public void handle(Buffer buffer) {
-        bodyBuf.writeBytes(buffer.getBytes());
-      }
+        @Override
+        public void handle(Buffer buffer) {
+            bodyBuf.writeBytes(buffer.getBytes());
+        }
     });
     // TODO optimize by use NullIO when there is no body here.
     exec.execute(new Runnable() {
@@ -57,15 +60,9 @@ public class RackApplication {
         RackInput input = new RubyIORackInput(runtime, request, bodyBuf, eof);
         RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
         IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
-        /*
-            RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
-        */
-        IRubyObject tmp = TypeConverter.convertToTypeWithCheck(result, runtime.getArray(), "to_ary");
-        if (!tmp.isNil()) {
-            RubyArray ary = (RubyArray) tmp;
-            RackResponse response = new DefaultRackResponse(context, ary.shift(context), ary.shift(context), ary.shift(context));
-            response.respond(request.response());
-        }
+        RubyArray ary = result.convertToArray();
+        RackResponse response = new DefaultRackResponse(context, ary.shift(context), ary.shift(context), ary.shift(context));
+        response.respond(request.response());
       }
     });
 
