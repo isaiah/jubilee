@@ -19,7 +19,7 @@ module Jubilee
       write_headers(response)
       if no_body
         response.end
-      else 
+      else
         if @body.respond_to?(:to_path)
           response.sendFile(@body.to_path)
         else

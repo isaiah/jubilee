@@ -1,6 +1,7 @@
 package org.jruby.jubilee;
 
 import org.jruby.*;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.jubilee.vertx.JubileeVertx;
 import org.jruby.runtime.Block;
@@ -14,7 +15,8 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-public class Server extends RubyObject {
+@JRubyClass(name = "Server")
+public class RubyServer extends RubyObject {
     private Vertx vertx;
     private HttpServer httpServer;
     private RackApplication app;
@@ -32,16 +34,16 @@ public class Server extends RubyObject {
     public static void createServerClass(Ruby runtime) {
         RubyModule mJubilee = runtime.defineModule("Jubilee");
         RubyClass serverClass = mJubilee.defineClassUnder("VertxServer", runtime.getObject(), ALLOCATOR);
-        serverClass.defineAnnotatedMethods(Server.class);
+        serverClass.defineAnnotatedMethods(RubyServer.class);
     }
 
     private static ObjectAllocator ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby ruby, RubyClass rubyClass) {
-            return new Server(ruby, rubyClass);
+            return new RubyServer(ruby, rubyClass);
         }
     };
 
-    public Server(Ruby ruby, RubyClass rubyClass) {
+    public RubyServer(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
     }
 
@@ -49,7 +51,7 @@ public class Server extends RubyObject {
      * Initialize jubilee server, take a rack application and a configuration hash as parameter
      *
      * @param context
-     * @param args
+     * @param config
      * @param block
      * @return
      */
@@ -78,7 +80,7 @@ public class Server extends RubyObject {
             this.keyStorePath = options.op_aref(context, keystore_path_k).toString();
             this.keyStorePassword = options.op_aref(context, keystore_password_k).toString();
         }
-        this.app = new RackApplication(app, this.ssl, this.numberOfWorkers);
+        this.app = new RackApplication(context, app, this.ssl, this.numberOfWorkers);
         if (options.has_key_p(eventbus_prefix_k).isTrue())
             this.eventBusPrefix = options.op_aref(context, eventbus_prefix_k).toString();
 

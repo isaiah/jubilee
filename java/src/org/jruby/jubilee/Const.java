@@ -37,6 +37,8 @@ public final class Const {
     public static final String QUERY_STRING = "QUERY_STRING";
     public static final String LOCALHOST = "localhost";
     public static final String PORT_80 = "80";
+    public static final String CONTENT_LENGTH = "Content-Length";
+    public static final String TRANSFER_ENCODING = "Transfer-Encoding";
 
     public static final String REMOTE_ADDR = "REMOTE_ADDR";
     public static final String HTTP_HOST = "HTTP_HOST";
