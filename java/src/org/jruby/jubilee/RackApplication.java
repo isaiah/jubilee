@@ -7,6 +7,7 @@ import org.jruby.RubyClass;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.DefaultRackEnvironment;
 import org.jruby.jubilee.impl.RubyIORackInput;
+import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.VoidHandler;
@@ -26,23 +27,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RackApplication {
   private IRubyObject app;
   private boolean ssl;
+  private ThreadContext context;
 
   private ExecutorService exec;
 
-  public RackApplication(IRubyObject app, boolean ssl, int numberOfWorkers) {
+  public RackApplication(ThreadContext context, IRubyObject app, boolean ssl, int numberOfWorkers) {
     this.app = app;
     this.ssl = ssl;
+    this.context = context;
     exec = Executors.newFixedThreadPool(numberOfWorkers);
   }
 
   public void call(final HttpServerRequest request) {
-    final ByteBuf bodyBuf = Unpooled.unreleasableBuffer(Unpooled.buffer(0, Integer.MAX_VALUE));
-    final Ruby runtime = app.getRuntime();
+    final ByteBuf bodyBuf = Unpooled.buffer(0, Integer.MAX_VALUE);
+    final Ruby runtime = context.runtime;
     final AtomicBoolean eof = new AtomicBoolean(false);
     request.dataHandler(new Handler<Buffer>() {
       @Override
       public void handle(Buffer buffer) {
-        bodyBuf.writeBytes(buffer.getBytes());
+        bodyBuf.writeBytes(buffer.getByteBuf());
       }
     });
     // TODO optimize by use NullIO when there is no body here.

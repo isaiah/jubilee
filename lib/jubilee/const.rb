@@ -35,6 +35,6 @@ module Jubilee
     HTTP_CONNECTION = "HTTP_CONNECTION".freeze
     NEWLINE = "\n".freeze
 
-    STATUS_WITH_NO_ENTITY_BODY = Hash[Rack::Utils::STATUS_WITH_NO_ENTITY_BODY.map{|s| [s, true]}]
+    STATUS_WITH_NO_ENTITY_BODY = Hash[[204,205,304].map{|s| [s, true]}]
   end
 end

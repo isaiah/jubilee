@@ -13,6 +13,7 @@ module Jubilee
       end
     end
 
+    # See Rack::Utils::
     def respond(response)
       no_body = @status < 200 || STATUS_WITH_NO_ENTITY_BODY[@status]
       write_status(response)

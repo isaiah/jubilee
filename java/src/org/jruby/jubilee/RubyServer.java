@@ -49,7 +49,8 @@ public class RubyServer extends RubyObject {
      * Initialize jubilee server, take a rack application and a configuration hash as parameter
      *
      * @param context
-     * @param args
+     * @param app
+     * @param config
      * @param block
      * @return
      */
@@ -78,7 +79,7 @@ public class RubyServer extends RubyObject {
             this.keyStorePath = options.op_aref(context, keystore_path_k).toString();
             this.keyStorePassword = options.op_aref(context, keystore_password_k).toString();
         }
-        this.app = new RackApplication(app, this.ssl, this.numberOfWorkers);
+        this.app = new RackApplication(context, app, this.ssl, this.numberOfWorkers);
         if (options.has_key_p(eventbus_prefix_k).isTrue())
             this.eventBusPrefix = options.op_aref(context, eventbus_prefix_k).toString();
 
