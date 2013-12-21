@@ -19,7 +19,7 @@ import org.jruby.runtime.builtin.IRubyObject;
  */
 public class NullIO extends RubyObject implements RackInput {
     public static RubyClass createNullIOClass(Ruby ruby) {
-        RubyModule jModule = ruby.defineModule("Jubilee");
+        RubyModule jModule = ruby.getOrCreateModule("Jubilee");
         RubyClass nullIOClass = jModule.defineClassUnder("NullIO", ruby.getObject(), ALLOCATOR);
         nullIOClass.defineAnnotatedMethods(NullIO.class);
         return nullIOClass;

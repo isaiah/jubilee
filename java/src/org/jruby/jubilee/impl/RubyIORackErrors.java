@@ -19,7 +19,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 public class RubyIORackErrors extends RubyObject implements RackErrors {
 
     public static RubyClass createRubyIORackErrorsClass(Ruby runtime) {
-        RubyModule jModule = runtime.defineModule("Jubilee");
+        RubyModule jModule = runtime.getOrCreateModule("Jubilee");
         RubyClass rackErrorsClass = jModule.defineClassUnder("RubyIORackErrors", runtime.getObject(), ALLOCATOR);
         rackErrorsClass.defineAnnotatedMethods(RubyIORackErrors.class);
         return rackErrorsClass;

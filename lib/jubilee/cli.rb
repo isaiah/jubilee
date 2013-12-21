@@ -42,6 +42,7 @@ module Jubilee
         debug: false,
         daemon: false,
         Port: 3215,
+        Host: "0.0.0.0",
         ssl: false,
         environment: ENV["RACK_ENV"] || "development"
       }

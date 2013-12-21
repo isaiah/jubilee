@@ -21,19 +21,21 @@ module Jubilee
         response.end
       else 
         if @body.respond_to?(:to_path)
-          response.sendFile(@body.to_path)
+          response.send_file(@body.to_path)
         else
           write_body(response)
           response.end
         end
       end
+    rescue NativeException => e
+      puts e
     ensure
       @body.close if @body.respond_to?(:close)
     end
 
     private
     def write_status(response)
-      response.setStatusCode(@status)
+      response.status_code = @status
     end
 
     def write_headers(response)
@@ -48,16 +50,16 @@ module Jubilee
         end
         # Multiple values are joined by \n
         values.split(NEWLINE).each do |value|
-          response.putHeader(key, value)
+          response.put_header(key, value)
         end
       end
     end
 
     def write_body(response)
       if @content_length
-        response.putHeader(CONTENT_LENGTH, @content_length.to_s)
+        response.put_header(CONTENT_LENGTH, @content_length.to_s)
       else
-        response.setChunked(true)
+        response.chunked = true
       end
 
       @body.each do |part|

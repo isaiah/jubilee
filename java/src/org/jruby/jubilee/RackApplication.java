@@ -3,6 +3,7 @@ package org.jruby.jubilee;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jruby.Ruby;
+import org.jruby.RubyClass;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.DefaultRackEnvironment;
 import org.jruby.jubilee.impl.RubyIORackInput;
@@ -52,7 +53,10 @@ public class RackApplication {
         RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
         IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
         RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
-        response.respond(request.response());
+          RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
+                  (RubyClass) runtime.getClassFromPath("Jubilee::HttpServerResponse"),
+                  request.response());
+        response.respond(resp);
       }
     };
     exec.execute(task);

@@ -14,7 +14,7 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-public class Server extends RubyObject {
+public class RubyServer extends RubyObject {
     private Vertx vertx;
     private HttpServer httpServer;
     private RackApplication app;
@@ -32,16 +32,16 @@ public class Server extends RubyObject {
     public static void createServerClass(Ruby runtime) {
         RubyModule mJubilee = runtime.defineModule("Jubilee");
         RubyClass serverClass = mJubilee.defineClassUnder("VertxServer", runtime.getObject(), ALLOCATOR);
-        serverClass.defineAnnotatedMethods(Server.class);
+        serverClass.defineAnnotatedMethods(RubyServer.class);
     }
 
     private static ObjectAllocator ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby ruby, RubyClass rubyClass) {
-            return new Server(ruby, rubyClass);
+            return new RubyServer(ruby, rubyClass);
         }
     };
 
-    public Server(Ruby ruby, RubyClass rubyClass) {
+    public RubyServer(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
     }
 
