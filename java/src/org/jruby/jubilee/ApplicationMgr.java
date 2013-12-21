@@ -23,8 +23,14 @@ public final class ApplicationMgr {
     }
 
     public RackApplication getApp() {
-        RackApplication rackApp = apps.poll();
+        RackApplication rackApp;
+        rackApp = apps.poll();
         if (rackApp != null) return rackApp;
+        context.runtime.getOutputStream().println("======================");
+        context.runtime.getOutputStream().println("create new app");
+
+
+        context.runtime.getOutputStream().println("======================");
         IRubyObject app = configurator.callMethod(context, "app");
         rackApp = new RackApplication(context, app, ssl, this);
         return rackApp;

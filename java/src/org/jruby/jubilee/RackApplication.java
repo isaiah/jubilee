@@ -62,9 +62,16 @@ public class RackApplication {
       RackInput input = new RubyIORackInput(runtime, request, bodyBuf, eof);
       RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
       IRubyObject result = app.callMethod(context, "call", env.getEnv());
-      RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
+      //RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
+      //==========
+      RubyClass rackResponseClass = (RubyClass) runtime.getClassFromPath("Jubilee::Response");
+      IRubyObject response = rackResponseClass.allocate();
+      response.callMethod(context, "initialize", result);
+
+      //==========
+
       RubyHttpServerResponse httpResp = new RubyHttpServerResponse(runtime, (RubyClass) runtime.getClassFromPath("Jubilee::HttpServerResponse"), request.response());
-      response.respond(httpResp);
+      ((RackResponse) response).respond(httpResp);
       mgr.returnApp(this);
   }
 }

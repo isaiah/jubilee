@@ -23,7 +23,7 @@ public class RubyHttpServerResponse extends RubyObject {
                 return new RubyHttpServerResponse(ruby, rubyClass);
             }
         });
-        klazz.defineAnnotatedMethods(RubyServer.class);
+        klazz.defineAnnotatedMethods(RubyHttpServerResponse.class);
         return klazz;
     }
 

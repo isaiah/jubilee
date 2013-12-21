@@ -43,6 +43,7 @@ Rake::TestTask.new(:test) do |test|
 end
 
 task :test => :jar
+task :install => :jar
 
 #require 'rcov/rcovtask'
 #Rcov::RcovTask.new do |test|
