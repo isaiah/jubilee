@@ -1,6 +1,5 @@
 package org.jruby.jubilee;
 
-
 /**
  * Created with IntelliJ IDEA.
  * User: isaiah
