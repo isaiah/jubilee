@@ -22,13 +22,14 @@ module Jubilee
       instance_eval(File.read(config_file), config_file) if config_file
     end
 
+    # Create a new rack application on every method call
     def app
-      @app ||= load_rack_adapter(@options, &@block)
+      app = load_rack_adapter(@options, &@block)
       if !@options[:quiet] and @options[:environment] == "development"
         logger = @options[:logger] || STDOUT
-        Rack::CommonLogger.new(@app, logger)
+        Rack::CommonLogger.new(app, logger)
       else
-        @app
+        app
       end
     end
 

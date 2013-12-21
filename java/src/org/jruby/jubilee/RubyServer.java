@@ -15,11 +15,13 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @JRubyClass(name = "Server")
 public class RubyServer extends RubyObject {
     private Vertx vertx;
     private HttpServer httpServer;
-    private RackApplication app;
     private boolean running = false;
     private boolean ssl = false;
     private String keyStorePath;
@@ -30,6 +32,8 @@ public class RubyServer extends RubyObject {
     private String host;
     private int clusterPort;
     private String clusterHost;
+    private ExecutorService exec;
+    private ApplicationMgr applicationMgr;
 
     public static void createServerClass(Ruby runtime) {
         RubyModule mJubilee = runtime.defineModule("Jubilee");
@@ -45,6 +49,7 @@ public class RubyServer extends RubyObject {
 
     public RubyServer(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
+        this.exec = Executors.newFixedThreadPool(numberOfWorkers);
     }
 
     /**
@@ -56,7 +61,7 @@ public class RubyServer extends RubyObject {
      * @return
      */
     @JRubyMethod(name = "initialize")
-    public IRubyObject initialize(ThreadContext context, IRubyObject app, IRubyObject config, Block block) {
+    public IRubyObject initialize(ThreadContext context, IRubyObject configurator, IRubyObject config, Block block) {
         Ruby runtime = getRuntime();
         /* configuration keys */
         RubyHash options = config.convertToHash();
@@ -80,7 +85,6 @@ public class RubyServer extends RubyObject {
             this.keyStorePath = options.op_aref(context, keystore_path_k).toString();
             this.keyStorePassword = options.op_aref(context, keystore_password_k).toString();
         }
-        this.app = new RackApplication(context, app, this.ssl, this.numberOfWorkers);
         if (options.has_key_p(eventbus_prefix_k).isTrue())
             this.eventBusPrefix = options.op_aref(context, eventbus_prefix_k).toString();
 
@@ -98,6 +102,8 @@ public class RubyServer extends RubyObject {
 
         httpServer = vertx.createHttpServer();
 
+        this.applicationMgr = new ApplicationMgr(context, configurator, this.ssl, this.numberOfWorkers);
+
         if (block.isGiven()) block.yieldSpecific(context);
         return this;
     }
@@ -114,7 +120,13 @@ public class RubyServer extends RubyObject {
         httpServer.setAcceptBacklog(10000);
         httpServer.requestHandler(new Handler<HttpServerRequest>() {
             public void handle(final HttpServerRequest req) {
-                app.call(req);
+                exec.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        RackApplication app = applicationMgr.getApp();
+                        app.call(req);
+                    }
+                });
             }
         });
         if (eventBusPrefix != null) {
@@ -157,13 +169,11 @@ public class RubyServer extends RubyObject {
     @JRubyMethod(name = {"stop", "close"}, optional = 1)
     public IRubyObject close(ThreadContext context, IRubyObject[] args, Block block) {
         if (running) {
-            if (args.length == 1)
-                app.shutdown(args[0].isTrue());
-            else
-                app.shutdown(false);
+            if (args.length == 1 && args[0].isTrue()) this.exec.shutdownNow();
+            else this.exec.shutdown();
 
-            this.running = false;
             httpServer.close();
+            this.running = false;
             if (block.isGiven()) block.yieldSpecific(context);
         } else {
             getRuntime().getOutputStream().println("jubilee server not running?");

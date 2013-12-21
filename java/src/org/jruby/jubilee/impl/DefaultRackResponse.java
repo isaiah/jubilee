@@ -22,7 +22,10 @@ public class DefaultRackResponse implements RackResponse {
 
     public DefaultRackResponse(ThreadContext context, IRubyObject statusCode, IRubyObject headers, IRubyObject body) {
         this.context = context;
-        this.statusCode = RubyNumeric.num2int(statusCode);
+        if (statusCode instanceof RubyFixnum)
+            this.statusCode = RubyNumeric.num2int(statusCode);
+        else
+            this.statusCode = Integer.parseInt(statusCode.asJavaString());
         this.body = body;
         this.headers = headers.convertToHash();
 
@@ -33,7 +36,6 @@ public class DefaultRackResponse implements RackResponse {
     public void respond(final HttpServerResponse response) {
         final Ruby runtime = context.runtime;
         response.setStatusCode(this.statusCode);
-
         this.headers.visitAll(new RubyHash.Visitor() {
             @Override
             public void visit(IRubyObject key, IRubyObject val) {
@@ -43,8 +45,8 @@ public class DefaultRackResponse implements RackResponse {
                 response.putHeader(key.asJavaString(), val.asJavaString());
             }
         });
-        // FIXME: other no body response
-        if (this.statusCode > 200) {
+        // See Rack::Utils::STATUS_WITH_NO_ENTITY_BODY
+        if (this.statusCode >= 200 && this.statusCode != 204 && this.statusCode != 205 && this.statusCode != 304) {
             if (this.contentLength != 0 && !contentLengthSet)
                 response.putHeader(Const.CONTENT_LENGTH, this.contentLength + "");
             else
@@ -56,8 +58,11 @@ public class DefaultRackResponse implements RackResponse {
                 RubyEnumerable.each(this.context, this.body, new JavaInternalBlockBody(runtime, Arity.ONE_REQUIRED) {
                     @Override
                     public IRubyObject yield(ThreadContext context, IRubyObject fragment) {
-                        response.write(fragment.asJavaString());
-                        return runtime.getTrue();
+                        String values = fragment.asJavaString();
+                        for (String value : values.split(Const.NEW_LINE)) {
+                            response.write(fragment.asJavaString());
+                        }
+                        return runtime.getNil();
                     }
                 });
         }

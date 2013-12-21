@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public final class Const {
 
-    public static final String JUBILEE_VERSION = "Jubilee 0.5.0";
+    public static final String JUBILEE_VERSION = "Jubilee Server 1.1.0";
     public static final String HTTP_11 = "HTTP/1.1";
     public static final String HTTP_10 = "HTTP/1.0";
 
@@ -39,6 +39,7 @@ public final class Const {
     public static final String PORT_80 = "80";
     public static final String CONTENT_LENGTH = "Content-Length";
     public static final String TRANSFER_ENCODING = "Transfer-Encoding";
+    public static final String NEW_LINE = "\n";
 
     public static final String REMOTE_ADDR = "REMOTE_ADDR";
     public static final String HTTP_HOST = "HTTP_HOST";
