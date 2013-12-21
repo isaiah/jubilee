@@ -1,6 +1,5 @@
 package org.jruby.jubilee;
 
-import org.vertx.java.core.http.HttpServerResponse;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,5 +8,5 @@ import org.vertx.java.core.http.HttpServerResponse;
  * Time: 5:39 PM
  */
 public interface RackResponse {
-    public void respond(HttpServerResponse response);
+    public void respond(RubyHttpServerResponse response);
 }

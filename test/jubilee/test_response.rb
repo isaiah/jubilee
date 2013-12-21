@@ -24,7 +24,7 @@ class TestResponse < MiniTest::Unit::TestCase
     @host = "127.0.0.1"
     @port = 3215
 
-    @server = Jubilee::Server.new @simple
+    @server = Jubilee::Server.new AppConfigurator.new{@simple}
     @server.start
     sleep 0.1
     @client = TCPSocket.new @host, @port

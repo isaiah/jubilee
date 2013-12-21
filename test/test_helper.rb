@@ -5,6 +5,16 @@ require 'jubilee'
 require 'net/http'
 require 'net/http/post/multipart'
 require 'yaml'
+class AppConfigurator
+  def initialize(&block)
+    @app = block
+  end
+
+  def app
+    @app.call
+  end
+end
+
 def hit(uris)
   sleep 0.1
   uris.map do |u|

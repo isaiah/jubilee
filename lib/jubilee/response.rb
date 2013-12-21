@@ -14,26 +14,29 @@ module Jubilee
     end
 
     def respond(response)
-      no_body = @status < 200 || STATUS_WITH_NO_ENTITY_BODY[@status]
+      no_body = STATUS_WITH_NO_ENTITY_BODY[@status]
       write_status(response)
       write_headers(response)
       if no_body
         response.end
       else
         if @body.respond_to?(:to_path)
-          response.sendFile(@body.to_path)
+          response.send_file(@body.to_path)
         else
           write_body(response)
           response.end
         end
       end
+    rescue NativeException => e
+      # Don't needlessly raise errors because of client abort exceptions
+      raise unless e.cause.toString =~ /(clientabortexception|broken pipe)/i
     ensure
       @body.close if @body.respond_to?(:close)
     end
 
     private
     def write_status(response)
-      response.setStatusCode(@status)
+      response.status_code = @status
     end
 
     def write_headers(response)
@@ -48,7 +51,7 @@ module Jubilee
         end
         # Multiple values are joined by \n
         values.split(NEWLINE).each do |value|
-          response.putHeader(key, value)
+          response.put_header(key, value)
         end
       end
     end

@@ -54,7 +54,7 @@ class TestRackServer < MiniTest::Unit::TestCase
   end
 
   def test_lint
-    @server = Jubilee::Server.new @checker
+    @server = Jubilee::Server.new AppConfigurator.new{@checker}
 
     @server.start
 
@@ -67,7 +67,7 @@ class TestRackServer < MiniTest::Unit::TestCase
 
   def test_large_post_body
     @checker = ErrorChecker.new ServerLint.new(@simple)
-    @server = Jubilee::Server.new @checker
+    @server = Jubilee::Server.new AppConfigurator.new{@checker}
 
     @server.start
     sleep 0.1
@@ -84,7 +84,7 @@ class TestRackServer < MiniTest::Unit::TestCase
 
   def test_path_info
     input = nil
-    @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
+    @server = Jubilee::Server.new(AppConfigurator.new{lambda { |env| input = env; @simple.call(env) }})
     @server.start
 
     hit(['http://127.0.0.1:3215/test/a/b/c'])
@@ -94,7 +94,7 @@ class TestRackServer < MiniTest::Unit::TestCase
 
   def test_request_method
     input = nil
-    @server = Jubilee::Server.new(Rack::MethodOverride.new(lambda { |env| input = env; @simple.call(env) }))
+    @server = Jubilee::Server.new(AppConfigurator.new{Rack::MethodOverride.new(lambda { |env| input = env; @simple.call(env) })})
     @server.start
     sleep 0.1
 
@@ -109,7 +109,7 @@ class TestRackServer < MiniTest::Unit::TestCase
 
   def test_query_string
     input = nil
-    @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
+    @server = Jubilee::Server.new(AppConfigurator.new{lambda { |env| input = env; @simple.call(env) }})
     @server.start
 
     hit(['http://127.0.0.1:3215/test/a/b/c?foo=bar'])
@@ -120,7 +120,7 @@ class TestRackServer < MiniTest::Unit::TestCase
   def test_post_data
     require 'rack/request'
     input = nil
-    @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
+    @server = Jubilee::Server.new(AppConfigurator.new{lambda { |env| input = env; @simple.call(env) }})
     @server.start
     sleep 0.1
 

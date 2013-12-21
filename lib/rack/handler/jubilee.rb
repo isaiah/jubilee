@@ -21,7 +21,7 @@ module Rack
           ENV["RACK_ENV"] = options[:environment].to_s
         end
 
-        @server = ::Jubilee::Server.new(app, options)
+        @server = ::Jubilee::Server.new(::Jubilee::AppWrapper.new{app}, options)
 
         puts "Jubilee #{::Jubilee::Const::JUBILEE_VERSION} starting..."
         puts "* Environment: #{ENV['RACK_ENV']}"

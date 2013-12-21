@@ -2,11 +2,10 @@ package org.jruby.jubilee;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import javafx.application.Application;
 import org.jruby.Ruby;
-import org.jruby.RubyArray;
+import org.jruby.RubyClass;
+import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.DefaultRackEnvironment;
-import org.jruby.jubilee.impl.DefaultRackResponse;
 import org.jruby.jubilee.impl.RubyIORackInput;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -52,21 +51,23 @@ public class RackApplication {
             bodyBuf.writeBytes(buffer.getBytes());
         }
     });
-    // TODO optimize by use NullIO when there is no body here.
 
-        RackInput input = new RubyIORackInput(runtime, request, bodyBuf, eof);
-        RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
-        IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
-        mgr.returnApp(this);
-        RubyArray ary = result.convertToArray();
-        RackResponse response = new DefaultRackResponse(context, ary.shift(context), ary.shift(context), ary.shift(context));
-        response.respond(request.response());
+      request.endHandler(new VoidHandler() {
+          @Override
+          protected void handle() {
+              eof.set(true);
+          }
+      });
+      // TODO optimize by use NullIO when there is no body here.
 
-    request.endHandler(new VoidHandler() {
-      @Override
-      protected void handle() {
-        eof.set(true);
-      }
-    });
+      RackInput input = new RubyIORackInput(runtime, request, bodyBuf, eof);
+      RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
+      IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
+      //RubyArray ary = result.convertToArray();
+      //RackResponse response = new DefaultRackResponse(context, ary.shift(context), ary.shift(context), ary.shift(context));
+      RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
+      RubyHttpServerResponse httpResp = new RubyHttpServerResponse(runtime, (RubyClass) runtime.getClassFromPath("Jubilee::HttpServerResponse"), request.response());
+      response.respond(httpResp);
+      mgr.returnApp(this);
   }
 }

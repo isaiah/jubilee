@@ -290,7 +290,7 @@ class TestUpload < MiniTest::Unit::TestCase
   end
 
   def start_server(app)
-    @server = Jubilee::Server.new app
+    @server = Jubilee::Server.new AppConfigurator.new{app}
     @server.start
     sleep 0.1
   end

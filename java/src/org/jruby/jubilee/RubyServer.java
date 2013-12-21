@@ -49,7 +49,6 @@ public class RubyServer extends RubyObject {
 
     public RubyServer(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
-        this.exec = Executors.newFixedThreadPool(numberOfWorkers);
     }
 
     /**
@@ -103,6 +102,7 @@ public class RubyServer extends RubyObject {
         httpServer = vertx.createHttpServer();
 
         this.applicationMgr = new ApplicationMgr(context, configurator, this.ssl, this.numberOfWorkers);
+        this.exec = Executors.newFixedThreadPool(numberOfWorkers);
 
         if (block.isGiven()) block.yieldSpecific(context);
         return this;

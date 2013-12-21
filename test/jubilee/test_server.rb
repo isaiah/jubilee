@@ -13,7 +13,7 @@ class TestJubileeServer < MiniTest::Unit::TestCase
 
   def test_server_lambda
     app = lambda {|env| [200, {"Content-Type" => "text/plain"}, ["http"]] }
-    @server = Jubilee::Server.new(app)
+    @server = Jubilee::Server.new(AppConfigurator.new{app})
     @server.start
     sleep 0.1
 
@@ -29,7 +29,7 @@ class TestJubileeServer < MiniTest::Unit::TestCase
 
   def test_server_embeded
     config = Jubilee::Configuration.new(rackup: File.join(File.dirname(__FILE__), "../config/app.rb"))
-    @server = Jubilee::Server.new(config.app)
+    @server = Jubilee::Server.new(config)
     @server.start
     sleep 0.1
     http, body = Net::HTTP.new(@host, @port), nil
@@ -48,7 +48,7 @@ class TestJubileeServer < MiniTest::Unit::TestCase
 
   def test_url_scheme_for_https
     app = lambda { |env| [200, {}, [env['rack.url_scheme']]] }
-    @server = Jubilee::Server.new(app, {port:@port, ssl:true, 
+    @server = Jubilee::Server.new(AppConfigurator.new{app}, {port:@port, ssl:true, 
                                  keystore_path: File.join(File.dirname(__FILE__), "../../examples/jubilee/server-keystore.jks"),
     keystore_password: "wibble"})
     @server.start
