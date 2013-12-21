@@ -97,6 +97,8 @@ public class RubyServer extends RubyObject {
         }
 
         httpServer = vertx.createHttpServer();
+
+        if (block.isGiven()) block.yieldSpecific(context);
         return this;
     }
 
@@ -126,6 +128,7 @@ public class RubyServer extends RubyObject {
                 .setKeyStorePassword(this.keyStorePassword);
         httpServer.listen(this.port, this.host);
         this.running = true;
+        if (block.isGiven()) block.yieldSpecific(context);
         return this;
     }
 
