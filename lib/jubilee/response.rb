@@ -58,9 +58,9 @@ module Jubilee
 
     def write_body(response)
       if @content_length
-        response.putHeader(CONTENT_LENGTH, @content_length.to_s)
+        response.put_header(CONTENT_LENGTH, @content_length.to_s)
       else
-        response.setChunked(true)
+        response.chunked = (true)
       end
 
       @body.each do |part|

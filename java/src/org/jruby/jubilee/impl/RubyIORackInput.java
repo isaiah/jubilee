@@ -40,7 +40,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     };
 
     public static RubyClass createRubyIORackInputClass(Ruby runtime) {
-        RubyModule jModule = runtime.defineModule("Jubilee");
+        RubyModule jModule = runtime.getOrCreateModule("Jubilee");
         RubyClass rackIOInputClass = jModule.defineClassUnder("RubyIORackInput", runtime.getObject(), ALLOCATOR);
         rackIOInputClass.defineAnnotatedMethods(RubyIORackInput.class);
         return rackIOInputClass;

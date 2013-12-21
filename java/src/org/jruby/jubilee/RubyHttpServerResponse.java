@@ -17,7 +17,7 @@ public class RubyHttpServerResponse extends RubyObject {
 
     public static RubyClass createHttpServerResponseClass(final Ruby runtime) {
         RubyModule mJubilee = runtime.getOrCreateModule("Jubilee");
-        RubyClass klazz = mJubilee.defineClassUnder("HttpResponse", runtime.getObject(), new ObjectAllocator() {
+        RubyClass klazz = mJubilee.defineClassUnder("HttpServerResponse", runtime.getObject(), new ObjectAllocator() {
             @Override
             public IRubyObject allocate(Ruby ruby, RubyClass rubyClass) {
                 return new RubyHttpServerResponse(ruby, rubyClass);
@@ -45,6 +45,12 @@ public class RubyHttpServerResponse extends RubyObject {
     @JRubyMethod(name = "status_code=")
     public IRubyObject setStatusCode(ThreadContext context, IRubyObject statusCode) {
         this.resp.setStatusCode(RubyNumeric.num2int(statusCode));
+        return context.runtime.getNil();
+    }
+
+    @JRubyMethod(name = "chunked=")
+    public IRubyObject setChunked(ThreadContext context, IRubyObject chunked) {
+        this.resp.setChunked(chunked.isTrue());
         return context.runtime.getNil();
     }
 
