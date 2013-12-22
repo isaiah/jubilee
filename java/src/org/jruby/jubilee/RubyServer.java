@@ -11,11 +11,12 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.impl.DefaultVertx;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 public class RubyServer extends RubyObject {
-    private Vertx vertx;
+    private DefaultVertx vertx;
     private HttpServer httpServer;
     private RackApplication app;
     private boolean running = false;
@@ -79,7 +80,6 @@ public class RubyServer extends RubyObject {
             this.keyStorePath = options.op_aref(context, keystore_path_k).toString();
             this.keyStorePassword = options.op_aref(context, keystore_password_k).toString();
         }
-        this.app = new RackApplication(context, app, this.ssl, this.numberOfWorkers);
         if (options.has_key_p(eventbus_prefix_k).isTrue())
             this.eventBusPrefix = options.op_aref(context, eventbus_prefix_k).toString();
 
@@ -88,14 +88,15 @@ public class RubyServer extends RubyObject {
             this.clusterHost = options.op_aref(context, cluster_host_k).toString();
             if (options.has_key_p(cluster_port_k).isTrue()) {
                 this.clusterPort = Integer.parseInt(options.op_aref(context, cluster_port_k).toString());
-                this.vertx = JubileeVertx.init(clusterPort, clusterHost);
+                this.vertx = (DefaultVertx) JubileeVertx.init(clusterPort, clusterHost);
             }
-            this.vertx = JubileeVertx.init(clusterHost);
+            this.vertx = (DefaultVertx) JubileeVertx.init(clusterHost);
         } else {
-            this.vertx = JubileeVertx.init();
+            this.vertx = (DefaultVertx) JubileeVertx.init();
         }
 
         httpServer = vertx.createHttpServer();
+        this.app = new RackApplication(vertx, context, app, this.ssl, this.numberOfWorkers);
         return this;
     }
 
@@ -160,6 +161,7 @@ public class RubyServer extends RubyObject {
 
             this.running = false;
             httpServer.close();
+            //vertx.stop();
             if (block.isGiven()) block.yieldSpecific(context);
         } else {
             getRuntime().getOutputStream().println("jubilee server not running?");
