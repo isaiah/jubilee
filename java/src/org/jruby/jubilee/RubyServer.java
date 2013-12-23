@@ -11,12 +11,11 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.impl.DefaultVertx;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 public class RubyServer extends RubyObject {
-    private DefaultVertx vertx;
+    private Vertx vertx;
     private HttpServer httpServer;
     private RackApplication app;
     private boolean running = false;
@@ -88,11 +87,11 @@ public class RubyServer extends RubyObject {
             this.clusterHost = options.op_aref(context, cluster_host_k).toString();
             if (options.has_key_p(cluster_port_k).isTrue()) {
                 this.clusterPort = Integer.parseInt(options.op_aref(context, cluster_port_k).toString());
-                this.vertx = (DefaultVertx) JubileeVertx.init(clusterPort, clusterHost);
+                this.vertx = JubileeVertx.init(clusterPort, clusterHost);
             }
-            this.vertx = (DefaultVertx) JubileeVertx.init(clusterHost);
+            this.vertx = JubileeVertx.init(clusterHost);
         } else {
-            this.vertx = (DefaultVertx) JubileeVertx.init();
+            this.vertx = JubileeVertx.init();
         }
 
         httpServer = vertx.createHttpServer();

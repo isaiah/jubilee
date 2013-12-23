@@ -60,6 +60,12 @@ public class RubyHttpServerResponse extends RubyObject {
         return context.runtime.getNil();
     }
 
+    @JRubyMethod(name = "send_file")
+    public IRubyObject sendFile(ThreadContext context, IRubyObject filePath) {
+        this.resp.sendFile(filePath.asJavaString());
+        return context.runtime.getNil();
+    }
+
     @JRubyMethod
     public IRubyObject end(ThreadContext context) {
         this.resp.end();
