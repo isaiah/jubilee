@@ -1,9 +1,10 @@
 GEM
+  remote: https://rubygems.org/
   specs:
-    ffi (1.9.0-java)
+    ffi (1.9.3-java)
     haml (4.0.3)
       tilt
-    jubilee (1.0.0.beta1)
+    jubilee (1.0.2)
       rack (>= 1.4.1)
       spoon (~> 0.0.4)
     rack (1.5.2)
@@ -22,5 +23,5 @@ PLATFORMS
 
 DEPENDENCIES
   haml
-  jubilee (= 1.0.0.beta1)
+  jubilee (~> 1.0.2)
   sinatra
