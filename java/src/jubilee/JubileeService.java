@@ -14,8 +14,8 @@ public class JubileeService implements BasicLibraryService {
     public boolean basicLoad(final Ruby ruby) throws IOException {
         RubyServer.createServerClass(ruby);
         RubyHttpServerResponse.createHttpServerResponseClass(ruby);
-        RubyIORackErrors.createRubyIORackErrorsClass(ruby);
-        RubyIORackInput.createRubyIORackInputClass(ruby);
+        RubyIORackErrors.createIORackErrorsClass(ruby);
+        RubyIORackInput.createIORackInputClass(ruby);
         NullIO.createNullIOClass(ruby);
         return true;
     }

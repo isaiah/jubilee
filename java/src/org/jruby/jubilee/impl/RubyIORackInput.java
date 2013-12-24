@@ -39,9 +39,9 @@ public class RubyIORackInput extends RubyObject implements RackInput {
         }
     };
 
-    public static RubyClass createRubyIORackInputClass(Ruby runtime) {
+    public static RubyClass createIORackInputClass(Ruby runtime) {
         RubyModule jModule = runtime.getOrCreateModule("Jubilee");
-        RubyClass rackIOInputClass = jModule.defineClassUnder("RubyIORackInput", runtime.getObject(), ALLOCATOR);
+        RubyClass rackIOInputClass = jModule.defineClassUnder("IORackInput", runtime.getObject(), ALLOCATOR);
         rackIOInputClass.defineAnnotatedMethods(RubyIORackInput.class);
         return rackIOInputClass;
     }
@@ -51,7 +51,7 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     }
 
     public RubyIORackInput(Ruby runtime, HttpServerRequest request, ByteBuf buf, AtomicBoolean eof) {
-        this(runtime, (RubyClass) runtime.getClassFromPath("Jubilee::RubyIORackInput"));
+        this(runtime, (RubyClass) runtime.getClassFromPath("Jubilee::IORackInput"));
         this.request = request;
         String hdr = request.headers().get(Const.Vertx.CONTENT_LENGTH);
         this.chunked = hdr == null;
