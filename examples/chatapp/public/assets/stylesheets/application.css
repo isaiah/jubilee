@@ -2,3 +2,28 @@
   min-height: 400px;
   border: 1px solid #ccc;
 }
+
+.public, .private, .login, .logout {
+  border-bottom: 1px solid #CCCCCC;
+  line-height: 1.2em;
+}
+
+.private {
+  color: blue;
+}
+
+.login {
+  color: green;
+}
+.logout {
+  color: red;
+}
+.by_you {
+  color: gray;
+}
+.sender {
+  display: inline-block;
+  width: 168px;
+  font-size: 0.8em;
+  font-style: italic;
+}
