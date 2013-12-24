@@ -157,11 +157,6 @@ class TestUpload < MiniTest::Unit::TestCase
     assert_equal length, tmp.read.to_i
   end
 
-  # Despite reading numerous articles and inspecting the 1.9.1-p0 C
-  # source, Eric Wong will never trust that we're always handling
-  # encoding-aware IO objects correctly.  Thus this test uses shell
-  # utilities that should always operate on files/sockets on a
-  # byte-level.
   def test_uncomfortable_with_onenine_encodings
     # POSIX doesn't require all of these to be present on a system
     which('curl') or return
@@ -185,7 +180,7 @@ class TestUpload < MiniTest::Unit::TestCase
 
     assert $?.success?, 'curl ran OK'
     assert_match(%r!\b#{sha1}\b!, resp)
-    #assert_match(/sysread_read_byte_match/, resp)
+    assert_match(/sysread_read_byte_match/, resp)
 
     # small StringIO path
     assert(system("dd", "if=#{@random.path}", "of=#{tmp.path}",
@@ -275,12 +270,14 @@ class TestUpload < MiniTest::Unit::TestCase
 
     assert_match(sha1_re, sha1_out)
     sha1 = sha1_re.match(sha1_out)[1]
+=begin
     resp = `curl -H 'X-Expect-Size: #{tmp.size}' --tcp-nodelay \
             -isSf --no-buffer -T- http://#@addr:#@port/ < #{tmp.path}`
     assert $?.success?, 'curl ran OK'
     assert_match(%r!\b#{sha1}\b!, resp)
     assert_match(/sysread_read_byte_match/, resp)
     #assert_match(/expect_size_match/, resp)
+=end
   end
 
   private

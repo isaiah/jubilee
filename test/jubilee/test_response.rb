@@ -144,7 +144,7 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @keep_request
     sz = @body[0].size.to_s
 
-    assert_equal "HTTP/1.0 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\nConnection: Keep-Alive\r\n\r\n", lines(5)
+    assert_equal "HTTP/1.0 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\nConnection: keep-alive\r\n\r\n", lines(5)
     assert_equal "Hello", @client.read(5)
   end
 

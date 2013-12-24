@@ -5,6 +5,7 @@ import org.jruby.RubyHash;
 import org.jruby.RubyString;
 import org.jruby.jubilee.Const;
 import org.jruby.jubilee.RackEnvironment;
+import org.jruby.jubilee.RackErrors;
 import org.jruby.jubilee.RackInput;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -22,13 +23,13 @@ public class DefaultRackEnvironment implements RackEnvironment {
     private MultiMap headers;
     private Ruby runtime;
 
-    public DefaultRackEnvironment(final Ruby runtime, final HttpServerRequest request, RackInput input, boolean isSSL) {
+    public DefaultRackEnvironment(final Ruby runtime, final HttpServerRequest request, RackInput input, RackErrors errors, boolean isSSL) {
 
         this.runtime = runtime;
         // DEFAULT
         env = RubyHash.newHash(runtime);
         env.put(Const.RACK_VERSION, Const.RackVersion(runtime));
-        env.put(Const.RACK_ERRORS, new RubyIORackErrors(runtime));
+        env.put(Const.RACK_ERRORS, errors);
         env.put(Const.RACK_MULTITHREAD, true);
         env.put(Const.RACK_MULTIPROCESS, false);
         env.put(Const.RACK_RUNONCE, true);

@@ -50,8 +50,8 @@ public class RubyIORackInput extends RubyObject implements RackInput {
         super(runtime, metaClass);
     }
 
-    public RubyIORackInput(Ruby runtime, HttpServerRequest request, ByteBuf buf, AtomicBoolean eof) {
-        this(runtime, (RubyClass) runtime.getClassFromPath("Jubilee::IORackInput"));
+    public RubyIORackInput(Ruby runtime, RubyClass rubyClass, HttpServerRequest request, ByteBuf buf, AtomicBoolean eof) {
+        this(runtime, rubyClass);
         this.request = request;
         String hdr = request.headers().get(Const.Vertx.CONTENT_LENGTH);
         this.chunked = hdr == null;

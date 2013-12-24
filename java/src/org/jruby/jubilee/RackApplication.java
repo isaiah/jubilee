@@ -6,6 +6,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.DefaultRackEnvironment;
+import org.jruby.jubilee.impl.RubyIORackErrors;
 import org.jruby.jubilee.impl.RubyIORackInput;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -31,12 +32,17 @@ public class RackApplication {
   private boolean ssl;
   private ThreadContext context;
   private DefaultVertx vertx;
+  private RubyClass rackIOInputClass;
+  private RubyClass rackIOErrorsClass;
 
   public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl, int numberOfWorkers) {
     this.app = app;
     this.ssl = ssl;
     this.context = context;
     this.vertx = (DefaultVertx) vertx;
+    // Memorize the ruby classes
+    this.rackIOInputClass = (RubyClass) context.runtime.getClassFromPath("Jubilee::IORackInput");
+    this.rackIOErrorsClass = (RubyClass) context.runtime.getClassFromPath("Jubilee::IORackErrors");
   }
 
   public void call(final HttpServerRequest request) {
@@ -53,8 +59,9 @@ public class RackApplication {
     Runnable task = new Runnable() {
       @Override
       public void run() {
-        RackInput input = new RubyIORackInput(runtime, request, bodyBuf, eof);
-        RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
+        RackInput input = new RubyIORackInput(runtime, rackIOInputClass, request, bodyBuf, eof);
+        RackErrors errors = new RubyIORackErrors(runtime, rackIOErrorsClass);
+        RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, errors, ssl);
         IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
         RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
           RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
