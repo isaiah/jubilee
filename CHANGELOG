@@ -1,3 +1,20 @@
+Release 1.0.2
+=============
+
+fix RACK_ENV not set when using the jubilee command
+
+Release 1.0.1
+=============
+
+Fix string status code caused crash on rails 4
+
+Release 1.0.0
+=============
+
+Add full suport of event bus, shared data and clustering.
+
+Documents, chat app
+
 Release 0.4.0
 =============
 

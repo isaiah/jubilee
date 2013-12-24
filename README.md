@@ -1,13 +1,14 @@
 [![Build Status](https://travis-ci.org/isaiah/jubilee.png?branch=master)](https://travis-ci.org/isaiah/jubilee)
 
-Jubilee
+Jubilee server
 =========
  
 > "We need a web framework for Vertx.", you said.
 
 > "But why not use Vertx in your Rails applications, it's the most productive web framework ever created."
 
-The Answer is Jubilee, a rack server with [vertx 2.0](http://vertx.io) awesomeness builtin.
+The Answer is Jubilee, a rack server with [vertx 2.0](http://vertx.io) awesomeness builtin. Check out the
+[demostrate application](https://github.com/isaiah/jubilee/tree/master/examples/chatapp).
 
 Why another rack server?
 ------------------------
