@@ -37,7 +37,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
             env.put(Const.URL_SCHEME, Const.HTTPS);
         else
             env.put(Const.URL_SCHEME, Const.HTTP);
-        env.put(Const.SCRIPT_NAME, runtime.newString(""));
+        env.put(Const.SCRIPT_NAME, RubyString.newEmptyString(runtime));
         env.put(Const.RACK_HIJACK_P, runtime.getFalse());
 
         env.put(Const.SERVER_PROTOCOL, runtime.newString(Const.HTTP_11));
@@ -68,14 +68,14 @@ public class DefaultRackEnvironment implements RackEnvironment {
         env.put(Const.RACK_ERRORS, errors);
         env.put(Const.RACK_INPUT, input);
         env.put(Const.REQUEST_METHOD, runtime.newString(request.method()));
-        env.put(Const.REQUEST_PATH, request.path());
-        env.put(Const.REQUEST_URI, request.uri());
+        env.put(Const.REQUEST_PATH, runtime.newString(request.path()));
+        env.put(Const.REQUEST_URI, runtime.newString(request.uri()));
         env.put(Const.QUERY_STRING, orEmpty(request.query()));
         env.put(Const.REMOTE_ADDR, runtime.newString(request.remoteAddress().getHostString()));
         env.put(Const.HTTP_HOST, runtime.newString(host));
         env.put(Const.HTTP_COOKIE, orEmpty(headers.get(Const.Vertx.COOKIE)));
-        env.put(Const.HTTP_USER_AGENT, headers.get(Const.Vertx.USER_AGENT));
-        env.put(Const.HTTP_ACCEPT, headers.get(Const.Vertx.ACCEPT));
+        env.put(Const.HTTP_USER_AGENT, orEmpty(headers.get(Const.Vertx.USER_AGENT)));
+        env.put(Const.HTTP_ACCEPT, orEmpty(headers.get(Const.Vertx.ACCEPT)));
         env.put(Const.HTTP_ACCEPT_LANGUAGE, orEmpty(headers.get(Const.Vertx.ACCEPT_LANGUAGE)));
         env.put(Const.HTTP_ACCEPT_ENCODING, orEmpty(headers.get(Const.Vertx.ACCEPT_ENCODING)));
         env.put(Const.HTTP_CONNECTION, orEmpty(headers.get(Const.Vertx.CONNECTION)));
