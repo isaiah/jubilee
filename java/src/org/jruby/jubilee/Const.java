@@ -136,6 +136,9 @@ public final class Const {
     public static final String RACK_RUNONCE = "rack.run_once";
     public static final String SCRIPT_NAME = "SCRIPT_NAME";
 
+
+    public static final String RACK_HIJACK_P = "rack.hijack?";
+
     private Const() {
     }
 
