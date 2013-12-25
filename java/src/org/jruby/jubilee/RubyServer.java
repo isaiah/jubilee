@@ -23,7 +23,6 @@ public class RubyServer extends RubyObject {
     private String keyStorePath;
     private String keyStorePassword;
     private String eventBusPrefix;
-    private int numberOfWorkers;
     private int port;
     private String host;
     private int clusterPort;
@@ -67,14 +66,12 @@ public class RubyServer extends RubyObject {
         RubySymbol keystore_path_k = runtime.newSymbol("keystore_path");
         RubySymbol keystore_password_k = runtime.newSymbol("keystore_password");
         RubySymbol eventbus_prefix_k = runtime.newSymbol("eventbus_prefix");
-        RubySymbol number_of_workers_k = runtime.newSymbol("number_of_workers");
 
         /* retrieve from passed in options */
         this.port = Integer.parseInt(options.op_aref(context, port_k).toString());
         this.host = options.op_aref(context, host_k).toString();
 
         this.ssl = options.op_aref(context, ssl_k).isTrue();
-        this.numberOfWorkers = Integer.parseInt(options.op_aref(context, number_of_workers_k).toString());
         if (options.has_key_p(keystore_path_k).isTrue()) {
             this.keyStorePath = options.op_aref(context, keystore_path_k).toString();
             this.keyStorePassword = options.op_aref(context, keystore_password_k).toString();
@@ -95,7 +92,8 @@ public class RubyServer extends RubyObject {
         }
 
         httpServer = vertx.createHttpServer();
-        this.app = new RackApplication(vertx, context, app, this.ssl, this.numberOfWorkers);
+        this.app = new RackApplication(vertx, context, app, this.ssl);
+        if (block.isGiven()) block.yieldSpecific(context, this);
         return this;
     }
 
@@ -125,6 +123,7 @@ public class RubyServer extends RubyObject {
                 .setKeyStorePassword(this.keyStorePassword);
         httpServer.listen(this.port, this.host);
         this.running = true;
+        if (block.isGiven()) block.yieldSpecific(context, this);
         return this;
     }
 
@@ -153,13 +152,9 @@ public class RubyServer extends RubyObject {
     @JRubyMethod(name = {"stop", "close"}, optional = 1)
     public IRubyObject close(ThreadContext context, IRubyObject[] args, Block block) {
         if (running) {
-            if (args.length == 1)
-                app.shutdown(args[0].isTrue());
-            else
-                app.shutdown(false);
-
             this.running = false;
             httpServer.close();
+            // DO I need to stop?
             //vertx.stop();
             if (block.isGiven()) block.yieldSpecific(context);
         } else {

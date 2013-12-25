@@ -6,7 +6,6 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.DefaultRackEnvironment;
-import org.jruby.jubilee.impl.RubyIORackErrors;
 import org.jruby.jubilee.impl.RubyIORackInput;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -17,8 +16,6 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.impl.DefaultVertx;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -33,16 +30,14 @@ public class RackApplication {
   private ThreadContext context;
   private DefaultVertx vertx;
   private RubyClass rackIOInputClass;
-  private RubyClass rackIOErrorsClass;
 
-  public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl, int numberOfWorkers) {
+  public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl) {
     this.app = app;
     this.ssl = ssl;
     this.context = context;
     this.vertx = (DefaultVertx) vertx;
     // Memorize the ruby classes
     this.rackIOInputClass = (RubyClass) context.runtime.getClassFromPath("Jubilee::IORackInput");
-    this.rackIOErrorsClass = (RubyClass) context.runtime.getClassFromPath("Jubilee::IORackErrors");
   }
 
   public void call(final HttpServerRequest request) {
@@ -55,13 +50,11 @@ public class RackApplication {
         bodyBuf.writeBytes(buffer.getByteBuf());
       }
     });
-    // TODO optimize by use NullIO when there is no body here.
     Runnable task = new Runnable() {
       @Override
       public void run() {
         RackInput input = new RubyIORackInput(runtime, rackIOInputClass, request, bodyBuf, eof);
-        RackErrors errors = new RubyIORackErrors(runtime, rackIOErrorsClass);
-        RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, errors, ssl);
+        RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
         IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
         RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
           RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
@@ -79,10 +72,4 @@ public class RackApplication {
     });
   }
 
-  public void shutdown(boolean force) {
-//    if (force)
-//      exec.shutdownNow();
-//    else
-//      exec.shutdown();
-  }
 }

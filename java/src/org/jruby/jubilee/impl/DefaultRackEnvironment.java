@@ -2,6 +2,7 @@ package org.jruby.jubilee.impl;
 
 import org.jruby.Ruby;
 import org.jruby.RubyHash;
+import org.jruby.RubyIO;
 import org.jruby.RubyString;
 import org.jruby.jubilee.Const;
 import org.jruby.jubilee.RackEnvironment;
@@ -22,10 +23,11 @@ public class DefaultRackEnvironment implements RackEnvironment {
     private RubyHash env;
     private MultiMap headers;
     private Ruby runtime;
+    private RubyIO errors;
 
-    public DefaultRackEnvironment(final Ruby runtime, final HttpServerRequest request, RackInput input, RackErrors errors, boolean isSSL) {
-
+    public DefaultRackEnvironment(final Ruby runtime, final HttpServerRequest request, RackInput input, boolean isSSL) {
         this.runtime = runtime;
+        this.errors = new RubyIO(runtime, runtime.getErr());
         // DEFAULT
         env = RubyHash.newHash(runtime);
         env.put(Const.RACK_VERSION, Const.RackVersion(runtime));
