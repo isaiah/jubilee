@@ -96,7 +96,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
     }
 
     private RubyString orEmpty(String jString) {
-        return jString == null ? RubyString.newEmptyString(runtime) : RubyString.newString(runtime, jString);
+        return RubyString.newString(runtime, "" + jString);
     }
 
     private void setRackHeader(String vertxHeader, String rackHeader) {

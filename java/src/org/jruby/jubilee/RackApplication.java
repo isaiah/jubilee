@@ -9,6 +9,7 @@ import org.jruby.RubyFixnum;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.DefaultRackEnvironment;
 import org.jruby.jubilee.impl.RubyIORackInput;
+import org.jruby.jubilee.impl.RubyNullIO;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.Handler;
@@ -34,6 +35,7 @@ public class RackApplication {
     private RubyClass rackIOInputClass;
     private RubyClass httpServerResponseClass;
     private RubyArray rackVersion;
+    private RubyNullIO nullio;
 
     public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl) {
         this.app = app;
@@ -44,23 +46,38 @@ public class RackApplication {
         // Memorize the ruby classes
         this.rackIOInputClass = (RubyClass) runtime.getClassFromPath("Jubilee::IORackInput");
         this.httpServerResponseClass = (RubyClass) runtime.getClassFromPath("Jubilee::HttpServerResponse");
+        this.nullio = new RubyNullIO(runtime, (RubyClass) runtime.getClassFromPath("Jubilee::NullIO"));
     }
 
     public void call(final HttpServerRequest request) {
-        final ByteBuf bodyBuf = Unpooled.buffer();
-        final AtomicBoolean eof = new AtomicBoolean(false);
-        request.dataHandler(new Handler<Buffer>() {
-            @Override
-            public void handle(Buffer buffer) {
-                bodyBuf.writeBytes(buffer.getByteBuf());
-            }
-        });
+        String contentLength = request.headers().get(Const.Vertx.CONTENT_LENGTH);
+        final RackInput input;
+        if (contentLength != null && contentLength.equals("0"))
+            input = nullio;
+        else {
+            final ByteBuf bodyBuf = Unpooled.buffer();
+            final AtomicBoolean eof = new AtomicBoolean(false);
+            input = new RubyIORackInput(runtime, rackIOInputClass, request, bodyBuf, eof);
+
+            request.dataHandler(new Handler<Buffer>() {
+                @Override
+                public void handle(Buffer buffer) {
+                    bodyBuf.writeBytes(buffer.getByteBuf());
+                }
+            });
+
+            request.endHandler(new VoidHandler() {
+                @Override
+                protected void handle() {
+                    eof.set(true);
+                }
+            });
+        }
         Runnable task = new Runnable() {
             @Override
             public void run() {
-                RackInput input = new RubyIORackInput(runtime, rackIOInputClass, request, bodyBuf, eof);
                 RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl, rackVersion);
-                // This is a different conext, do NOT replace runtime.getCurrentContext()
+                // This is a different context, do NOT replace runtime.getCurrentContext()
                 IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
                 RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
                 RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
@@ -70,12 +87,6 @@ public class RackApplication {
             }
         };
         vertx.startOnEventLoop(task);
-        request.endHandler(new VoidHandler() {
-            @Override
-            protected void handle() {
-                eof.set(true);
-            }
-        });
     }
 
 }
