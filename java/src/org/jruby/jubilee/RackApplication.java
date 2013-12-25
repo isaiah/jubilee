@@ -28,21 +28,24 @@ public class RackApplication {
   private IRubyObject app;
   private boolean ssl;
   private ThreadContext context;
+  private Ruby runtime;
   private DefaultVertx vertx;
   private RubyClass rackIOInputClass;
+  private RubyClass httpServerResponseClass;
 
   public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl) {
     this.app = app;
     this.ssl = ssl;
     this.context = context;
     this.vertx = (DefaultVertx) vertx;
+    this.runtime = context.runtime;
     // Memorize the ruby classes
-    this.rackIOInputClass = (RubyClass) context.runtime.getClassFromPath("Jubilee::IORackInput");
+    this.rackIOInputClass = (RubyClass) runtime.getClassFromPath("Jubilee::IORackInput");
+    this.httpServerResponseClass = (RubyClass) runtime.getClassFromPath("Jubilee::HttpServerResponse");
   }
 
   public void call(final HttpServerRequest request) {
-    final ByteBuf bodyBuf = Unpooled.buffer(0, Integer.MAX_VALUE);
-    final Ruby runtime = context.runtime;
+    final ByteBuf bodyBuf = Unpooled.buffer();
     final AtomicBoolean eof = new AtomicBoolean(false);
     request.dataHandler(new Handler<Buffer>() {
       @Override
@@ -58,7 +61,7 @@ public class RackApplication {
         IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
         RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
           RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
-                  (RubyClass) runtime.getClassFromPath("Jubilee::HttpServerResponse"),
+                  httpServerResponseClass,
                   request.response());
         response.respond(resp);
       }
