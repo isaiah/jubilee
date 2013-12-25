@@ -52,12 +52,6 @@ module Jubilee
       end
     end
 
-    # sets the number of worker threads in the threads pool, Each worker thread
-    # will serve exactly one client at a time.
-    def worker_threads(nr)
-      set_int(:worker_threads, nr, 1)
-    end
-
     # set the event bus bridge prefix, prefix, options
     # eventbus /eventbus, inbound: {foo:bar}, outbound: {foo: bar}
     # will set the event bus prefix as eventbus "/eventbus", it can be

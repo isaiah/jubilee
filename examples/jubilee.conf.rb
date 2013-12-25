@@ -1,9 +1,6 @@
 # Listen to port 3000
 listen 3000
 
-# the number of workers to serve client
-worker_threads 4
-
 # the ssl certification path
 ssl_keystore "jubilee/keystore.jks"
 
