@@ -1,12 +1,12 @@
 package org.jruby.jubilee.impl;
 
 import org.jruby.Ruby;
-import org.jruby.RubyHash;
+import org.jruby.RubyArray;
 import org.jruby.RubyIO;
+import org.jruby.RubyHash;
 import org.jruby.RubyString;
 import org.jruby.jubilee.Const;
 import org.jruby.jubilee.RackEnvironment;
-import org.jruby.jubilee.RackErrors;
 import org.jruby.jubilee.RackInput;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -23,15 +23,13 @@ public class DefaultRackEnvironment implements RackEnvironment {
     private RubyHash env;
     private MultiMap headers;
     private Ruby runtime;
-    private RubyIO errors;
 
-    public DefaultRackEnvironment(final Ruby runtime, final HttpServerRequest request, RackInput input, boolean isSSL) {
+    public DefaultRackEnvironment(final Ruby runtime, final HttpServerRequest request, RackInput input, boolean isSSL, RubyArray rackVersion) {
         this.runtime = runtime;
-        this.errors = new RubyIO(runtime, runtime.getErr());
+        this.env = RubyHash.newHash(runtime);
         // DEFAULT
-        env = RubyHash.newHash(runtime);
-        env.put(Const.RACK_VERSION, Const.RackVersion(runtime));
-        env.put(Const.RACK_ERRORS, errors);
+        env.put(Const.RACK_VERSION, rackVersion);
+
         env.put(Const.RACK_MULTITHREAD, true);
         env.put(Const.RACK_MULTIPROCESS, false);
         env.put(Const.RACK_RUNONCE, true);
@@ -63,6 +61,10 @@ public class DefaultRackEnvironment implements RackEnvironment {
             env.put(Const.SERVER_PORT, Const.PORT_80);
         }
 
+
+        RubyIO errors = new RubyIO(runtime, runtime.getErr());
+        errors.setAutoclose(false);
+        env.put(Const.RACK_ERRORS, errors);
         env.put(Const.RACK_INPUT, input);
         env.put(Const.REQUEST_METHOD, request.method());
         env.put(Const.REQUEST_PATH, request.path());

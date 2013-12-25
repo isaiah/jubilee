@@ -3,7 +3,9 @@ package org.jruby.jubilee;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.DefaultRackEnvironment;
 import org.jruby.jubilee.impl.RubyIORackInput;
@@ -25,54 +27,55 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Time: 5:40 PM
  */
 public class RackApplication {
-  private IRubyObject app;
-  private boolean ssl;
-  private ThreadContext context;
-  private Ruby runtime;
-  private DefaultVertx vertx;
-  private RubyClass rackIOInputClass;
-  private RubyClass httpServerResponseClass;
+    private IRubyObject app;
+    private boolean ssl;
+    private Ruby runtime;
+    private DefaultVertx vertx;
+    private RubyClass rackIOInputClass;
+    private RubyClass httpServerResponseClass;
+    private RubyArray rackVersion;
 
-  public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl) {
-    this.app = app;
-    this.ssl = ssl;
-    this.context = context;
-    this.vertx = (DefaultVertx) vertx;
-    this.runtime = context.runtime;
-    // Memorize the ruby classes
-    this.rackIOInputClass = (RubyClass) runtime.getClassFromPath("Jubilee::IORackInput");
-    this.httpServerResponseClass = (RubyClass) runtime.getClassFromPath("Jubilee::HttpServerResponse");
-  }
+    public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl) {
+        this.app = app;
+        this.ssl = ssl;
+        this.vertx = (DefaultVertx) vertx;
+        this.runtime = context.runtime;
+        this.rackVersion = RubyArray.newArrayLight(runtime, RubyFixnum.one(runtime), RubyFixnum.four(runtime));
+        // Memorize the ruby classes
+        this.rackIOInputClass = (RubyClass) runtime.getClassFromPath("Jubilee::IORackInput");
+        this.httpServerResponseClass = (RubyClass) runtime.getClassFromPath("Jubilee::HttpServerResponse");
+    }
 
-  public void call(final HttpServerRequest request) {
-    final ByteBuf bodyBuf = Unpooled.buffer();
-    final AtomicBoolean eof = new AtomicBoolean(false);
-    request.dataHandler(new Handler<Buffer>() {
-      @Override
-      public void handle(Buffer buffer) {
-        bodyBuf.writeBytes(buffer.getByteBuf());
-      }
-    });
-    Runnable task = new Runnable() {
-      @Override
-      public void run() {
-        RackInput input = new RubyIORackInput(runtime, rackIOInputClass, request, bodyBuf, eof);
-        RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl);
-        IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
-        RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
-          RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
-                  httpServerResponseClass,
-                  request.response());
-        response.respond(resp);
-      }
-    };
-    vertx.startOnEventLoop(task);
-    request.endHandler(new VoidHandler() {
-      @Override
-      protected void handle() {
-        eof.set(true);
-      }
-    });
-  }
+    public void call(final HttpServerRequest request) {
+        final ByteBuf bodyBuf = Unpooled.buffer();
+        final AtomicBoolean eof = new AtomicBoolean(false);
+        request.dataHandler(new Handler<Buffer>() {
+            @Override
+            public void handle(Buffer buffer) {
+                bodyBuf.writeBytes(buffer.getByteBuf());
+            }
+        });
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                RackInput input = new RubyIORackInput(runtime, rackIOInputClass, request, bodyBuf, eof);
+                RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl, rackVersion);
+                // This is a different conext, do NOT replace runtime.getCurrentContext()
+                IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
+                RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
+                RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
+                        httpServerResponseClass,
+                        request.response());
+                response.respond(resp);
+            }
+        };
+        vertx.startOnEventLoop(task);
+        request.endHandler(new VoidHandler() {
+            @Override
+            protected void handle() {
+                eof.set(true);
+            }
+        });
+    }
 
 }

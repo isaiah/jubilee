@@ -126,13 +126,6 @@ public final class Const {
         ADDITIONAL_HEADERS.put(Vertx.CONTENT_MD5, Rack.HTTP_CONTENT_MD5);
     }
 
-    public static RubyArray RackVersion(Ruby runtime) {
-        RubyArray version = RubyArray.newArray(runtime, 2);
-        version.add("1");
-        version.add("4");
-        return version;
-    }
-
     public static final String HTTP = "http";
     public static final String HTTPS = "https";
     public static final String URL_SCHEME = "rack.url_scheme";
