@@ -55,7 +55,7 @@ public class RackApplication {
         if (contentLength != null && contentLength.equals("0"))
             input = nullio;
         else {
-            final ByteBuf bodyBuf = Unpooled.buffer();
+            final ByteBuf bodyBuf = Unpooled.buffer(0, Integer.MAX_VALUE);
             final AtomicBoolean eof = new AtomicBoolean(false);
             input = new RubyIORackInput(runtime, rackIOInputClass, request, bodyBuf, eof);
 
