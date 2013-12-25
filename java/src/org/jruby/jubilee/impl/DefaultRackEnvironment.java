@@ -12,6 +12,7 @@ import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpVersion;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -76,7 +77,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
         env.put(Const.QUERY_STRING, orEmpty(request.query()));
         env.put(Const.REMOTE_ADDR, runtime.newString(request.remoteAddress().getHostString()));
         env.put(Const.HTTP_HOST, orEmpty(host));
-        env.put(Const.HTTP_COOKIE, orEmpty(headers.get(Const.Vertx.COOKIE)));
+        env.put(Const.HTTP_COOKIE, concatHeaders(headers.getAll(Const.Vertx.COOKIE)));
         env.put(Const.HTTP_USER_AGENT, orEmpty(headers.get(Const.Vertx.USER_AGENT)));
         env.put(Const.HTTP_ACCEPT, orEmpty(headers.get(Const.Vertx.ACCEPT)));
         env.put(Const.HTTP_ACCEPT_LANGUAGE, orEmpty(headers.get(Const.Vertx.ACCEPT_LANGUAGE)));
@@ -96,6 +97,17 @@ public class DefaultRackEnvironment implements RackEnvironment {
 
     public RubyHash getEnv() {
         return env;
+    }
+
+    public RubyString concatHeaders(List<String> values) {
+        if (values == null)
+            return RubyString.newEmptyString(runtime);
+        String headerValue = values.get(0);
+        int valueIndex = 1;
+        while (valueIndex < values.size())
+            headerValue += Const.EOL + values.get(valueIndex++);
+        return RubyString.newString(runtime, headerValue);
+
     }
 
     private RubyString orEmpty(String jString) {
