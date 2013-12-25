@@ -10,6 +10,7 @@ import org.jruby.jubilee.RackEnvironment;
 import org.jruby.jubilee.RackInput;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.http.HttpVersion;
 
 import java.util.Map;
 
@@ -40,12 +41,14 @@ public class DefaultRackEnvironment implements RackEnvironment {
         env.put(Const.SCRIPT_NAME, RubyString.newEmptyString(runtime));
         env.put(Const.RACK_HIJACK_P, runtime.getFalse());
 
-        env.put(Const.SERVER_PROTOCOL, runtime.newString(Const.HTTP_11));
+        // Parse request headers
+        headers = request.headers();
+
+        env.put(Const.SERVER_PROTOCOL,
+                runtime.newString(request.version() == HttpVersion.HTTP_1_0 ? Const.HTTP_10 : Const.HTTP_11));
         env.put(Const.SERVER_SOFTWARE, runtime.newString(Const.JUBILEE_VERSION));
         env.put(Const.GATEWAY_INTERFACE, runtime.newString(Const.CGI_VER));
 
-        // Parse request headers
-        headers = request.headers();
         String host;
         if ((host = headers.get(Const.Vertx.HOST)) != null) {
             int colon = host.indexOf(":");

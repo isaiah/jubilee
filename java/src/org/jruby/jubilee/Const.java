@@ -18,6 +18,7 @@ public final class Const {
     public static final String HTTP_11 = "HTTP/1.1";
     public static final String HTTP_10 = "HTTP/1.0";
 
+    public static final String SCRIPT_NAME = "SCRIPT_NAME";
     public static final String SERVER_SOFTWARE = "SERVER_SOFTWARE";
     public static final String SERVER_PROTOCOL = "SERVER_PROTOCOL";
     public static final String GATEWAY_INTERFACE = "GATEWAY_INTERFACE";
@@ -134,8 +135,6 @@ public final class Const {
     public static final String RACK_MULTITHREAD = "rack.multithread";
     public static final String RACK_MULTIPROCESS = "rack.multiprocess";
     public static final String RACK_RUNONCE = "rack.run_once";
-    public static final String SCRIPT_NAME = "SCRIPT_NAME";
-
 
     public static final String RACK_HIJACK_P = "rack.hijack?";
 

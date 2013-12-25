@@ -57,6 +57,7 @@ module Jubilee
     end
 
     def write_body(response)
+      response.put_default_headers
       if @content_length
         response.put_header(CONTENT_LENGTH, @content_length.to_s)
       else
