@@ -100,7 +100,7 @@ public class DefaultRackEnvironment implements RackEnvironment {
     }
 
     public RubyString concatHeaders(List<String> values) {
-        if (values == null)
+        if (values == null || values.isEmpty())
             return RubyString.newEmptyString(runtime);
         String headerValue = values.get(0);
         int valueIndex = 1;
