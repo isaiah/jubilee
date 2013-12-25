@@ -79,9 +79,9 @@ public class DefaultRackEnvironment implements RackEnvironment {
         env.put(Const.HTTP_HOST, orEmpty(host));
         env.put(Const.HTTP_COOKIE, concatHeaders(headers.getAll(Const.Vertx.COOKIE)));
         env.put(Const.HTTP_USER_AGENT, orEmpty(headers.get(Const.Vertx.USER_AGENT)));
-        env.put(Const.HTTP_ACCEPT, orEmpty(headers.get(Const.Vertx.ACCEPT)));
-        env.put(Const.HTTP_ACCEPT_LANGUAGE, orEmpty(headers.get(Const.Vertx.ACCEPT_LANGUAGE)));
-        env.put(Const.HTTP_ACCEPT_ENCODING, orEmpty(headers.get(Const.Vertx.ACCEPT_ENCODING)));
+        env.put(Const.HTTP_ACCEPT, concatHeaders(headers.getAll(Const.Vertx.ACCEPT)));
+        env.put(Const.HTTP_ACCEPT_LANGUAGE, concatHeaders(headers.getAll(Const.Vertx.ACCEPT_LANGUAGE)));
+        env.put(Const.HTTP_ACCEPT_ENCODING, concatHeaders(headers.getAll(Const.Vertx.ACCEPT_ENCODING)));
         env.put(Const.HTTP_CONNECTION, orEmpty(headers.get(Const.Vertx.CONNECTION)));
         env.put(Const.HTTP_CONTENT_TYPE, orEmpty(headers.get(Const.Vertx.CONTENT_TYPE)));
 
@@ -115,6 +115,6 @@ public class DefaultRackEnvironment implements RackEnvironment {
     }
 
     private void setRackHeader(String vertxHeader, String rackHeader) {
-        if (headers.contains(vertxHeader)) env.put(rackHeader, runtime.newString(headers.get(vertxHeader)));
+        if (headers.contains(vertxHeader)) env.put(rackHeader, concatHeaders(headers.getAll(vertxHeader)));
     }
 }

@@ -51,7 +51,7 @@ public final class Const {
     public static final String HTTP_CONTENT_LENGTH = "CONTENT_LENGTH";
 
     public static class Rack {
-        public static final String HTTP_DATE = "HTTP_DATE";
+        public static final String HTTP_AUTHORIZATION = "HTTP_AUTHORIZATION";
         public static final String HTTP_EXPECT = "HTTP_EXPECT";
         public static final String HTTP_IF_MATCH = "HTTP_IF_MATCH";
         public static final String HTTP_IF_MODIFIED_SINCE = "HTTP_IF_MODIFIED_SINCE";
@@ -79,13 +79,13 @@ public final class Const {
         public static final String ACCEPT = "accept";
         public static final String ACCEPT_LANGUAGE = "accept-language";
         public static final String ACCEPT_ENCODING = "accept-encoding";
+        public static final String AUTHORIZATION = "authorization";
         public static final String CONNECTION = "connection";
         public static final String CONTENT_TYPE = "content-type";
         public static final String CONTENT_LENGTH = "content-length";
         public static final String CONTENT_MD5 = "content-md5";
         public static final String HOST = "host";
 
-        public static final String DATE = "date";
         public static final String EXPECT = "expect";
         public static final String IF_MATCH = "if-match";
         public static final String IF_MODIFIED_SINCE = "if-modified-since";
@@ -108,7 +108,6 @@ public final class Const {
     public static Map<String, String> ADDITIONAL_HEADERS = new HashMap<String, String>();
 
     static {
-        ADDITIONAL_HEADERS.put(Vertx.DATE, Rack.HTTP_DATE);
         ADDITIONAL_HEADERS.put(Vertx.EXPECT, Rack.HTTP_EXPECT);
         ADDITIONAL_HEADERS.put(Vertx.IF_MATCH, Rack.HTTP_IF_MATCH);
         ADDITIONAL_HEADERS.put(Vertx.IF_MODIFIED_SINCE, Rack.HTTP_IF_MODIFIED_SINCE);
@@ -125,6 +124,7 @@ public final class Const {
         ADDITIONAL_HEADERS.put(Vertx.DNT, Rack.HTTP_DNT);
         ADDITIONAL_HEADERS.put(Vertx.X_FORWARDED_FOR, Rack.HTTP_X_FORWARDED_FOR);
         ADDITIONAL_HEADERS.put(Vertx.CONTENT_MD5, Rack.HTTP_CONTENT_MD5);
+        ADDITIONAL_HEADERS.put(Vertx.AUTHORIZATION, Rack.HTTP_AUTHORIZATION);
     }
 
     public static final String HTTP = "http";
