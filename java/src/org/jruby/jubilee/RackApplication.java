@@ -86,7 +86,7 @@ public class RackApplication {
                 response.respond(resp);
             }
         };
-        vertx.startOnEventLoop(task);
+        vertx.startInBackground(task, false);
     }
 
 }

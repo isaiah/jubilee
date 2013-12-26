@@ -93,6 +93,33 @@ eb.send("test", "hello, world");
 For more advanced examples, checkout the
 [chatapp](https://github.com/isaiah/jubilee/tree/master/examples/chatapp).
 
+Performance Tuning
+=================
+
+Improving connection time
+-------------------------
+
+If you're creating a lot of connections to a Jubilee(Vert.x) server in a short
+period of time, e.g. benchmarking with tools like [wrk](https://github.com/wg/wrk),
+you may need to tweak some settings in order to avoid the TCP accept queue
+getting full. This can result in connections being refused or packets being
+dropped during the handshake which can then cause the client to retry.
+
+A classic symptom of this is if you see long connection times just over
+3000ms at your client.
+
+How to tune this is operating system specific but in Linux you need to
+increase a couple of settings in the TCP / Net config (10000 is an
+arbitrarily large number)
+
+```shell
+sudo sysctl -w net.core.somaxconn=10000
+sudo sysctl -w net.ipv4.tcp_max_syn_backlog=10000
+```
+
+For other operating systems, please consult your operating system
+documentation.
+
 License
 --------
 
