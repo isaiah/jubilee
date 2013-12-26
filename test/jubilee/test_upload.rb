@@ -24,7 +24,7 @@ class TestUpload < MiniTest::Unit::TestCase
       i = 0
       while buf = input.read(@bs)
         sha1.update(buf)
-        i += 1
+        i += buf.size
       end
       resp[:sha1] = sha1.hexdigest
 
@@ -39,6 +39,14 @@ class TestUpload < MiniTest::Unit::TestCase
       if resp[:sha1] == sha1.hexdigest
         resp[:sysread_read_byte_match] = true
       end
+
+      if expect_size = env['HTTP_X_EXPECT_SIZE']
+        if expect_size.to_i == i
+          resp[:expect_size_match] = true
+        end
+      end
+      resp[:size] = i
+      resp[:expect_size] = expect_size
       resp[:content_md5] = env['HTTP_CONTENT_MD5']
 
       [ 200, @hdr.merge({'X-Resp' => resp.inspect}), [] ]
@@ -67,6 +75,7 @@ class TestUpload < MiniTest::Unit::TestCase
 
   def test_put_content_md5
     start_server(@sha1_app)
+    skip "Vert.x doesn't hendle trailing headers"
     md5 = Digest::MD5.new
     sock = TCPSocket.new(@addr, @port)
     sock.syswrite("PUT / HTTP/1.0\r\nTransfer-Encoding: chunked\r\n" \
@@ -86,7 +95,7 @@ class TestUpload < MiniTest::Unit::TestCase
     assert_equal "HTTP/1.0 200 OK", read[0]
     resp = eval(read.grep(/^X-Resp: /).first.sub!(/X-Resp: /, ''))
     assert_equal @sha1.hexdigest, resp[:sha1]
-    #assert_equal content_md5, resp[:content_md5]
+    assert_equal content_md5, resp[:content_md5]
   end
 
   def test_put_trickle_small
@@ -270,14 +279,12 @@ class TestUpload < MiniTest::Unit::TestCase
 
     assert_match(sha1_re, sha1_out)
     sha1 = sha1_re.match(sha1_out)[1]
-=begin
     resp = `curl -H 'X-Expect-Size: #{tmp.size}' --tcp-nodelay \
             -isSf --no-buffer -T- http://#@addr:#@port/ < #{tmp.path}`
     assert $?.success?, 'curl ran OK'
     assert_match(%r!\b#{sha1}\b!, resp)
     assert_match(/sysread_read_byte_match/, resp)
-    #assert_match(/expect_size_match/, resp)
-=end
+    assert_match(/expect_size_match/, resp)
   end
 
   private

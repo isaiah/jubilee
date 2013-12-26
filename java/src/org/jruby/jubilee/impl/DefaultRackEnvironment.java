@@ -76,13 +76,12 @@ public class DefaultRackEnvironment implements RackEnvironment {
         env.put(Const.REQUEST_URI, runtime.newString(request.uri()));
         env.put(Const.QUERY_STRING, orEmpty(request.query()));
         env.put(Const.REMOTE_ADDR, runtime.newString(request.remoteAddress().getHostString()));
-        env.put(Const.HTTP_HOST, orEmpty(host));
-        env.put(Const.HTTP_COOKIE, concatHeaders(headers.getAll(Const.Vertx.COOKIE)));
-        env.put(Const.HTTP_USER_AGENT, orEmpty(headers.get(Const.Vertx.USER_AGENT)));
-        env.put(Const.HTTP_ACCEPT, concatHeaders(headers.getAll(Const.Vertx.ACCEPT)));
-        env.put(Const.HTTP_ACCEPT_LANGUAGE, concatHeaders(headers.getAll(Const.Vertx.ACCEPT_LANGUAGE)));
-        env.put(Const.HTTP_ACCEPT_ENCODING, concatHeaders(headers.getAll(Const.Vertx.ACCEPT_ENCODING)));
-        env.put(Const.HTTP_CONNECTION, orEmpty(headers.get(Const.Vertx.CONNECTION)));
+
+        for (String header : headers.names()) {
+            if (! header.equals(Const.Vertx.CONTENT_LENGTH) && ! header.equals(Const.Vertx.CONTENT_TYPE)) {
+                env.put(runtime.newString("HTTP_" + header.toUpperCase().replace("-", "_")), concatHeaders(headers.getAll(header)));
+            }
+        }
         env.put(Const.HTTP_CONTENT_TYPE, orEmpty(headers.get(Const.Vertx.CONTENT_TYPE)));
 
         String contentLength;
@@ -90,9 +89,6 @@ public class DefaultRackEnvironment implements RackEnvironment {
             env.put(Const.HTTP_CONTENT_LENGTH, contentLength);
         env.put(Const.PATH_INFO, request.path());
 
-        // Additional headers
-        for (Map.Entry<String, String> var : Const.ADDITIONAL_HEADERS.entrySet())
-            setRackHeader(var.getKey(), var.getValue());
     }
 
     public RubyHash getEnv() {

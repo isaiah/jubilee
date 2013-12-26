@@ -50,11 +50,13 @@ public class RackApplication {
     }
 
     public void call(final HttpServerRequest request) {
-        String contentLength = request.headers().get(Const.Vertx.CONTENT_LENGTH);
+//        String te = request.headers().get(Const.Vertx.TRANSFER_ENCODING);
+//        String contentLength;
         final RackInput input;
-        if (contentLength != null && contentLength.equals("0"))
-            input = nullio;
-        else {
+        // This should be handled by Netty (expose a contentLength methods via HttpRequest,
+        // it set the empty content flag when passing the header
+//        if ((te != null && te.equals("chunked")) ||
+//                ((contentLength = request.headers().get(Const.Vertx.CONTENT_LENGTH)) != null && !contentLength.equals("0"))) {
             final ByteBuf bodyBuf = Unpooled.buffer(0, Integer.MAX_VALUE);
             final AtomicBoolean eof = new AtomicBoolean(false);
             input = new RubyIORackInput(runtime, rackIOInputClass, request, bodyBuf, eof);
@@ -72,7 +74,9 @@ public class RackApplication {
                     eof.set(true);
                 }
             });
-        }
+//        } else {
+//            input = nullio;
+//        }
         Runnable task = new Runnable() {
             @Override
             public void run() {
