@@ -45,7 +45,7 @@ class TestResponse < MiniTest::Unit::TestCase
   end
 
   def valid_response(size)
-    Regexp.new("HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{size}\r\nConnection: keep-alive\r\n\r\n", true)
+    Regexp.new("HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{size}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n", true)
   end
 
   def test_one_with_content_length
@@ -102,7 +102,7 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @valid_request
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer(.*\r\n)*?Transfer-Encoding: chunked\r\n\r\n5\r\nHello\r\n7\r\nChunked\r\n0\r\n\r\n}, lines(13)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer(.*\r\n)*?Transfer-Encoding: chunked\r\nDate(.*?)\r\n\r\n5\r\nHello\r\n7\r\nChunked\r\n0\r\n\r\n}, lines(13)
   end
 
   def test_no_chunked_in_http10
@@ -110,7 +110,7 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @http10_request
 
-    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works(.*?\r\n)*?Connection: close\r\n\r\n}, lines(6)
+    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works(.*?\r\n)*?Connection: close\r\nDate(.*?)\r\n\r\n}, lines(6)
     assert_equal "HelloChunked", @client.read
   end
 
@@ -120,7 +120,7 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @valid_request
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Transfer-Encoding: chunked\r\n\r\n5\r\nHello\r\n#{str.size.to_s(16)}\r\n#{str}\r\n0\r\n\r\n}, lines(13)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Transfer-Encoding: chunked\r\nDate(.*?)\r\n\r\n5\r\nHello\r\n#{str.size.to_s(16)}\r\n#{str}\r\n0\r\n\r\n}, lines(13)
 
   end
 
@@ -128,7 +128,7 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @close_request
     sz = @body[0].size.to_s
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: close\r\n\r\n}, lines(7)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: close\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -136,7 +136,7 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @http10_request
     sz = @body[0].size.to_s
 
-    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: close\r\n\r\n}, lines(7)
+    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: close\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -144,7 +144,7 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @keep_request
     sz = @body[0].size.to_s
 
-    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works\r\nServer(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\n\r\n}, lines(7)
+    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works\r\nServer(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -171,7 +171,7 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @valid_request
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: 11\r\nConnection: keep-alive\r\n\r\n}, lines(7)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: 11\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "hello world", @client.read(11)
   end
 
@@ -182,7 +182,7 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @valid_request
 
-    assert_match %r{HTTP/1.1 200 OK\r\n(.*?\r\n)*?Transfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n}, lines(10)
+    assert_match %r{HTTP/1.1 200 OK\r\n(.*?\r\n)*?Transfer-Encoding: chunked\r\nDate(.*?)\r\n\r\n5\r\nhello\r\n0\r\n}, lines(10)
   end
 
 
@@ -196,10 +196,10 @@ class TestResponse < MiniTest::Unit::TestCase
 
     sz = @body[0].size.to_s
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\n\r\n}, lines(7)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\n\r\n}, lines(7)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -213,10 +213,10 @@ class TestResponse < MiniTest::Unit::TestCase
 
     sz = @body[0].size.to_s
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\n\r\n}, lines(7)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\n\r\n}, lines(7)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
 
     #assert_kind_of Jubilee::NullIO, @inputs[0]
@@ -236,7 +236,7 @@ class TestResponse < MiniTest::Unit::TestCase
     assert out, "select returned nil"
     assert_equal c2, out.first.first
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\n\r\n}, lines(7, c2)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7, c2)
     assert_equal "Hello", c2.read(5)
   end
 

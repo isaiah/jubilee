@@ -3,13 +3,10 @@ package org.jruby.jubilee;
 import org.jruby.*;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.jubilee.utils.DateUtils;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.http.HttpServerResponse;
-
-import java.util.Date;
 
 /**
  * Created by isaiah on 21/12/2013.
@@ -78,7 +75,6 @@ public class RubyHttpServerResponse extends RubyObject {
     @JRubyMethod(name = "put_default_headers")
     public IRubyObject putDefaultHeaders(ThreadContext context) {
         this.resp.putHeader("Server", "Jubilee");
-        this.resp.putHeader("Date", DateUtils.toDateString(new Date(System.currentTimeMillis())));
         return context.runtime.getNil();
     }
 }
