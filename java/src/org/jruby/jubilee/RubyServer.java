@@ -14,6 +14,8 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.io.IOException;
+
 public class RubyServer extends RubyObject {
     private Vertx vertx;
     private HttpServer httpServer;
@@ -92,8 +94,12 @@ public class RubyServer extends RubyObject {
         }
 
         httpServer = vertx.createHttpServer();
-        this.app = new RackApplication(vertx, context, app, this.ssl);
-        if (block.isGiven()) block.yieldSpecific(context, this);
+        try {
+            this.app = new RackApplication(vertx, context, app, this.ssl);
+            if (block.isGiven()) block.yieldSpecific(context, this);
+        } catch (IOException e) {
+            // noop
+        }
         return this;
     }
 
