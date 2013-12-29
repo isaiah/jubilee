@@ -7,7 +7,7 @@ class TestUpload < MiniTest::Unit::TestCase
 
   def setup
     @addr = ENV['UNICORN_TEST_ADDR'] || '127.0.0.1'
-    @port = 3215
+    @port = 8080
     @hdr = {'Content-Type' => 'text/plain', 'Content-Length' => '0'}
     @bs = 4096
     @count = 256

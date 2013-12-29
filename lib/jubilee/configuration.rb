@@ -55,7 +55,7 @@ module Jubilee
     # set the event bus bridge prefix, prefix, options
     # eventbus /eventbus, inbound: {foo:bar}, outbound: {foo: bar}
     # will set the event bus prefix as eventbus "/eventbus", it can be
-    # connected via new EventBus("http://localhost:3215/eventbus"), inbound and
+    # connected via new EventBus("http://localhost:8080/eventbus"), inbound and
     # outbound options are security measures that will filter the messages
     def eventbus(prefix, options = {})
       @options[:event_bus][:prefix] = prefix

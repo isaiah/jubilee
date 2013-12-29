@@ -45,7 +45,7 @@ class TestRackServer < MiniTest::Unit::TestCase
     @simple = lambda { |env| [200, { "X-Header" => "Works" }, ["Hello"]] }
     @checker = ErrorChecker.new ServerLint.new(@simple)
     @host = "localhost"
-    @port = 3215
+    @port = 8080
   end
 
   def teardown
@@ -58,7 +58,7 @@ class TestRackServer < MiniTest::Unit::TestCase
 
     @server.start
 
-    hit(['http://127.0.0.1:3215/test'])
+    hit(['http://127.0.0.1:8080/test'])
 
     if exc = @checker.exception
       raise exc
@@ -74,7 +74,7 @@ class TestRackServer < MiniTest::Unit::TestCase
 
     big = "x" * (1024 * 16)
 
-    Net::HTTP.post_form URI.parse('http://127.0.0.1:3215/test'),
+    Net::HTTP.post_form URI.parse('http://127.0.0.1:8080/test'),
                  { "big" => big }
 
     if exc = @checker.exception
@@ -87,7 +87,7 @@ class TestRackServer < MiniTest::Unit::TestCase
     @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
     @server.start
 
-    hit(['http://127.0.0.1:3215/test/a/b/c'])
+    hit(['http://127.0.0.1:8080/test/a/b/c'])
 
     assert_equal "/test/a/b/c", input['PATH_INFO']
   end
@@ -112,7 +112,7 @@ class TestRackServer < MiniTest::Unit::TestCase
     @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
     @server.start
 
-    hit(['http://127.0.0.1:3215/test/a/b/c?foo=bar'])
+    hit(['http://127.0.0.1:8080/test/a/b/c?foo=bar'])
 
     assert_equal "foo=bar", input['QUERY_STRING']
   end
@@ -125,11 +125,11 @@ class TestRackServer < MiniTest::Unit::TestCase
     sleep 0.1
 
     req = Net::HTTP::Post::Multipart.new("/", "foo" => "bar")
-    resp = Net::HTTP.start('localhost', 3215) do |http|
+    resp = Net::HTTP.start('localhost', 8080) do |http|
       http.request req
     end
 
-    #Net::HTTP.post_form URI.parse('http://127.0.0.1:3215/test'), { "foo" => "bar" }
+    #Net::HTTP.post_form URI.parse('http://127.0.0.1:8080/test'), { "foo" => "bar" }
 
     request = Rack::Request.new input
     assert_equal "bar", request.params["foo"]

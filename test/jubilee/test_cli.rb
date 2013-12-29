@@ -6,6 +6,6 @@ class TestJubileeCLI < MiniTest::Unit::TestCase
     cli = Jubilee::CLI.new(["app.rb"])
     cli.parse_options
     assert_equal "app.rb", cli.options[:rackup]
-    assert_equal 3215, cli.options[:Port]
+    assert_equal 8080, cli.options[:Port]
   end
 end
