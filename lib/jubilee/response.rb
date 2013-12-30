@@ -46,13 +46,10 @@ module Jubilee
           @content_length = values
           next
         when TRANSFER_ENCODING
-          @allow_chunked = false
           @content_length = nil
         end
         # Multiple values are joined by \n
-        values.split(NEWLINE).each do |value|
-          response.put_header(key, value)
-        end
+        response.put_header(key, values)
       end
     end
 

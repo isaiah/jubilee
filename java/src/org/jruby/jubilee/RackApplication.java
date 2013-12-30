@@ -84,8 +84,6 @@ public class RackApplication {
         Runnable task = new Runnable() {
             @Override
             public void run() {
-//                RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl, rackVersion);
-                ;
                 // This is a different context, do NOT replace runtime.getCurrentContext()
 //                IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
                 try {

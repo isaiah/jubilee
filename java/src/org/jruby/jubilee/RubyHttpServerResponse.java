@@ -8,12 +8,15 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.http.HttpServerResponse;
 
+import java.util.Arrays;
+
 /**
  * Created by isaiah on 21/12/2013.
  */
 @JRubyClass(name = "HttpServerResponse")
 public class RubyHttpServerResponse extends RubyObject {
     private HttpServerResponse resp;
+    private String lineSeparator;
 
     public static RubyClass createHttpServerResponseClass(final Ruby runtime) {
         RubyModule mJubilee = runtime.getOrCreateModule("Jubilee");
@@ -34,6 +37,7 @@ public class RubyHttpServerResponse extends RubyObject {
     public RubyHttpServerResponse(Ruby ruby, RubyClass rubyClass, HttpServerResponse resp) {
         super(ruby, rubyClass);
         this.resp = resp;
+        this.lineSeparator = System.getProperty("line.separator");
     }
 
     @JRubyMethod
@@ -56,7 +60,11 @@ public class RubyHttpServerResponse extends RubyObject {
 
     @JRubyMethod(name = "put_header")
     public IRubyObject putHeader(ThreadContext context, IRubyObject key, IRubyObject val) {
-        this.resp.putHeader(key.asJavaString(), val.asJavaString());
+        String cookie = val.asJavaString();
+        if (cookie.indexOf(this.lineSeparator) != -1)
+            this.resp.putHeader(key.asJavaString(),
+                    Arrays.asList(val.asJavaString().split(this.lineSeparator)));
+        else this.resp.putHeader(key.asJavaString(), val.asJavaString());
         return context.runtime.getNil();
     }
 

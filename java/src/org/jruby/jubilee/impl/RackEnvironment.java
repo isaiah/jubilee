@@ -14,6 +14,7 @@ import org.jruby.jubilee.RackInput;
 import org.jruby.jubilee.utils.RubyHelper;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.http.HttpVersion;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -30,7 +31,7 @@ public class RackEnvironment {
         PATH_INFO, QUERY_STRING, SERVER_NAME, SERVER_PORT,
         CONTENT_TYPE, REQUEST_URI, REMOTE_ADDR, URL_SCHEME,
         VERSION, MULTITHREAD, MULTIPROCESS, RUN_ONCE, CONTENT_LENGTH,
-        HTTPS
+        HTTPS, SERVER_PROTOCOL
     }
     static final int NUM_RACK_KEYS = RACK_KEY.values().length;
 
@@ -52,6 +53,7 @@ public class RackEnvironment {
         putRack("QUERY_STRING", RACK_KEY.QUERY_STRING);
         putRack("SERVER_NAME", RACK_KEY.SERVER_NAME);
         putRack("SERVER_PORT", RACK_KEY.SERVER_PORT);
+        putRack("SERVER_PROTOCOL", RACK_KEY.SERVER_PROTOCOL);
         putRack("CONTENT_TYPE", RACK_KEY.CONTENT_TYPE);
         putRack("REQUEST_URI", RACK_KEY.REQUEST_URI);
         putRack("REMOTE_ADDR", RACK_KEY.REMOTE_ADDR);
@@ -97,9 +99,11 @@ public class RackEnvironment {
         env.lazyPut(RACK_KEY.REQUEST_METHOD, request.method(), true);
         env.lazyPut(RACK_KEY.SCRIPT_NAME, scriptName, false);
         env.lazyPut(RACK_KEY.PATH_INFO, pathInfo, false);
-        env.lazyPut(RACK_KEY.QUERY_STRING, request.query() + "", false);
+        env.lazyPut(RACK_KEY.QUERY_STRING, orEmpty(request.query()), false);
         env.lazyPut(RACK_KEY.SERVER_NAME, Const.LOCALHOST, false);
         env.lazyPut(RACK_KEY.SERVER_PORT, Const.PORT_80, true);
+        env.lazyPut(RACK_KEY.SERVER_PROTOCOL,
+                request.version() == HttpVersion.HTTP_1_1 ? Const.HTTP_11 : Const.HTTP_10, true);
         env.lazyPut(RACK_KEY.CONTENT_TYPE, headers.get(HttpHeaders.Names.CONTENT_TYPE), true);
         env.lazyPut(RACK_KEY.REQUEST_URI, scriptName + pathInfo, false);
         env.lazyPut(RACK_KEY.REMOTE_ADDR, getRemoteAddr(request), true);
@@ -140,6 +144,10 @@ public class RackEnvironment {
             return -1;
         }
         return Integer.parseInt(contentLengthStr);
+    }
+
+    private String orEmpty(String val) {
+        return val == null ? "" : val;
     }
 
     private final Ruby runtime;
