@@ -3,7 +3,15 @@ GEM
   specs:
     addressable (2.3.5)
     builder (3.2.2)
+    capybara (2.2.0)
+      mime-types (>= 1.16)
+      nokogiri (>= 1.3.3)
+      rack (>= 1.0.0)
+      rack-test (>= 0.5.4)
+      xpath (~> 2.0)
+    cliver (0.3.2)
     coderay (1.0.8)
+    diff-lcs (1.2.5)
     faraday (0.8.7)
       multipart-post (~> 1.1)
     ffi (1.9.0)
@@ -42,6 +50,7 @@ GEM
     listen (0.5.3)
     lumberjack (1.0.2)
     method_source (0.8.1)
+    mime-types (2.0)
     multi_json (1.8.0)
     multi_xml (0.5.5)
     multipart-post (1.1.5)
@@ -54,6 +63,11 @@ GEM
       multi_json (~> 1.0)
       multi_xml (~> 0.5)
       rack (~> 1.2)
+    poltergeist (1.5.0)
+      capybara (~> 2.1)
+      cliver (~> 0.3.1)
+      multi_json (~> 1.0)
+      websocket-driver (>= 0.2.0)
     pry (0.9.10)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
@@ -64,25 +78,41 @@ GEM
       slop (~> 3.3.1)
       spoon (~> 0.0)
     rack (1.4.5)
+    rack-test (0.6.2)
+      rack (>= 1.0)
     rake (10.1.1)
     rcov (0.9.11)
     rcov (0.9.11-java)
     rdoc (4.0.1)
       json (~> 1.4)
+    rspec (2.14.1)
+      rspec-core (~> 2.14.0)
+      rspec-expectations (~> 2.14.0)
+      rspec-mocks (~> 2.14.0)
+    rspec-core (2.14.7)
+    rspec-expectations (2.14.4)
+      diff-lcs (>= 1.1.3, < 2.0)
+    rspec-mocks (2.14.4)
     slop (3.3.3)
     spoon (0.0.4)
       ffi
     thor (0.16.0)
+    websocket-driver (0.3.2-java)
+    xpath (2.0.0)
+      nokogiri (~> 1.3)
 
 PLATFORMS
   java
 
 DEPENDENCIES
+  capybara
   guard
   guard-minitest
   jeweler
   multipart-post
+  poltergeist
   pry
   rack (>= 1.4.1)
   rcov
+  rspec
   spoon (~> 0.0.4)

@@ -14,4 +14,7 @@ group :test do
   gem 'multipart-post'
   gem 'pry'
   gem 'rcov'
+  gem 'rspec'
+  gem 'capybara'
+  gem 'poltergeist'
 end

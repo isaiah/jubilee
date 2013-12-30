@@ -11,7 +11,7 @@ module Jubilee
     attr_reader :options
 
     def initialize(options, &block)
-      config_file = options.delete(:config_file)
+      @config_file = options.delete(:config_file)
       @options = options.dup
       @block = block
 
@@ -50,6 +50,7 @@ module Jubilee
               "config_file=#{config_file} would not be accessible in" \
               " working_directory=#{path}"
       end
+      @options[:chdir] = path
     end
 
     # set the event bus bridge prefix, prefix, options
@@ -123,7 +124,7 @@ module Jubilee
           inner_app = Object.const_get(File.basename(options[:rackup], '.rb').capitalize.to_sym).new
         else
           Dir.chdir options[:chdir] if options[:chdir]
-          inner_app, opts = Rack::Builder.parse_file "config.ru"
+          inner_app, _ = Rack::Builder.parse_file "config.ru"
         end
       end
       inner_app

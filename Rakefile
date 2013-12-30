@@ -28,7 +28,7 @@ Jeweler::Tasks.new do |gem|
   gem.homepage = "http://github.com/isaiah/jubilee"
   gem.license = "MIT"
   gem.summary = %Q{More than a server for rack applications.}
-  gem.description = %Q{Jubilee is a experimental webserver built for speed, it's based on Vertx.}
+  gem.description = %Q{Jubilee is a jruby webserver built upon Vertx.}
   gem.email = "issaria@gmail.com"
   gem.authors = ["Isaiah Peng"]
   # dependencies defined in Gemfile
@@ -37,8 +37,8 @@ Jeweler::RubygemsDotOrgTasks.new
 
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/test_*.rb'
+  test.libs << 'lib' << 'test' << 'spec'
+  test.pattern = 'spec/**/basic_rack_spec.rb'
   test.verbose = true
 end
 
