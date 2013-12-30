@@ -7,7 +7,7 @@ import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.javasupport.JavaEmbedUtils;
-import org.jruby.jubilee.impl.DefaultRackEnvironment;
+import org.jruby.jubilee.impl.RackEnvironment;
 import org.jruby.jubilee.impl.RubyIORackInput;
 import org.jruby.jubilee.impl.RubyNullIO;
 import org.jruby.runtime.ThreadContext;
@@ -19,6 +19,7 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.impl.DefaultVertx;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -36,8 +37,9 @@ public class RackApplication {
     private RubyClass httpServerResponseClass;
     private RubyArray rackVersion;
     private RubyNullIO nullio;
+    private RackEnvironment rackEnv;
 
-    public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl) {
+    public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl) throws IOException {
         this.app = app;
         this.ssl = ssl;
         this.vertx = (DefaultVertx) vertx;
@@ -47,6 +49,8 @@ public class RackApplication {
         this.rackIOInputClass = (RubyClass) runtime.getClassFromPath("Jubilee::IORackInput");
         this.httpServerResponseClass = (RubyClass) runtime.getClassFromPath("Jubilee::HttpServerResponse");
         this.nullio = new RubyNullIO(runtime, (RubyClass) runtime.getClassFromPath("Jubilee::NullIO"));
+
+        this.rackEnv = new RackEnvironment(runtime);
     }
 
     public void call(final HttpServerRequest request) {
@@ -80,14 +84,20 @@ public class RackApplication {
         Runnable task = new Runnable() {
             @Override
             public void run() {
-                RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl, rackVersion);
+//                RackEnvironment env = new DefaultRackEnvironment(runtime, request, input, ssl, rackVersion);
+                ;
                 // This is a different context, do NOT replace runtime.getCurrentContext()
-                IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
-                RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
-                RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
-                        httpServerResponseClass,
-                        request.response());
-                response.respond(resp);
+//                IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
+                try {
+                    IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", rackEnv.getEnv(request, input, ssl));
+                    RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
+                    RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
+                            httpServerResponseClass,
+                            request.response());
+                    response.respond(resp);
+                } catch (IOException e) {
+                    // noop
+                }
             }
         };
         vertx.startInBackground(task, false);

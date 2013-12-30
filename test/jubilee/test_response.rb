@@ -22,7 +22,7 @@ class TestResponse < MiniTest::Unit::TestCase
     end
 
     @host = "127.0.0.1"
-    @port = 3215
+    @port = 8080
 
     @server = Jubilee::Server.new @simple
     @server.start

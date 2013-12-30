@@ -9,6 +9,6 @@ To run the application:
 bundle && jubilee --eventbus /eventbus
 ```
 
-Then go to http://localhost:3215 in your browser, if you have the page
+Then go to http://localhost:8080 in your browser, if you have the page
 opened in multiple tabs or windows you can see the message you sent are
 broadcasted to all the other tabs.
