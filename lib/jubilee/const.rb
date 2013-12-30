@@ -1,6 +1,6 @@
 module Jubilee
   module Const
-    JUBILEE_VERSION = VERSION
+    JUBILEE_VERSION = Version::STRING
     HTTP_11 = "HTTP/1.1".freeze
     HTTP_10 = "HTTP/1.0".freeze
 

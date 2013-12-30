@@ -6,6 +6,7 @@ feature 'basic rails4 test' do
     configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/rails4/basic")
     @server = Jubilee::Server.new(configurator.app, configurator.options)
     @server.start
+    sleep 0.1
   end
 
   after(:all) do
@@ -13,18 +14,18 @@ feature 'basic rails4 test' do
   end
 
   it 'should do a basic get' do
-    visit '/basic-rails4'
+    visit '/'
     page.should have_content('It works')
     page.find('#success')[:class].should == 'basic-rails4'
   end
 
   context 'streaming' do
     it "should work for small responses" do
-      verify_streaming("/basic-rails4/root/streaming?count=0")
+      verify_streaming("/root/streaming?count=0")
     end
 
     it "should work for large responses" do
-      verify_streaming("/basic-rails4/root/streaming?count=500")
+      verify_streaming("/root/streaming?count=500")
     end
 
     def verify_streaming(url)
@@ -47,14 +48,14 @@ feature 'basic rails4 test' do
   end
 
   it 'should return a static page beneath default public dir' do
-    visit "/basic-rails4/some_page.html"
+    visit "/some_page.html"
     element = page.find('#success')
     element.should_not be_nil
     element.text.should == 'static page'
   end
 
   it "should support setting multiple cookies" do
-    visit "/basic-rails4/root/multiple_cookies"
+    visit "/root/multiple_cookies"
     page.driver.cookies['foo1'].value.should == 'bar1'
     page.driver.cookies['foo2'].value.should == 'bar2'
     page.driver.cookies['foo3'].value.should == 'bar3'

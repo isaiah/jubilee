@@ -4,7 +4,7 @@ require 'capybara/rspec'
 require 'ostruct'
 require 'net/http'
 
-Capybara.app_host = "http://localhost:3215"
+Capybara.app_host = "http://localhost:8080"
 Capybara.run_server = false
 Capybara.default_driver = :poltergeist
 

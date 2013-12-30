@@ -2,6 +2,6 @@ require 'rubygems'
 require 'bundler/setup'
 require 'haml'
 
-require 'basic'
+require_relative './basic'
 
 run Sinatra::Application

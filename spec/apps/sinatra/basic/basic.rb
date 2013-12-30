@@ -2,7 +2,7 @@
 require 'rubygems'
 require 'sinatra'
 
-disable :static, :logging
+disable :logging
 
 options '/' do
   response.headers['Access-Control-Allow-Origin'] = '*'
