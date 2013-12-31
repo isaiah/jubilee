@@ -178,7 +178,7 @@ class TestResponse < MiniTest::Unit::TestCase
   def test_allow_app_to_chunk_itself
     @headers = {'Transfer-Encoding' => "chunked" }
 
-    @body = ["hello"]
+    @body = ["5\r\nhello\r\n0\r\n\r\n"]
 
     @client << @valid_request
 

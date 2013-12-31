@@ -31,7 +31,7 @@ public class RackEnvironment {
         PATH_INFO, QUERY_STRING, SERVER_NAME, SERVER_PORT,
         CONTENT_TYPE, REQUEST_URI, REMOTE_ADDR, URL_SCHEME,
         VERSION, MULTITHREAD, MULTIPROCESS, RUN_ONCE, CONTENT_LENGTH,
-        HTTPS, SERVER_PROTOCOL
+        HTTPS, HTTP_VERSION
     }
     static final int NUM_RACK_KEYS = RACK_KEY.values().length;
 
@@ -53,7 +53,7 @@ public class RackEnvironment {
         putRack("QUERY_STRING", RACK_KEY.QUERY_STRING);
         putRack("SERVER_NAME", RACK_KEY.SERVER_NAME);
         putRack("SERVER_PORT", RACK_KEY.SERVER_PORT);
-        putRack("SERVER_PROTOCOL", RACK_KEY.SERVER_PROTOCOL);
+        putRack("HTTP_VERSION", RACK_KEY.HTTP_VERSION);
         putRack("CONTENT_TYPE", RACK_KEY.CONTENT_TYPE);
         putRack("REQUEST_URI", RACK_KEY.REQUEST_URI);
         putRack("REMOTE_ADDR", RACK_KEY.REMOTE_ADDR);
@@ -102,7 +102,7 @@ public class RackEnvironment {
         env.lazyPut(RACK_KEY.QUERY_STRING, orEmpty(request.query()), false);
         env.lazyPut(RACK_KEY.SERVER_NAME, Const.LOCALHOST, false);
         env.lazyPut(RACK_KEY.SERVER_PORT, Const.PORT_80, true);
-        env.lazyPut(RACK_KEY.SERVER_PROTOCOL,
+        env.lazyPut(RACK_KEY.HTTP_VERSION,
                 request.version() == HttpVersion.HTTP_1_1 ? Const.HTTP_11 : Const.HTTP_10, true);
         env.lazyPut(RACK_KEY.CONTENT_TYPE, headers.get(HttpHeaders.Names.CONTENT_TYPE), true);
         env.lazyPut(RACK_KEY.REQUEST_URI, scriptName + pathInfo, false);

@@ -5,7 +5,7 @@ gem 'rack', '>= 1.4.1'
 gem 'spoon', '~> 0.0.4'
 
 group :development do
-  gem 'jeweler'
+  gem 'jeweler', '~> 1.8.7'
 end
 
 group :test do
