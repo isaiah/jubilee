@@ -82,7 +82,7 @@ public class RubyHttpServerResponse extends RubyObject {
 
     @JRubyMethod(name = "put_default_headers")
     public IRubyObject putDefaultHeaders(ThreadContext context) {
-        this.resp.putHeader("Server", "Jubilee");
+        this.resp.putHeader("Server", Const.JUBILEE_VERSION);
         return context.runtime.getNil();
     }
 }
