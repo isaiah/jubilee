@@ -43,8 +43,7 @@ public class RackEnvironmentHash extends RubyHash {
                 if (keyBytes.length > 5 && keyBytes[0] == 'H'
                         && keyBytes[1] == 'T' && keyBytes[2] == 'T'
                         && keyBytes[3] == 'P' && keyBytes[4] == '_') {
-                    // this HttpString ctor has misleading variable names -
-                    // it's a copy from/to, not offset/length
+
                     fillHeaderKey((RubyString) rubyKey);
                 } else {
                     fillRackKey((RubyString) rubyKey);
@@ -110,7 +109,6 @@ public class RackEnvironmentHash extends RubyHash {
                 while (valueIndex < headerValues.size()) {
                     headerValue += "\n" + headerValues.get(valueIndex++);
                 }
-//                RubyString rubyKey = RubyHelper.toUsAsciiRubyString(getRuntime(), rubyKeyBytes);
                 put(rubyKey, RubyHelper.toUnicodeRubyString(getRuntime(), headerValue));
             }
         }
@@ -188,7 +186,6 @@ public class RackEnvironmentHash extends RubyHash {
         fillKey(key);
         return super.delete(context, key, block);
     }
-
 
     //
     // Overridden RubyHash methods that don't operate on individual keys so we

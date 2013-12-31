@@ -34,7 +34,7 @@ Installation
 
     $ jruby -S gem install jubilee
 
-Jubilee requires JRuby 1.7.0 or later, and JDK 7+
+Jubilee requires JRuby 1.7.5 or later, and JDK 7+
 
 Get started
 -----------
@@ -45,7 +45,8 @@ Get started
 Setup
 -----
 
-If you use bundler, you might want to add `jubilee` to your Gemfile
+If you use bundler, you might want to add `jubilee` to your Gemfile,
+this is required if you want use rails http stream
 
     $ jubilee
 
