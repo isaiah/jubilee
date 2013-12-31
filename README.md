@@ -46,7 +46,7 @@ Setup
 -----
 
 If you use bundler, you might want to add `jubilee` to your Gemfile,
-this is required if you want use rails http stream
+this is also required if you want use rails http streaming,
 
     $ jubilee
 
