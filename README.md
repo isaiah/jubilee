@@ -124,7 +124,7 @@ documentation.
 License
 --------
 
-The same as JRuby and vertx
+See [LICENSE.txt](https://github.com/isaiah/jubilee/blob/master/LICENSE.txt)
 
 Acknowledgment
 --------------
