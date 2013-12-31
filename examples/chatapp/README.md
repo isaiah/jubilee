@@ -1,7 +1,10 @@
 Get started
 -----------
 
-Make sure you are using jruby 1.7+ and your JDK version is 7+
+There is a [online demo](http://192.241.201.68:8080/) for this
+application.
+
+Make sure you are using jruby 1.7+ (jubilee 1.1.0+ require jruby 1.7.5 or later) and your JDK version is 7+
 
 To run the application:
 
