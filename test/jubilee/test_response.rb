@@ -176,6 +176,7 @@ class TestResponse < MiniTest::Unit::TestCase
   end
 
   def test_allow_app_to_chunk_itself
+    skip "body should not be chunked before sent to jubilee"
     @headers = {'Transfer-Encoding' => "chunked" }
 
     @body = ["5\r\nhello\r\n0\r\n\r\n"]
