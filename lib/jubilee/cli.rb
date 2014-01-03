@@ -2,6 +2,8 @@ require 'optparse'
 require 'jubilee'
 require 'java'
 
+java_import java.lang.System
+
 module Jubilee
   class CLI
     # Parsed options
@@ -9,6 +11,13 @@ module Jubilee
     def initialize(argv)
       @argv = argv
       setup_options
+    end
+
+    def test_java_version!(version)
+      if version[0..2] < "1.7"
+        puts("Error: Jubilee requires JDK 1.7.0 or later. You can use the official Oracle distribution or the OpenJDK version.")
+        exit 1
+      end
     end
 
     def parse_options
@@ -20,6 +29,7 @@ module Jubilee
     end
 
     def run
+      test_java_version!(System.getProperties["java.runtime.version"])
       parse_options
 
       ENV["RACK_ENV"] = @options[:environment]
