@@ -2,4 +2,4 @@ source "https://rubygems.org"
 gem 'sinatra'
 gem 'haml'
 
-gem 'jubilee', '~> 1.0.2'
+gem 'jubilee', '1.1.0.rc2'
