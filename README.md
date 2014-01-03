@@ -95,10 +95,7 @@ For more advanced examples, checkout the
 [chatapp](https://github.com/isaiah/jubilee/tree/master/examples/chatapp).
 
 Performance Tuning
-=================
-
-Improving connection time
--------------------------
+-------------------
 
 If you're creating a lot of connections to a Jubilee(Vert.x) server in a short
 period of time, e.g. benchmarking with tools like [wrk](https://github.com/wg/wrk),
@@ -120,6 +117,19 @@ sudo sysctl -w net.ipv4.tcp_max_syn_backlog=10000
 
 For other operating systems, please consult your operating system
 documentation.
+
+Contributing
+-------------
+
+All kinds of contributions are welcome.
+
+File an issue [here](https://github.com/isaiah/jubilee/issues) if you encounter any problems. Or if you prefer to fix by yourself:
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
 
 License
 --------
