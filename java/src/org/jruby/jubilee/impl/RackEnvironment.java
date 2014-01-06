@@ -1,17 +1,17 @@
 package org.jruby.jubilee.impl;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.jruby.Ruby;
-import org.jruby.RubyArray;
-import org.jruby.RubyBoolean;
-import org.jruby.RubyFixnum;
-import org.jruby.RubyHash;
-import org.jruby.RubyIO;
-import org.jruby.RubyString;
+import org.jruby.*;
 
 import org.jruby.jubilee.Const;
 import org.jruby.jubilee.RackInput;
+import org.jruby.jubilee.RubyNetSocket;
 import org.jruby.jubilee.utils.RubyHelper;
+import org.jruby.runtime.Arity;
+import org.jruby.runtime.Block;
+import org.jruby.runtime.JavaInternalBlockBody;
+import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpVersion;
@@ -31,7 +31,7 @@ public class RackEnvironment {
         PATH_INFO, QUERY_STRING, SERVER_NAME, SERVER_PORT,
         CONTENT_TYPE, REQUEST_URI, REMOTE_ADDR, URL_SCHEME,
         VERSION, MULTITHREAD, MULTIPROCESS, RUN_ONCE, CONTENT_LENGTH,
-        HTTPS, HTTP_VERSION
+        HTTPS, HTTP_VERSION, HIJACK_P, HIJACK, HIJACK_IO
     }
     static final int NUM_RACK_KEYS = RACK_KEY.values().length;
 
@@ -62,6 +62,9 @@ public class RackEnvironment {
         putRack("rack.multithread", RACK_KEY.MULTITHREAD);
         putRack("rack.multiprocess", RACK_KEY.MULTIPROCESS);
         putRack("rack.run_once", RACK_KEY.RUN_ONCE);
+        putRack("rack.hijack?", RACK_KEY.HIJACK_P);
+        putRack("rack.hijack", RACK_KEY.HIJACK);
+        putRack("rack.hijack_io", RACK_KEY.HIJACK_IO);
         putRack("CONTENT_LENGTH", RACK_KEY.CONTENT_LENGTH);
         putRack("HTTPS", RACK_KEY.HTTPS);
     }
@@ -112,6 +115,14 @@ public class RackEnvironment {
         env.lazyPut(RACK_KEY.MULTITHREAD, runtime.getTrue(), false);
         env.lazyPut(RACK_KEY.MULTIPROCESS, runtime.getFalse(), false);
         env.lazyPut(RACK_KEY.RUN_ONCE, runtime.getFalse(), false);
+        env.lazyPut(RACK_KEY.HIJACK_P, runtime.getTrue(), false);
+        env.lazyPut(RACK_KEY.HIJACK, runtime.newProc(Block.Type.LAMBDA, new Block(new JavaInternalBlockBody(runtime, Arity.NO_ARGUMENTS) {
+            @Override
+            public IRubyObject yield(ThreadContext context, IRubyObject iRubyObject) {
+                return env.put(RACK_KEY.HIJACK_IO,
+                        new RubyNetSocket(runtime, (RubyClass) runtime.getClassFromPath("Jubilee::NetSocket"), request.netSocket()));
+            }
+        })));
 
 
         final int contentLength = getContentLength(headers);
