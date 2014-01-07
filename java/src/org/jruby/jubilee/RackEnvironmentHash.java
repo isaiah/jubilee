@@ -1,4 +1,4 @@
-package org.jruby.jubilee.impl;
+package org.jruby.jubilee;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.jruby.Ruby;

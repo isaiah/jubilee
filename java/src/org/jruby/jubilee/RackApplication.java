@@ -7,7 +7,6 @@ import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.javasupport.JavaEmbedUtils;
-import org.jruby.jubilee.impl.RackEnvironment;
 import org.jruby.jubilee.impl.RubyIORackInput;
 import org.jruby.jubilee.impl.RubyNullIO;
 import org.jruby.runtime.ThreadContext;
