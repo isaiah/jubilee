@@ -1,4 +1,4 @@
-package org.jruby.jubilee.impl;
+package org.jruby.jubilee;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.jruby.Ruby;
@@ -7,6 +7,7 @@ import org.jruby.RubyBoolean;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyHash;
 import org.jruby.RubyString;
+import org.jruby.jubilee.RackEnvironment;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
