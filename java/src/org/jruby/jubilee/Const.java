@@ -14,10 +14,11 @@ import java.util.Map;
  */
 public final class Const {
 
-    public static final String JUBILEE_VERSION = "Jubilee Server 1.1.0";
+    public static final String JUBILEE_VERSION = "Jubilee(1.1.0)";
     public static final String HTTP_11 = "HTTP/1.1";
     public static final String HTTP_10 = "HTTP/1.0";
 
+    public static final String SCRIPT_NAME = "SCRIPT_NAME";
     public static final String SERVER_SOFTWARE = "SERVER_SOFTWARE";
     public static final String SERVER_PROTOCOL = "SERVER_PROTOCOL";
     public static final String GATEWAY_INTERFACE = "GATEWAY_INTERFACE";
@@ -50,7 +51,7 @@ public final class Const {
     public static final String HTTP_CONTENT_LENGTH = "CONTENT_LENGTH";
 
     public static class Rack {
-        public static final String HTTP_DATE = "HTTP_DATE";
+        public static final String HTTP_AUTHORIZATION = "HTTP_AUTHORIZATION";
         public static final String HTTP_EXPECT = "HTTP_EXPECT";
         public static final String HTTP_IF_MATCH = "HTTP_IF_MATCH";
         public static final String HTTP_IF_MODIFIED_SINCE = "HTTP_IF_MODIFIED_SINCE";
@@ -78,13 +79,15 @@ public final class Const {
         public static final String ACCEPT = "accept";
         public static final String ACCEPT_LANGUAGE = "accept-language";
         public static final String ACCEPT_ENCODING = "accept-encoding";
+        public static final String AUTHORIZATION = "authorization";
         public static final String CONNECTION = "connection";
-        public static final String CONTENT_TYPE = "content-type";
-        public static final String CONTENT_LENGTH = "content-length";
+        public static final String CONTENT_TYPE = "Content-Type";
+        public static final String CONTENT_LENGTH = "Content-Length";
         public static final String CONTENT_MD5 = "content-md5";
         public static final String HOST = "host";
 
-        public static final String DATE = "date";
+        public static final String TRANSFER_ENCODING = "Transfer-Encoding";
+
         public static final String EXPECT = "expect";
         public static final String IF_MATCH = "if-match";
         public static final String IF_MODIFIED_SINCE = "if-modified-since";
@@ -104,28 +107,6 @@ public final class Const {
         public static final String X_FORWARDED_FOR = "x-forwarded-for"; // original ip
     }
 
-    public static Map<String, String> ADDITIONAL_HEADERS = new HashMap<String, String>();
-
-    static {
-        ADDITIONAL_HEADERS.put(Vertx.DATE, Rack.HTTP_DATE);
-        ADDITIONAL_HEADERS.put(Vertx.EXPECT, Rack.HTTP_EXPECT);
-        ADDITIONAL_HEADERS.put(Vertx.IF_MATCH, Rack.HTTP_IF_MATCH);
-        ADDITIONAL_HEADERS.put(Vertx.IF_MODIFIED_SINCE, Rack.HTTP_IF_MODIFIED_SINCE);
-        ADDITIONAL_HEADERS.put(Vertx.IF_NONE_MATCH, Rack.HTTP_IF_NONE_MATCH);
-        ADDITIONAL_HEADERS.put(Vertx.IF_RANGE, Rack.HTTP_IF_RANGE);
-        ADDITIONAL_HEADERS.put(Vertx.IF_UNMODIFIED_SINCE, Rack.HTTP_IF_UNMODIFIED_SINCE);
-        ADDITIONAL_HEADERS.put(Vertx.RANGE, Rack.HTTP_RANGE);
-        ADDITIONAL_HEADERS.put(Vertx.PRAGMA, Rack.HTTP_PRAGMA);
-        ADDITIONAL_HEADERS.put(Vertx.MAX_FORWARDS, Rack.HTTP_MAX_FORWARDS);
-        ADDITIONAL_HEADERS.put(Vertx.REFERER, Rack.HTTP_REFERER);
-        ADDITIONAL_HEADERS.put(Vertx.VIA, Rack.HTTP_VIA);
-        ADDITIONAL_HEADERS.put(Vertx.WARNING, Rack.HTTP_WARNING);
-        ADDITIONAL_HEADERS.put(Vertx.X_REQUESTED_WITH, Rack.HTTP_X_REQUESTED_WITH);
-        ADDITIONAL_HEADERS.put(Vertx.DNT, Rack.HTTP_DNT);
-        ADDITIONAL_HEADERS.put(Vertx.X_FORWARDED_FOR, Rack.HTTP_X_FORWARDED_FOR);
-        ADDITIONAL_HEADERS.put(Vertx.CONTENT_MD5, Rack.HTTP_CONTENT_MD5);
-    }
-
     public static final String HTTP = "http";
     public static final String HTTPS = "https";
     public static final String URL_SCHEME = "rack.url_scheme";
@@ -134,8 +115,6 @@ public final class Const {
     public static final String RACK_MULTITHREAD = "rack.multithread";
     public static final String RACK_MULTIPROCESS = "rack.multiprocess";
     public static final String RACK_RUNONCE = "rack.run_once";
-    public static final String SCRIPT_NAME = "SCRIPT_NAME";
-
 
     public static final String RACK_HIJACK_P = "rack.hijack?";
 

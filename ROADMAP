@@ -1,0 +1,5 @@
+Hijack support
+
+Scale HTTP Server, create multiple instances (bind to different ports or the same one?)
+
+Load multiple ruby runtimes

@@ -3,7 +3,7 @@ require 'net/http'
 
 class TestJubileeServer < MiniTest::Unit::TestCase
   def setup
-    @host, @port = "localhost", 3215
+    @host, @port = "localhost", 8080
     @server = nil
   end
 

@@ -28,16 +28,17 @@ Jeweler::Tasks.new do |gem|
   gem.homepage = "http://github.com/isaiah/jubilee"
   gem.license = "MIT"
   gem.summary = %Q{More than a server for rack applications.}
-  gem.description = %Q{Jubilee is a experimental webserver built for speed, it's based on Vertx.}
+  gem.description = %Q{Jubilee is a jruby webserver built upon Vertx.}
   gem.email = "issaria@gmail.com"
   gem.authors = ["Isaiah Peng"]
+  gem.version = Jubilee::Version::STRING
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
 
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
+  test.libs << 'lib' << 'test' << 'spec'
   test.pattern = 'test/**/test_*.rb'
   test.verbose = true
 end
@@ -56,7 +57,7 @@ task :default => :test
 
 require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
-  version = Jubilee::VERSION
+  version = Jubilee::Version::STRING
 
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title = "jubilee #{version}"
@@ -88,7 +89,7 @@ task :jar => [:clean, :compile] do
   ant.jar :basedir => "pkg/classes", :destfile => "lib/jubilee/jubilee.jar", :includes => "**/*.class"
 end
  
-task :package => :jar
+task :build => :jar
 
 desc "Run the specs"
 task :spec => :jar do

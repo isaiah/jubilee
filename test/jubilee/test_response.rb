@@ -22,7 +22,7 @@ class TestResponse < MiniTest::Unit::TestCase
     end
 
     @host = "127.0.0.1"
-    @port = 3215
+    @port = 8080
 
     @server = Jubilee::Server.new @simple
     @server.start
@@ -45,14 +45,14 @@ class TestResponse < MiniTest::Unit::TestCase
   end
 
   def valid_response(size)
-    Regexp.new("HTTP/1.1 200 OK\r\nX-Header: Works\r\nContent-Length: #{size}\r\n\r\n", true)
+    Regexp.new("HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{size}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n", true)
   end
 
   def test_one_with_content_length
     @client << @valid_request
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(4)
+    assert_match valid_response(sz), lines(7)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -60,13 +60,13 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @valid_request
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(4)
+    assert_match valid_response(sz), lines(7)
     assert_equal "Hello", @client.read(5)
 
     @client << @valid_request
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(4)
+    assert_match valid_response(sz), lines(7)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -74,33 +74,35 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @valid_post
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(4)
+    assert_match valid_response(sz), lines(7)
     assert_equal "Hello", @client.read(5)
 
     @client << @valid_request
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(4)
+    assert_match valid_response(sz), lines(7)
     assert_equal "Hello", @client.read(5)
   end
 
-  #def test_no_body_then_get
-  #  @client << @valid_no_body
-  #  assert_equal "HTTP/1.1 204 No Content\r\nX-Header: Works\r\n\r\n", lines(3)
+=begin
+  def test_no_body_then_get
+    @client << @valid_no_body
+    assert_match %r{HTTP/1.1 204 No Content\r\nX-Header: Works(.*?\r\n)*?Connection: keep-alive\r\n\r\n}, lines(6)
 
-  #  @client << @valid_request
-  #  sz = @body[0].size.to_s
+    @client << @valid_request
+    sz = @body[0].size.to_s
 
-  #  assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\n\r\n", lines(4)
-  #  assert_equal "Hello", @client.read(5)
-  #end
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\n\r\n}, lines(7)
+    assert_equal "Hello", @client.read(5)
+  end
+=end
 
   def test_chunked
     @body << "Chunked"
 
     @client << @valid_request
 
-    assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nHello\r\n7\r\nChunked\r\n0\r\n\r\n", lines(10)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer(.*\r\n)*?Transfer-Encoding: chunked\r\nDate(.*?)\r\n\r\n5\r\nHello\r\n7\r\nChunked\r\n0\r\n\r\n}, lines(13)
   end
 
   def test_no_chunked_in_http10
@@ -108,7 +110,7 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @http10_request
 
-    assert_equal "HTTP/1.0 200 OK\r\nX-Header: Works\r\n\r\n", lines(3)
+    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works(.*?\r\n)*?Connection: close\r\nDate(.*?)\r\n\r\n}, lines(6)
     assert_equal "HelloChunked", @client.read
   end
 
@@ -118,25 +120,23 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @valid_request
 
-    assert_equal "HTTP/1.1 200 OK\r\nX-Header: Works\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nHello\r\n#{str.size.to_s(16)}\r\n#{str}\r\n0\r\n\r\n", lines(10)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Transfer-Encoding: chunked\r\nDate(.*?)\r\n\r\n5\r\nHello\r\n#{str.size.to_s(16)}\r\n#{str}\r\n0\r\n\r\n}, lines(13)
 
   end
 
-=begin
   def test_client11_close
     @client << @close_request
     sz = @body[0].size.to_s
 
-    assert_equal "HTTP/1.1 200 OK\r\nConnection: Close\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(5)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: close\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
   end
-=end
 
   def test_client10_close
     @client << @http10_request
     sz = @body[0].size.to_s
 
-    assert_equal "HTTP/1.0 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\n\r\n", lines(4)
+    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: close\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -144,7 +144,7 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @keep_request
     sz = @body[0].size.to_s
 
-    assert_equal "HTTP/1.0 200 OK\r\nX-Header: Works\r\nContent-Length: #{sz}\r\nConnection: keep-alive\r\n\r\n", lines(5)
+    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works\r\nServer(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -163,6 +163,7 @@ class TestResponse < MiniTest::Unit::TestCase
       @client.read_nonblock(1)
     end
   end
+=end
 
   def test_app_sets_content_length
     @body = ["hello", " world"]
@@ -170,20 +171,19 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @valid_request
 
-    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: 11\r\nx-header: Works\r\n\r\n",
-                 lines(4)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: 11\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "hello world", @client.read(11)
   end
 
   def test_allow_app_to_chunk_itself
-    skip "vertx doesn't support chunk self yet"
+    skip "body should not be chunked before sent to jubilee"
     @headers = {'Transfer-Encoding' => "chunked" }
 
     @body = ["5\r\nhello\r\n0\r\n\r\n"]
 
     @client << @valid_request
 
-    assert_equal "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n\r\n", lines(7)
+    assert_match %r{HTTP/1.1 200 OK\r\n(.*?\r\n)*?Transfer-Encoding: chunked\r\nDate(.*?)\r\n\r\n5\r\nhello\r\n0\r\n}, lines(10)
   end
 
 
@@ -197,10 +197,10 @@ class TestResponse < MiniTest::Unit::TestCase
 
     sz = @body[0].size.to_s
 
-    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
 
-    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -214,16 +214,14 @@ class TestResponse < MiniTest::Unit::TestCase
 
     sz = @body[0].size.to_s
 
-    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
 
-    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7)
     assert_equal "Hello", @client.read(5)
 
-    # Since rack process request before the body is ready, we cannot
-    # utilize this optimization
-    # assert_kind_of Jubilee::NullIO, @inputs[0]
-    # assert_kind_of Jubilee::NullIO, @inputs[1]
+    #assert_kind_of Jubilee::NullIO, @inputs[0]
+    #assert_kind_of Jubilee::NullIO, @inputs[1]
   end
 
   def test_keepalive_doesnt_starve_clients
@@ -239,10 +237,11 @@ class TestResponse < MiniTest::Unit::TestCase
     assert out, "select returned nil"
     assert_equal c2, out.first.first
 
-    assert_equal "HTTP/1.1 200 OK\r\ncontent-length: #{sz}\r\nx-header: Works\r\n\r\n", lines(4, c2)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\n(.*?\r\n)*?Content-Length: #{sz}\r\nConnection: keep-alive\r\nDate(.*?)\r\n\r\n}, lines(7, c2)
     assert_equal "Hello", c2.read(5)
   end
 
+=begin
   def test_client_shutdown_writes
     bs = 15609315 * rand
     sock = TCPSocket.new('127.0.0.1', @port)
