@@ -25,13 +25,14 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "jubilee"
-  gem.homepage = "http://github.com/isaiah/jubilee"
+  gem.homepage = "http://isaiah.github.io/jubilee"
   gem.license = "MIT"
   gem.summary = %Q{More than a server for rack applications.}
-  gem.description = %Q{Jubilee is a jruby webserver built upon Vertx.}
+  gem.description = %Q{Jubilee is a rack server for JRuby built upon the high performance Vertx platform. It provides the best features of Vertx such as EventBus, SharedData, and clustering.}
   gem.email = "issaria@gmail.com"
   gem.authors = ["Isaiah Peng"]
   gem.version = Jubilee::Version::STRING
+  gem.platform = "java"
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
