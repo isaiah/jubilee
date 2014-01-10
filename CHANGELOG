@@ -1,3 +1,25 @@
+Release 1.1.0
+=============
+
+exit gracefully if java version is not supported.
+fix inifinite loop in RackInput #gets and #each
+change jruby requirement to 1.7.5
+monkey patch Rack::Chunked::Body so that rails won't chunk it's streaming body.
+server name change to constant
+add HTTP_VERSION rack header
+fix multiple value header
+change default port to 8080
+add lazy rack environment hash from wunderboss
+Date header moved to vertx
+update vertx: keep-alive if http 1.1 and not requested to closed connection, or http 1.0 and requested to do so, otherwise close connection
+add 'Date' and 'Server' http general header
+set bodybuf max capacity
+remove worker_threads option since vertx can scale itself
+replace scaffold implementation of rackIOError with RubyIO
+instead of allocate a new class every time initialize a RubyIORackInput class, get the one from runtime.
+update vertx to 2.1M3-SNAPSHOT
+
+
 Release 1.0.2
 =============
 
