@@ -70,23 +70,23 @@ public class RubyServer extends RubyObject {
         RubySymbol eventbus_prefix_k = runtime.newSymbol("eventbus_prefix");
 
         /* retrieve from passed in options */
-        this.port = Integer.parseInt(options.op_aref(context, port_k).toString());
-        this.host = options.op_aref(context, host_k).toString();
+        this.port = RubyNumeric.num2int(options.op_aref(context, port_k));
+        this.host = options.op_aref(context, host_k).asJavaString();
 
         this.ssl = options.op_aref(context, ssl_k).isTrue();
         if (this.ssl) {
-            this.keyStorePath = options.op_aref(context, ssl_keystore_k).toString();
+            this.keyStorePath = options.op_aref(context, ssl_keystore_k).asJavaString();
             if (options.has_key_p(ssl_password_k).isTrue())
-                this.keyStorePassword = options.op_aref(context, ssl_password_k).toString();
+                this.keyStorePassword = options.op_aref(context, ssl_password_k).asJavaString();
         }
         if (options.has_key_p(eventbus_prefix_k).isTrue())
-            this.eventBusPrefix = options.op_aref(context, eventbus_prefix_k).toString();
+            this.eventBusPrefix = options.op_aref(context, eventbus_prefix_k).asJavaString();
 
         /* init vertx */
         if (options.has_key_p(cluster_host_k).isTrue()) {
-            this.clusterHost = options.op_aref(context, cluster_host_k).toString();
+            this.clusterHost = options.op_aref(context, cluster_host_k).asJavaString();
             if (options.has_key_p(cluster_port_k).isTrue()) {
-                this.clusterPort = Integer.parseInt(options.op_aref(context, cluster_port_k).toString());
+                this.clusterPort = RubyNumeric.num2int(options.op_aref(context, cluster_port_k));
                 this.vertx = JubileeVertx.init(clusterPort, clusterHost);
             }
             this.vertx = JubileeVertx.init(clusterHost);

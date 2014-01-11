@@ -51,8 +51,6 @@ module Jubilee
       @options = {
         debug: false,
         daemon: false,
-        Port: 8080,
-        Host: "0.0.0.0",
         ssl: false,
         environment: ENV["RACK_ENV"] || "development"
       }
