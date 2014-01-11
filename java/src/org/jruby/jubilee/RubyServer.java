@@ -65,8 +65,8 @@ public class RubyServer extends RubyObject {
         RubySymbol cluster_port_k = runtime.newSymbol("cluster_port");
         RubySymbol cluster_host_k = runtime.newSymbol("cluster_host");
         RubySymbol ssl_k = runtime.newSymbol("ssl");
-        RubySymbol keystore_path_k = runtime.newSymbol("keystore_path");
-        RubySymbol keystore_password_k = runtime.newSymbol("keystore_password");
+        RubySymbol ssl_keystore_k = runtime.newSymbol("ssl_keystore");
+        RubySymbol ssl_password_k = runtime.newSymbol("ssl_password");
         RubySymbol eventbus_prefix_k = runtime.newSymbol("eventbus_prefix");
 
         /* retrieve from passed in options */
@@ -74,9 +74,10 @@ public class RubyServer extends RubyObject {
         this.host = options.op_aref(context, host_k).toString();
 
         this.ssl = options.op_aref(context, ssl_k).isTrue();
-        if (options.has_key_p(keystore_path_k).isTrue()) {
-            this.keyStorePath = options.op_aref(context, keystore_path_k).toString();
-            this.keyStorePassword = options.op_aref(context, keystore_password_k).toString();
+        if (this.ssl) {
+            this.keyStorePath = options.op_aref(context, ssl_keystore_k).toString();
+            if (options.has_key_p(ssl_password_k).isTrue())
+                this.keyStorePassword = options.op_aref(context, ssl_password_k).toString();
         }
         if (options.has_key_p(eventbus_prefix_k).isTrue())
             this.eventBusPrefix = options.op_aref(context, eventbus_prefix_k).toString();

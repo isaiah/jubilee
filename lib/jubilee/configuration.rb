@@ -39,7 +39,7 @@ module Jubilee
     #   listen "127.0.0.1:3000"  # listen to port 3000 on the loopback interface
     #   listen "[::1]:3000" # listen to port 3000 on the IPv6 loopback interface
     def listen(address)
-      @options[:host], @options[:port] = expand_addr(address)
+      @options[:Host], @options[:Port] = expand_addr(address, :listen)
     end
 
     # sets the working directory for jubilee
@@ -54,14 +54,14 @@ module Jubilee
     end
 
     # set the event bus bridge prefix, prefix, options
-    # eventbus /eventbus, inbound: {foo:bar}, outbound: {foo: bar}
+    # eventbus /eventbus, inbound: [{foo:bar}], outbound: [{foo: bar}]
     # will set the event bus prefix as eventbus "/eventbus", it can be
     # connected via new EventBus("http://localhost:8080/eventbus"), inbound and
     # outbound options are security measures that will filter the messages
     def eventbus(prefix, options = {})
-      @options[:event_bus][:prefix] = prefix
-      @options[:event_bus][:inbound] = options[:inbound]
-      @options[:event_bus][:outbound] = options[:outbound]
+      @options[:event_bus_prefix] = prefix
+      @options[:event_bus_inbound] = options[:inbound]
+      @options[:event_bus_outbound] = options[:outbound]
     end
 
     # Set the host and port to be discovered by other jubilee instances in the network
@@ -77,7 +77,7 @@ module Jubilee
       if addr == true
         @options[:cluster_host] = "0.0.0.0"
       else
-        @options[:cluster_host], @options[:cluster_port] = expand_addr(address)
+        @options[:cluster_host], @options[:cluster_port] = expand_addr(address, :clustering)
       end
     end
 
@@ -130,8 +130,8 @@ module Jubilee
       inner_app
     end
 
-    def expand_addr(addr)
-      return ["0.0.0.0", addr] if addr === Integer
+    def expand_addr(addr, var = nil)
+      return ["0.0.0.0", addr] if addr.is_a?(Fixnum)
       case addr
       when %r{\A(?:\*:)?(\d+)\z}
         ["0.0.0.0", $1]

@@ -84,10 +84,10 @@ module Jubilee
           @options[:ssl] = true
         end
         o.on "--ssl-keystore PATH", "SSL keystore path" do |arg|
-          @options[:keystore_path] = arg
+          @options[:ssl_keystore] = arg
         end
         o.on "--ssl-password PASS", "SSL keystore password" do |arg|
-          @options[:keystore_password] = arg
+          @options[:ssl_keystore] = arg
         end
         o.separator ""
         o.separator "Event bus options:"
@@ -112,7 +112,7 @@ module Jubilee
         o.on "--verbose", "Log low level debug information" do
           @options[:debug] = true
         end
-        o.on "-q", "--quiet" do
+        o.on "-q", "--quiet", "Disable logging" do
           @options[:quiet] = true
         end
       end
