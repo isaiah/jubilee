@@ -44,13 +44,12 @@ module Jubilee
 
     # sets the working directory for jubilee
     def working_directory(path)
-      path = File.expand_path(path)
-      if config_file && config_file[0] != ?/ && ! File.readable?("#{path}/#{config_file}")
-         raise ArgumentError,
-              "config_file=#{config_file} would not be accessible in" \
-              " working_directory=#{path}"
-      end
-      @options[:chdir] = path
+      @options[:chdir] = File.expand_path(path)
+    end
+
+    # sets the RACK_ENV environment variable
+    def environment(env)
+      @options[:environment] = env
     end
 
     # set the event bus bridge prefix, prefix, options
@@ -59,9 +58,9 @@ module Jubilee
     # connected via new EventBus("http://localhost:8080/eventbus"), inbound and
     # outbound options are security measures that will filter the messages
     def eventbus(prefix, options = {})
-      @options[:event_bus_prefix] = prefix
-      @options[:event_bus_inbound] = options[:inbound]
-      @options[:event_bus_outbound] = options[:outbound]
+      @options[:eventbus_prefix] = prefix
+      @options[:eventbus_inbound] = options[:inbound]
+      @options[:eventbus_outbound] = options[:outbound]
     end
 
     # Set the host and port to be discovered by other jubilee instances in the network
@@ -74,7 +73,7 @@ module Jubilee
     #    clustering "0.0.0.0:5701"
     #    clustering 5701
     def clustering(address)
-      if addr == true
+      if address == true
         @options[:cluster_host] = "0.0.0.0"
       else
         @options[:cluster_host], @options[:cluster_port] = expand_addr(address, :clustering)
@@ -88,7 +87,7 @@ module Jubilee
 
     # enable daemon mode
     def daemonize(bool)
-      set_bool(:debug, bool)
+      set_bool(:deamon, bool)
     end
 
     # enable https mode, provide the :keystore path and password

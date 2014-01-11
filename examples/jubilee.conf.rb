@@ -4,6 +4,14 @@ listen 3000
 # enable https mode
 ssl keystore: "keystore.jks", password: "hellojubilee"
 
-pid "tmp/jubilee.pid"
-stderr_path "log/jubilee.stderr.log"
-stdout_path "log/jubilee.stdout.log"
+# the directory where the rack app seats in
+working_directory "chatapp"
+
+# rack environment
+environment "development"
+
+eventbus "/eventbus", inbound: [{}], outbound: [{}]
+
+clustering true
+
+debug true
