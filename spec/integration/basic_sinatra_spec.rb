@@ -33,7 +33,7 @@ feature "basic sinatra test" do
     uri = URI.parse("#{Capybara.app_host}/some_page.html")
     Net::HTTP.start(uri.host, uri.port) do |http|
       request = Net::HTTP::Get.new(uri.request_uri)
-      request.add_field('If-Modified-Since', 'Sat, 31 Dec 2050 00:00:00 GMT')
+      request.add_field('If-Modified-Since', 'Mon, 30 Dec 2013 22:20:25 GMT')
       response = http.request(request)
       response.code.should == "304"
     end
