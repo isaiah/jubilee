@@ -52,6 +52,7 @@ module Jubilee
         debug: false,
         daemon: false,
         ssl: false,
+        Port: 8080,
         environment: ENV["RACK_ENV"] || "development"
       }
       @parser = OptionParser.new do |o|
@@ -70,7 +71,7 @@ module Jubilee
         o.on "-p", "--port PORT", "Defind which PORT the server should bind" do |arg|
           @options[:Port] = arg.to_i
         end
-        o.on "--host HOST", "Defind which HOST the server should bind, default 0.0.0.0" do |arg|
+        o.on "-b", "--host HOST", "Defind which HOST the server should bind, default 0.0.0.0" do |arg|
           @options[:Host] = arg
         end
         o.on "-e", "--environment ENV", "Rack environment" do |arg|
@@ -98,10 +99,10 @@ module Jubilee
         o.on "--cluster", "Enable clustering" do
           @options[:cluster_host] = "0.0.0.0"
         end
-        o.on "--cluster-port", "If the cluster option has also been specified then this determines which port will be used for cluster communication with other Vert.x instances. Default is 0 -which means 'chose a free ephemeral port. You don't usually need to specify this parameter unless you really need to bind to a specific port." do |port|
-          @options[:cluster_port] = port
+        o.on "--cluster-port PORT", "If the cluster option has also been specified then this determines which port will be used for cluster communication with other Vert.x instances. Default is 0 -which means 'chose a free ephemeral port. You don't usually need to specify this parameter unless you really need to bind to a specific port." do |port|
+          @options[:cluster_port] = port.to_i
         end
-        o.on "--cluster-host", "If the cluster option has also been specified then this determines which host address will be used for cluster communication with other Vert.x instances. By default it will try and pick one from the available interfaces. If you have more than one interface and you want to use a specific one, specify it here." do |host|
+        o.on "--cluster-host HOST", "If the cluster option has also been specified then this determines which host address will be used for cluster communication with other Vert.x instances. By default it will try and pick one from the available interfaces. If you have more than one interface and you want to use a specific one, specify it here." do |host|
           @options[:cluster_host] = host
         end
 
