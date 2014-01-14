@@ -12,7 +12,7 @@ Vertx::EventBus.register_handler('logout') do |message|
   Vertx::SharedData.get_set(:users).delete(message.body)
 end
 
-# register the user and return the pervious users
+# register the user and return the previous users
 Vertx::EventBus.register_handler('login') do |message|
   user = message.body
   users = Vertx::SharedData.get_set(:users).add(user)
