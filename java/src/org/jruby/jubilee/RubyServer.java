@@ -27,8 +27,6 @@ public class RubyServer extends RubyObject {
     private String eventBusPrefix;
     private int port;
     private String host;
-    private int clusterPort;
-    private String clusterHost;
 
     public static void createServerClass(Ruby runtime) {
         RubyModule mJubilee = runtime.defineModule("Jubilee");
@@ -62,8 +60,6 @@ public class RubyServer extends RubyObject {
         RubyHash options = config.convertToHash();
         RubySymbol port_k = runtime.newSymbol("Port");
         RubySymbol host_k = runtime.newSymbol("Host");
-        RubySymbol cluster_port_k = runtime.newSymbol("cluster_port");
-        RubySymbol cluster_host_k = runtime.newSymbol("cluster_host");
         RubySymbol ssl_k = runtime.newSymbol("ssl");
         RubySymbol ssl_keystore_k = runtime.newSymbol("ssl_keystore");
         RubySymbol ssl_password_k = runtime.newSymbol("ssl_password");
@@ -82,17 +78,7 @@ public class RubyServer extends RubyObject {
         if (options.has_key_p(eventbus_prefix_k).isTrue())
             this.eventBusPrefix = options.op_aref(context, eventbus_prefix_k).asJavaString();
 
-        /* init vertx */
-        if (options.has_key_p(cluster_host_k).isTrue()) {
-            this.clusterHost = options.op_aref(context, cluster_host_k).asJavaString();
-            if (options.has_key_p(cluster_port_k).isTrue()) {
-                this.clusterPort = RubyNumeric.num2int(options.op_aref(context, cluster_port_k));
-                this.vertx = JubileeVertx.init(clusterPort, clusterHost);
-            }
-            this.vertx = JubileeVertx.init(clusterHost);
-        } else {
-            this.vertx = JubileeVertx.init();
-        }
+        this.vertx = JubileeVertx.vertx();
 
         httpServer = vertx.createHttpServer();
         try {

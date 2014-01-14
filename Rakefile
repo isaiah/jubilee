@@ -68,7 +68,10 @@ end
 
 require 'ant'
 
-directory "pkg/classes"
+DEST_PATH = "pkg/classes"
+RESOURCE_PATH = "java/resources"
+
+directory DEST_PATH
 
 desc "Clean up build artifacts"
 task :clean do
@@ -79,17 +82,23 @@ end
 BUILDTIME_LIB_DIR = File.join(File.dirname(__FILE__), "jars")
 
 desc "Compile the extension, need jdk7 because vertx relies on it"
-task :compile => "pkg/classes" do |t|
+task :compile => [DEST_PATH, "#{DEST_PATH}/META-INF"] do |t|
   ant.javac :srcdir => "java", :destdir => t.prerequisites.first,
-    :source => "1.7", :target => "1.7", :debug => true,
+    :source => "1.7", :target => "1.7", :debug => true, :includeantruntime => false,
     :classpath => "${java.class.path}:${sun.boot.class.path}:jars/vertx-core-2.1M3-SNAPSHOT.jar:jars/netty-all-4.0.13.Final.jar:jars/jackson-core-2.2.2.jar:jars/jackson-databind-2.2.2.jar:jars/jackson-annotations-2.2.2.jar:jars/hazelcast-2.6.3.jar"
+end
+
+desc "Copy META-INF"
+task "#{DEST_PATH}/META-INF" => ["#{RESOURCE_PATH}/META-INF", "#{RESOURCE_PATH}/default-cluster.xml"] do |t|
+  FileUtils.cp_r t.prerequisites.first, t.name, verbose: true
+  cp t.prerequisites[1], DEST_PATH, verbose: true
 end
 
 desc "Build the jar"
 task :jar => [:clean, :compile] do
-  ant.jar :basedir => "pkg/classes", :destfile => "lib/jubilee/jubilee.jar", :includes => "**/*.class"
+  ant.jar :basedir => "pkg/classes", :destfile => "lib/jubilee/jubilee.jar"
 end
- 
+
 task :build => :jar
 
 desc "Run the specs"
