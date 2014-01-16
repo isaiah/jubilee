@@ -5,6 +5,7 @@ class TestConfig < MiniTest::Unit::TestCase
 
   def setup
     @tmp = Tempfile.new("jubilee_config")
+    @resp = [200, {"Content-Type" => "text/plain"}, ["embedded app"]]
   end
 
   def teardown
@@ -13,9 +14,23 @@ class TestConfig < MiniTest::Unit::TestCase
   end
 
   def test_load
-    @config = Jubilee::Configuration.new({rackup: "config/app.rb"})
-    resp = [200, {"Content-Type" => "text/plain"}, ["embeded app"]]
+    @config = Jubilee::Configuration.new({rackup: "test/config/config.ru"})
+    assert_equal @resp, @config.app.call({})
+  end
+
+  def test_change_dir
+    dir = Dir.getwd
+    @config = Jubilee::Configuration.new({chdir: "test/config"})
+    assert_equal @resp, @config.app.call({})
+    Dir.chdir(dir)
+  end
+
+  def test_customize_config_file
+    dir = Dir.getwd
+    @config = Jubilee::Configuration.new({chdir: "test/config", rackup: "app.ru"})
+    resp = [200, {"Content-Type" => "text/plain"}, ["customized body"]]
     assert_equal resp, @config.app.call({})
+    Dir.chdir(dir)
   end
 
   def test_config_invalid

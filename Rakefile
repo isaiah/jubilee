@@ -102,10 +102,11 @@ end
 
 task :build => :jar
 
-
 require 'rspec/core/rake_task'
 desc "Run integration tests"
 RSpec::Core::RakeTask.new do |t|
   t.ruby_opts = ['-I"spec:lib"']
   t.pattern = 'spec/**/*_spec.rb'
 end
+
+task :spec => :jar

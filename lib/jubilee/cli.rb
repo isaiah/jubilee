@@ -66,7 +66,7 @@ module Jubilee
           @options[:daemon] = true
         end
         o.on "--dir DIR", "Change to DIR before starting" do |arg|
-          @options[:working_directory] = arg
+          @options[:chdir] = arg
         end
         o.on "-p", "--port PORT", "Defind which PORT the server should bind" do |arg|
           @options[:Port] = arg.to_i
@@ -111,8 +111,14 @@ module Jubilee
         o.on "--verbose", "Log low level debug information" do
           @options[:debug] = true
         end
+
         o.on "-q", "--quiet", "Disable logging" do
           @options[:quiet] = true
+        end
+
+        o.on "-v", "--version", "Print the version information" do
+          puts "jubilee version #{Jubilee::Version::STRING} on Vert.x 2.1M3"
+          exit 0
         end
       end
 

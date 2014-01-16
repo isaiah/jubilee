@@ -128,15 +128,18 @@ module Jubilee
       if block
         inner_app = Rack::Builder.new(&block).to_app
       else
-        if options[:rackup]
-          Kernel.load(options[:rackup])
-          inner_app = Object.const_get(File.basename(options[:rackup], '.rb').capitalize.to_sym).new
-        else
-          Dir.chdir options[:chdir] if options[:chdir]
-          inner_app, _ = Rack::Builder.parse_file "config.ru"
+        Dir.chdir options[:chdir] if options[:chdir]
+        if !File.exist?(rackup)
+          raise "Missing rackup file #{File.absolute_path(rackup)}"
         end
+        inner_app, opts = Rack::Builder.parse_file(rackup)
+        @options.merge!(opts)
       end
       inner_app
+    end
+
+    def rackup
+      @options[:rackup] || "config.ru"
     end
 
     def expand_addr(addr, var = nil)
