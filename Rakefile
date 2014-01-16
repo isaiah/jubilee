@@ -13,7 +13,7 @@ include\
   end
 
 begin
-  Bundler.setup(:default, :development)
+  Bundler.setup(:default, :development, :test)
 rescue Bundler::BundlerError => e
   $stderr.puts e.message
   $stderr.puts "Run `bundle install` to install missing gems"
@@ -102,7 +102,10 @@ end
 
 task :build => :jar
 
-desc "Run the specs"
-task :spec => :jar do
-  ruby "-S", "spec", "spec"
+
+require 'rspec/core/rake_task'
+desc "Run integration tests"
+RSpec::Core::RakeTask.new do |t|
+  t.ruby_opts = ['-I"spec:lib"']
+  t.pattern = 'spec/**/*_spec.rb'
 end
