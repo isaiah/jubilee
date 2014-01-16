@@ -33,6 +33,7 @@ Jeweler::Tasks.new do |gem|
   gem.authors = ["Isaiah Peng"]
   gem.version = Jubilee::Version::STRING
   gem.platform = "java"
+  gem.files.include "lib/jubilee/jubilee.jar"
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
