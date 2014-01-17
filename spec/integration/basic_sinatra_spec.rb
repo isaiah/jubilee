@@ -3,16 +3,12 @@ require 'spec_helper'
 feature "basic sinatra test" do
 
   before(:all) do
-    @wd = Dir.pwd
-    puts ">" + Dir.pwd
     configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/sinatra/basic")
     @server = Jubilee::Server.new(configurator.app, configurator.options)
     @server.start
   end
 
   after(:all) do
-    puts "<" + Dir.pwd
-    Dir.chdir(@wd)
     @server.stop
   end
 
