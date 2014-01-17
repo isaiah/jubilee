@@ -4,7 +4,7 @@ feature 'basic rails4 test' do
 
   before(:all) do
     @wd = Dir.getwd
-    configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/rails4/basic")
+    configurator = Jubilee::Configuration.new(rackup: "#{apps_dir}/rails4/basic/config.ru")
     @server = Jubilee::Server.new(configurator.app, configurator.options)
     @server.start
     sleep 0.1

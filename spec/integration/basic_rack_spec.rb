@@ -4,7 +4,7 @@ feature "basic rack at non-root context" do
 
   before(:all) do
     @wd = Dir.getwd
-    configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/rack/basic")
+    configurator = Jubilee::Configuration.new(rackup: "#{apps_dir}/rack/basic/config.ru")
     @server = Jubilee::Server.new(configurator.app, configurator.options)
     @server.start
   end
