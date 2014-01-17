@@ -3,6 +3,7 @@ require 'spec_helper'
 feature "basic sinatra test" do
 
   before(:all) do
+    @wd = Dir.getwd
     configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/sinatra/basic")
     @server = Jubilee::Server.new(configurator.app, configurator.options)
     @server.start
@@ -10,6 +11,7 @@ feature "basic sinatra test" do
 
   after(:all) do
     @server.stop
+    Dir.chdir(@wd)
   end
 
   it "should work" do

@@ -7,17 +7,8 @@ require 'net/http'
 require 'net/http/post/multipart'
 require 'yaml'
 def hit(uris)
-  sleep 0.1
   uris.map do |u|
-    res = nil
-
-    if u.kind_of? String
-      res = Net::HTTP.get(URI.parse(u))
-    else
-      url = URI.parse(u[0])
-      res = Net::HTTP.new(url.host, url.port).start {|h| h.request(u[1]) }
-    end
-
+    res = Net::HTTP.get_response(URI(u))
     assert res != nil, "Didn't get a response: #{u}"
     res
   end
