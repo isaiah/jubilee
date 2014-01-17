@@ -39,9 +39,14 @@ class TestRackServer < MiniTest::Unit::TestCase
     end
   end
 
+  class RackCrasher < Rack::Lint
+    def call(env)
+      raise "Oops"
+    end
+  end
+
   def setup
     @valid_request = "GET / HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"
-    
     @simple = lambda { |env| [200, { "X-Header" => "Works" }, ["Hello"]] }
     @checker = ErrorChecker.new ServerLint.new(@simple)
     @host = "localhost"
@@ -49,7 +54,7 @@ class TestRackServer < MiniTest::Unit::TestCase
   end
 
   def teardown
-    @server.stop
+    @server.stop if @server
     sleep 0.1
   end
 
@@ -84,7 +89,7 @@ class TestRackServer < MiniTest::Unit::TestCase
 
   def test_path_info
     input = nil
-    @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
+    @server = Jubilee::Server.new(lambda { |env| input = env; @simple.call(env) })
     @server.start
 
     hit(['http://127.0.0.1:8080/test/a/b/c'])
@@ -109,7 +114,7 @@ class TestRackServer < MiniTest::Unit::TestCase
 
   def test_query_string
     input = nil
-    @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
+    @server = Jubilee::Server.new(lambda { |env| input = env; @simple.call(env) })
     @server.start
 
     hit(['http://127.0.0.1:8080/test/a/b/c?foo=bar'])
@@ -120,12 +125,12 @@ class TestRackServer < MiniTest::Unit::TestCase
   def test_post_data
     require 'rack/request'
     input = nil
-    @server = Jubilee::Server.new (lambda { |env| input = env; @simple.call(env) })
+    @server = Jubilee::Server.new(lambda { |env| input = env; @simple.call(env) })
     @server.start
     sleep 0.1
 
     req = Net::HTTP::Post::Multipart.new("/", "foo" => "bar")
-    resp = Net::HTTP.start('localhost', 8080) do |http|
+    Net::HTTP.start('localhost', 8080) do |http|
       http.request req
     end
 
@@ -133,5 +138,13 @@ class TestRackServer < MiniTest::Unit::TestCase
 
     request = Rack::Request.new input
     assert_equal "bar", request.params["foo"]
+  end
+
+  def test_end_request_when_rack_crashes
+    @server = Jubilee::Server.new(RackCrasher.new(@simple))
+    @server.start
+    sleep 0.1
+    res = hit(['http://127.0.0.1:8080/test'])
+    assert_kind_of Net::HTTPServerError, res[0]
   end
 end
