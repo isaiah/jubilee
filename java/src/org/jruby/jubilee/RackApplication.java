@@ -6,6 +6,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
+import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.RubyIORackInput;
 import org.jruby.jubilee.impl.RubyNullIO;
@@ -19,6 +20,8 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.impl.DefaultVertx;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -92,8 +95,14 @@ public class RackApplication {
                             httpServerResponseClass,
                             request.response());
                     response.respond(resp);
-                } catch (IOException e) {
-                    // noop
+                } catch (Exception e) {
+                  request.response().setStatusCode(500);
+                  String message = "Jubilee caught this error: " + e.getMessage() + "\n";
+                  StringWriter stringWriter = new StringWriter();
+                  PrintWriter printWriter = new PrintWriter(stringWriter);
+                  e.printStackTrace(printWriter);
+                  request.response().end(message + stringWriter.toString());
+                  e.printStackTrace(runtime.getErrorStream());
                 }
             }
         };
