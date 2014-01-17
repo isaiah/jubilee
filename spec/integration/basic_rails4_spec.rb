@@ -3,16 +3,18 @@ require 'spec_helper'
 feature 'basic rails4 test' do
 
   before(:all) do
-    @wd = Dir.getwd
-    configurator = Jubilee::Configuration.new(rackup: "#{apps_dir}/rails4/basic/config.ru")
+    @wd = Dir.pwd
+    puts ">" + Dir.pwd
+    configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/rails4/basic")
     @server = Jubilee::Server.new(configurator.app, configurator.options)
     @server.start
     sleep 0.1
   end
 
   after(:all) do
-    @server.stop
+    puts "<" + Dir.pwd
     Dir.chdir(@wd)
+    @server.stop
   end
 
   it 'should do a basic get' do

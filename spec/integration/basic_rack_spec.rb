@@ -3,15 +3,17 @@ require 'spec_helper'
 feature "basic rack at non-root context" do
 
   before(:all) do
-    @wd = Dir.getwd
-    configurator = Jubilee::Configuration.new(rackup: "#{apps_dir}/rack/basic/config.ru")
+    @wd = Dir.pwd
+    puts ">" + Dir.pwd
+    configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/rack/basic")
     @server = Jubilee::Server.new(configurator.app, configurator.options)
     @server.start
   end
 
   after(:all) do
-    @server.stop
+    puts "<" + Dir.pwd
     Dir.chdir(@wd)
+    @server.stop
   end
 
   it "should work for basic requests" do
