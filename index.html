@@ -1,36 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Jubilee : A rack server with Vert.x awesomeness builtin" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Jubilee by isaiah</title>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Jubilee</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
-
   <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Jubilee</h1>
+        <p class="header">A rack server with Vert.x awesomeness builtin</p>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/isaiah/jubilee">View on GitHub</a>
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/isaiah/jubilee/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/isaiah/jubilee/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/isaiah/jubilee">View On GitHub</a></li>
+        </ul>
 
-          <h1 id="project_title">Jubilee</h1>
-          <h2 id="project_tagline">A rack server with Vert.x awesomeness builtin</h2>
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/isaiah">isaiah</a></p>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/isaiah/jubilee/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/isaiah/jubilee/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
+      </header>
+      <section>
         <p><a href="https://travis-ci.org/isaiah/jubilee"><img src="https://travis-ci.org/isaiah/jubilee.png?branch=master" alt="Build Status"></a></p>
 
 <h1>
@@ -54,9 +53,6 @@ that's designed for modern mobile, web, and enterprise applications."
      - vertx.io site</p>
 </blockquote>
 
-<p>In short, Vertx is nodejs on the JVM, only much more faster, checkout the awesome
-<a href="http://vertxproject.wordpress.com/2012/05/09/vert-x-vs-node-js-simple-http-benchmarks/">benchmarks</a></p>
-
 <p>By using Vertx, jubilee inherent advantages in terms of performance, and all
 the other cool features of Vertx:</p>
 
@@ -71,6 +67,15 @@ the other cool features of Vertx:</p>
 </code></pre>
 
 <p>Jubilee requires JRuby 1.7.5 or later, and JDK 7+</p>
+
+<h2>
+<a name="build-from-source" class="anchor" href="#build-from-source"><span class="octicon octicon-link"></span></a>Build from source</h2>
+
+<p>Checkout the source and run the following command in the root directory of the
+project:</p>
+
+<pre lang="shell"><code>bundle &amp;&amp; bundle exec rake install
+</code></pre>
 
 <h2>
 <a name="get-started" class="anchor" href="#get-started"><span class="octicon octicon-link"></span></a>Get started</h2>
@@ -102,7 +107,8 @@ this is also required if you want use rails http streaming,</p>
 <a name="event-bus" class="anchor" href="#event-bus"><span class="octicon octicon-link"></span></a>Event Bus</h1>
 
 <p>Event Bus is a pub/sub mechanism, it can be used from server to server, server
-to client and client to client, with the same API!</p>
+to client and client to client, with the same API! You can use it to build
+living real time web application.</p>
 
 <h2>
 <a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
@@ -128,7 +134,9 @@ start jubilee in a rack application with:</p>
 <span class="nx">eb</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s2">"test"</span><span class="p">,</span> <span class="s2">"hello, world"</span><span class="p">);</span>
 </pre></div>
 
-<p>For more advanced examples, checkout the
+<p>In the previous tab it should print the greetings you just sent.</p>
+
+<p>For more advanced examples, please checkout the
 <a href="https://github.com/isaiah/jubilee/tree/master/examples/chatapp">chatapp</a>.</p>
 
 <h2>
@@ -157,7 +165,7 @@ documentation.</p>
 <h2>
 <a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
 
-<p>Any kinds of contributions are appreciated.</p>
+<p>All kinds of contributions are welcome.</p>
 
 <p>File an issue <a href="https://github.com/isaiah/jubilee/issues">here</a> if you encounter any problems. Or if you prefer to fix by yourself:</p>
 
@@ -182,17 +190,12 @@ Java and .NET applications. Take a look at YourKit's leading software products:
 Profiler</a> and
 <a href="http://www.yourkit.com/.net/profiler/index.jsp">YourKit .NET Profiler</a>.</p>
       </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Jubilee maintained by <a href="https://github.com/isaiah">isaiah</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
-
-              <script type="text/javascript">
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		          <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
@@ -202,7 +205,6 @@ Profiler</a> and
             pageTracker._trackPageview();
             } catch(err) {}
           </script>
-
 
   </body>
 </html>
