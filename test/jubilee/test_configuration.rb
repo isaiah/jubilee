@@ -74,12 +74,12 @@ class TestConfig < MiniTest::Unit::TestCase
   #  assert_equal("0.0.0.0", options[:cluster_host])
   #end
 
-  def test_config_file_clustering_host_and_port
-    @tmp.syswrite(%q(clustering "localhost:5701"))
-    options = Jubilee::Configuration.new(config_file: @tmp.path).options
-    assert_equal("127.0.0.1", options[:cluster_host])
-    assert_equal(5701, options[:cluster_port])
-  end
+  #def test_config_file_clustering_host_and_port
+  #  @tmp.syswrite(%q(clustering "localhost:5701"))
+  #  options = Jubilee::Configuration.new(config_file: @tmp.path).options
+  #  assert_equal("127.0.0.1", options[:cluster_host])
+  #  assert_equal(5701, options[:cluster_port])
+  #end
 
   def test_config_file_working_directory
     @tmp.syswrite(%q(working_directory "chatapp"))

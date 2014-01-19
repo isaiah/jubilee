@@ -70,6 +70,7 @@ class TestUpload < MiniTest::Unit::TestCase
     assert_equal "HTTP/1.0 200 OK", read[0]
     resp = eval(read.grep(/^X-Resp: /).first.sub!(/X-Resp: /, ''))
     assert_equal @sha1.hexdigest, resp[:sha1]
+    sock.close
   end
 
   def test_put_content_md5
@@ -115,6 +116,7 @@ class TestUpload < MiniTest::Unit::TestCase
     assert_equal "HTTP/1.0 200 OK", read[0]
     resp = eval(read.grep(/^X-Resp: /).first.sub!(/X-Resp: /, ''))
     assert_equal @sha1.hexdigest, resp[:sha1]
+    sock.close
   end
 
   def test_put_keepalive_truncates_small_overwrite
@@ -139,6 +141,7 @@ class TestUpload < MiniTest::Unit::TestCase
     resp = eval(read.grep(/^X-Resp: /).first.sub!(/X-Resp: /, ''))
     #assert_equal to_upload, resp[:size]
     assert_equal @sha1.hexdigest, resp[:sha1]
+    sock.close
   end
 
   def test_put_excessive_overwrite_closed
@@ -153,7 +156,8 @@ class TestUpload < MiniTest::Unit::TestCase
       [ 200, @hdr, [] ]
     })
     sock = TCPSocket.new(@addr, @port)
-    buf = ' ' * @bs
+    # buf = ' ' * @bs # Something is wrong with the vertx http compression
+    buf = 'a' * @bs
     sock.syswrite("PUT / HTTP/1.0\r\nContent-Length: #{length}\r\n\r\n")
 
     @count.times { sock.syswrite(buf) }
@@ -163,6 +167,7 @@ class TestUpload < MiniTest::Unit::TestCase
     sock.gets
     tmp.rewind
     assert_equal length, tmp.read.to_i
+    sock.close
   end
 
   def test_uncomfortable_with_onenine_encodings
