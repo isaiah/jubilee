@@ -41,9 +41,14 @@ module Jubilee
         @config = Jubilee::Configuration.new(@options)
         server = Jubilee::Server.new(@config.app, @config.options)
         server.start
+        thread = Thread.current
+        Signal.trap("INT") do
+          server.stop
+          puts "Jubilee is shutting down gracefully..."
+          thread.wakeup
+        end
         puts "Jubilee is listening on port #{@config.options[:Port]}, press Ctrl+C to quit"
-        starter = org.jruby.jubilee.deploy.Starter.new
-        starter.block
+        sleep
       end
     end
 

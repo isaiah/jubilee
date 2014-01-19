@@ -30,12 +30,10 @@ module Rack
         yield @server if block_given?
 
         @server.start
-        @starter = org.jruby.jubilee.deploy.Starter.new
-        @starter.block
       end
 
       def self.shutdown
-        @server.stop{ @starter.unblock }
+        @server.stop
         exit
       end
     end
