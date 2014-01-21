@@ -86,4 +86,10 @@ feature "basic rack at non-root context" do
     end
   end
 
+  it "should handle the port being specified as a string" do
+    configurator = Jubilee::Configuration.new(:Port => '3333')
+    @server = Jubilee::Server.new(configurator.app, configurator.options)
+    @server.start
+    @server.stop
+  end
 end
