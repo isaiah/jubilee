@@ -66,7 +66,7 @@ public class RubyServer extends RubyObject {
         RubySymbol eventbus_prefix_k = runtime.newSymbol("eventbus_prefix");
 
         /* retrieve from passed in options */
-        this.port = RubyNumeric.num2int(options.op_aref(context, port_k).convertToInteger("to_i"));
+        this.port = RubyNumeric.num2int(options.op_aref(context, port_k));
         this.host = options.op_aref(context, host_k).asJavaString();
 
         this.ssl = options.op_aref(context, ssl_k).isTrue();

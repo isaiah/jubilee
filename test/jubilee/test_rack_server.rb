@@ -143,4 +143,11 @@ class TestRackServer < MiniTest::Unit::TestCase
     res = hit(['http://127.0.0.1:8080/test'])
     assert_kind_of Net::HTTPServerError, res[0]
   end
+
+  # GH_9
+  def test_string_port_value
+    @server = Jubilee::Server.new(@simple, {Port: "3000"})
+    # assert_wont_raise_anything
+    @server.start
+  end
 end

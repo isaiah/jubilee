@@ -4,7 +4,7 @@ GEM
     ffi (1.9.3-java)
     haml (4.0.4)
       tilt
-    jubilee (1.1.1-java)
+    jubilee (1.1.3-java)
       rack (>= 1.4.1)
       spoon (~> 0.0.4)
     rack (1.5.2)
