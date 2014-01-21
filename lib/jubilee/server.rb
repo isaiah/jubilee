@@ -6,6 +6,7 @@ module Jubilee
       if (options[:ssl]) && options[:ssl_keystore].nil?
           raise ArgumentError, "Please provide a keystore for ssl"
       end
+      options[:Port] = options[:Port].to_i
       super(Application.new(app), options)
     end
   end

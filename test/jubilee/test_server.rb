@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'net/http'
+require 'open-uri'
 
 class TestJubileeServer < MiniTest::Unit::TestCase
   def setup
@@ -69,4 +70,11 @@ class TestJubileeServer < MiniTest::Unit::TestCase
     assert_equal "https", body
   end
 
+  def test_port_as_string
+    config = Jubilee::Configuration.new(rackup: File.join(File.dirname(__FILE__), "../config/config.ru"))
+    @server = Jubilee::Server.new(config.app, Port: @port.to_s)
+    @server.start
+    sleep 0.1
+    open("http://#{@host}:#{@port}/").read
+  end
 end
