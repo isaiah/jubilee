@@ -39,8 +39,8 @@ module Jubilee
         `jubilee_d #{(@argv - ["-d", "--daemon"]).join(" ")}`
       else
         @config = Jubilee::Configuration.new(@options)
-        server = Jubilee::Server.new(@config.app, @config.options)
-        server.start
+        server = Jubilee::Server.new(nil, @config.options)
+        #server.start
         thread = Thread.current
         Signal.trap("INT") do
           server.stop

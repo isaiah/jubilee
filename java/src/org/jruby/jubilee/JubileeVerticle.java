@@ -22,22 +22,25 @@ public class JubileeVerticle extends Verticle {
   public void start() {
     JsonObject config = container.config();
     HttpServer httpServer = vertx.createHttpServer();
-    ruby = Ruby.getGlobalRuntime();
+    ruby = config.getValue("ruby");
     IRubyObject rackApplication;
     final RackApplication app;
-    boolean ssl = config.containsField("ssl") && config.getBoolean("ssl");
+    boolean ssl =config.getBoolean("ssl");
     if (config.containsField("rackapp")) rackApplication = config.getValue("rackapp");
     else {
       String rackup = config.getString("rackup");
       String rackScript = "require 'rack'\n" +
               "require 'jubilee'\n" +
-              "app, _ = Rack::Builder.parse_file('" + rackup + "')\n" +
-              "Jubilee::Application.new(app)\n";
+              "app, _ = Rack::Builder.parse_file('" + rackup + "')\n";
+      if (config.containsField("quiet") && config.getString("environment").equals("development")) {
+        rackScript += "logger = STDOUT\n" +
+                "Rack::CommonLogger.new(@app, logger)";
+      }
+      rackScript += "Jubilee::Application.new(app)\n";
       rackApplication = ruby.evalScriptlet(rackScript);
     }
     try {
       app = new RackApplication((WrappedVertx) vertx, ruby.getCurrentContext(), rackApplication, ssl);
-
       httpServer.setAcceptBacklog(10000);
       httpServer.requestHandler(new Handler<HttpServerRequest>() {
         public void handle(final HttpServerRequest req) {

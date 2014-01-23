@@ -17,6 +17,7 @@ module Jubilee
 
       reload
       # initialize vertx as early as possible
+      # XXX vertx is managed by PlatformManager now
       if chost = @options[:cluster_host]
         if cport = @options[:cluster_port]
           org.jruby.jubilee.vertx.JubileeVertx.init(cport.to_java(:int), chost.to_java)
@@ -30,16 +31,7 @@ module Jubilee
 
     def reload
       instance_eval(File.read(config_file), config_file) if config_file
-    end
-
-    def app
-      @app ||= load_rack_adapter(@options, &@block)
-      if !@options[:quiet] and @options[:environment] == "development"
-        logger = @options[:logger] || STDOUT
-        Rack::CommonLogger.new(@app, logger)
-      else
-        @app
-      end
+      load_rack_adapter
     end
 
     # sets the host and port jubilee listens to +address+ may be an Integer port 
@@ -126,16 +118,10 @@ module Jubilee
     private
     def load_rack_adapter(options, &block)
       if block
-        inner_app = Rack::Builder.new(&block).to_app
+        options[:rackapp] = Rack::Builder.new(&block).to_app
       else
-        Dir.chdir options[:chdir] if options[:chdir]
-        if !File.exist?(rackup)
-          raise "Missing rackup file #{File.absolute_path(rackup)}"
-        end
-        inner_app, opts = Rack::Builder.parse_file(rackup)
-        @options.merge!(opts)
+        options[:rackup] = opitons[:chdir] + "/" if options[:chdir]
       end
-      inner_app
     end
 
     def rackup
