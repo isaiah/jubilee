@@ -18,6 +18,7 @@ import org.vertx.java.core.VoidHandler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.impl.DefaultVertx;
+import org.vertx.java.platform.impl.WrappedVertx;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,17 +35,17 @@ public class RackApplication {
     private IRubyObject app;
     private boolean ssl;
     private Ruby runtime;
-    private DefaultVertx vertx;
+    private WrappedVertx vertx;
     private RubyClass rackIOInputClass;
     private RubyClass httpServerResponseClass;
     private RubyArray rackVersion;
     private RubyNullIO nullio;
     private RackEnvironment rackEnv;
 
-    public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl) throws IOException {
+    public RackApplication(WrappedVertx vertx, ThreadContext context, IRubyObject app, boolean ssl) throws IOException {
         this.app = app;
         this.ssl = ssl;
-        this.vertx = (DefaultVertx) vertx;
+        this.vertx = vertx;
         this.runtime = context.runtime;
         this.rackVersion = RubyArray.newArrayLight(runtime, RubyFixnum.one(runtime), RubyFixnum.four(runtime));
         // Memorize the ruby classes

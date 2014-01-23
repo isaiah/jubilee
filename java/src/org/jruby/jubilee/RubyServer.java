@@ -13,6 +13,7 @@ import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.platform.impl.WrappedVertx;
 
 import java.io.IOException;
 
@@ -82,7 +83,7 @@ public class RubyServer extends RubyObject {
 
         httpServer = vertx.createHttpServer();
         try {
-            this.app = new RackApplication(vertx, context, app, this.ssl);
+            this.app = new RackApplication((WrappedVertx) vertx, context, app, this.ssl);
             if (block.isGiven()) block.yieldSpecific(context, this);
         } catch (IOException e) {
             // noop

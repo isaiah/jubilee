@@ -86,7 +86,7 @@ desc "Compile the extension, need jdk7 because vertx relies on it"
 task :compile => [DEST_PATH, "#{DEST_PATH}/META-INF"] do |t|
   ant.javac :srcdir => "java", :destdir => t.prerequisites.first,
     :source => "1.7", :target => "1.7", :debug => true, :includeantruntime => false,
-    :classpath => "${java.class.path}:${sun.boot.class.path}:jars/vertx-core-2.1M3.jar:jars/netty-all-4.0.14.Final.jar:jars/jackson-core-2.2.2.jar:jars/jackson-databind-2.2.2.jar:jars/jackson-annotations-2.2.2.jar:jars/hazelcast-2.6.3.jar"
+    :classpath => "${java.class.path}:${sun.boot.class.path}:jars/vertx-core-2.1M3.jar:jars/netty-all-4.0.14.Final.jar:jars/jackson-core-2.2.2.jar:jars/jackson-databind-2.2.2.jar:jars/jackson-annotations-2.2.2.jar:jars/hazelcast-2.6.3.jar:jars/vertx-platform-2.1M3.jar"
 end
 
 desc "Copy META-INF"

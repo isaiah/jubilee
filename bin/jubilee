@@ -2,5 +2,13 @@
 
 require 'jubilee/cli'
 
-cli = Jubilee::CLI.new ARGV
-cli.run
+Jubilee::PlatformManager.new
+#cli = Jubilee::CLI.new ARGV
+#cli.run
+thread = Thread.current
+Signal.trap("INT") do
+  puts "Jubilee is shutting down gracefully..."
+  thread.wakeup
+end
+puts "Jubilee is listening on port 8080, press Ctrl+C to quit"
+sleep
