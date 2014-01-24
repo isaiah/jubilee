@@ -58,6 +58,7 @@ module Jubilee
         daemon: false,
         ssl: false,
         Port: 8080,
+        instances: 48,
         environment: ENV["RACK_ENV"] || "development"
       }
       @parser = OptionParser.new do |o|
@@ -73,18 +74,21 @@ module Jubilee
         o.on "--dir DIR", "Change to DIR before starting" do |arg|
           @options[:chdir] = arg
         end
-        o.on "-p", "--port PORT", "Defind which PORT the server should bind" do |arg|
+        o.on "-p", "--port PORT", "Define which PORT the server should bind" do |arg|
           @options[:Port] = arg.to_i
         end
-        o.on "-b", "--host HOST", "Defind which HOST the server should bind, default 0.0.0.0" do |arg|
+        o.on "-b", "--host HOST", "Define which HOST the server should bind, default 0.0.0.0" do |arg|
           @options[:Host] = arg
         end
         o.on "-e", "--environment ENV", "Rack environment" do |arg|
           @options[:environment] = arg
         end
+        o.on "-n", "--instances NUM", "Define how many instances of web servers to run" do |arg|
+          @options[:instances] = arg.to_i
+        end
         o.separator ""
         o.separator "SSL options:"
-        o.on "--ssl", "Enable SSL connection" do 
+        o.on "--ssl", "Enable SSL connection" do
           @options[:ssl] = true
         end
         o.on "--ssl-keystore PATH", "SSL keystore path" do |arg|

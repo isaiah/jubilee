@@ -34,7 +34,7 @@ public class JubileeVerticle extends Verticle {
               "app, _ = Rack::Builder.parse_file('" + rackup + "')\n";
       if (config.containsField("quiet") && config.getString("environment").equals("development")) {
         rackScript += "logger = STDOUT\n" +
-                "Rack::CommonLogger.new(@app, logger)";
+                "Rack::CommonLogger.new(@app, logger)\n";
       }
       rackScript += "Jubilee::Application.new(app)\n";
       rackApplication = ruby.evalScriptlet(rackScript);

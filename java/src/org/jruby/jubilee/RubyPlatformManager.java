@@ -38,8 +38,9 @@ public class RubyPlatformManager extends RubyObject {
   public IRubyObject initialize(ThreadContext context, IRubyObject config) {
     RubyHash options = config.convertToHash();
     PlatformManager pm = PlatformLocator.factory.createPlatformManager();
+    int ins = RubyNumeric.num2int(options.op_aref(context, RubySymbol.newSymbol(context.runtime, "instances")));
     pm.deployVerticle("org.jruby.jubilee.JubileeVerticle", new JsonObject(parseOptions(options)),
-            context.runtime.getJRubyClassLoader().getURLs(), 10, null, new AsyncResultHandler<String>() {
+            context.runtime.getJRubyClassLoader().getURLs(), ins, null, new AsyncResultHandler<String>() {
       @Override
       public void handle(AsyncResult<String> result) {
         if (result.succeeded()) {
@@ -69,8 +70,10 @@ public class RubyPlatformManager extends RubyObject {
     map.put("host", options.op_aref(context, host_k).asJavaString());
     map.put("port", RubyNumeric.num2int(options.op_aref(context, port_k)));
 
-    map.put("rackup", options.op_aref(context, rack_up_k).asJavaString());
-    map.put("rackapp", options.op_aref(context, rack_app_k));
+//    map.put("rackup", options.op_aref(context, rack_up_k).asJavaString());
+    map.put("rackup", "config.ru");
+    if (options.has_key_p(rack_app_k).isTrue())
+      map.put("rackapp", options.op_aref(context, rack_app_k));
     map.put("quiet", options.op_aref(context, quiet_k).isTrue());
 
     map.put("environment", options.op_aref(context, environment_k).asJavaString());

@@ -87,10 +87,9 @@ public class RackApplication {
         Runnable task = new Runnable() {
             @Override
             public void run() {
-                // This is a different context, do NOT replace runtime.getCurrentContext()
-//                IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
                 try {
-                    IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", rackEnv.getEnv(request, input, ssl));
+                  // This is a different context, do NOT replace runtime.getCurrentContext()
+                  IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", rackEnv.getEnv(request, input, ssl));
                     RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
                     RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
                             httpServerResponseClass,
