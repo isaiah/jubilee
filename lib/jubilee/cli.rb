@@ -58,7 +58,7 @@ module Jubilee
         daemon: false,
         ssl: false,
         Port: 8080,
-        instances: 48,
+        instances: 4,
         environment: ENV["RACK_ENV"] || "development"
       }
       @parser = OptionParser.new do |o|

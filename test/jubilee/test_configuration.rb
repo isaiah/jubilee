@@ -15,22 +15,6 @@ class TestConfig < MiniTest::Unit::TestCase
     Dir.chdir(@dir)
   end
 
-  def test_load
-    @config = Jubilee::Configuration.new({rackup: "test/config/config.ru"})
-    assert_equal @resp, @config.app.call({})
-  end
-
-  def test_change_dir
-    @config = Jubilee::Configuration.new({chdir: "test/config"})
-    assert_equal @resp, @config.app.call({})
-  end
-
-  def test_customize_config_file
-    @config = Jubilee::Configuration.new({chdir: "test/config", rackup: "app.ru"})
-    resp = [200, {"Content-Type" => "text/plain"}, ["customized body"]]
-    assert_equal resp, @config.app.call({})
-  end
-
   def test_config_invalid
     @tmp.syswrite(%q(abcd "helloword"))
     assert_raises(NoMethodError) do

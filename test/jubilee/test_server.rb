@@ -28,8 +28,8 @@ class TestJubileeServer < MiniTest::Unit::TestCase
   end
 
   def test_server_embedded
-    config = Jubilee::Configuration.new(rackup: File.join(File.dirname(__FILE__), "../config/config.ru"))
-    @server = Jubilee::Server.new(config.app)
+    config = Jubilee::Configuration.new(rackup: File.expand_path("../../config/config.ru", __FILE__))
+    @server = Jubilee::Server.new(nil, config.options)
     @server.start
     sleep 0.1
     http, body = Net::HTTP.new(@host, @port), nil
@@ -40,10 +40,6 @@ class TestJubileeServer < MiniTest::Unit::TestCase
       end
     end
     assert_equal "embedded app", body
-  end
-
-  def test_large_post_body
-    skip
   end
 
   def test_url_scheme_for_https

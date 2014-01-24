@@ -114,6 +114,7 @@ class TestRackServer < MiniTest::Unit::TestCase
     input = nil
     @server = Jubilee::Server.new(lambda { |env| input = env; @simple.call(env) })
     @server.start
+    sleep 0.1
 
     hit(['http://127.0.0.1:8080/test/a/b/c?foo=bar'])
 
@@ -125,6 +126,7 @@ class TestRackServer < MiniTest::Unit::TestCase
     input = nil
     @server = Jubilee::Server.new(lambda { |env| input = env; @simple.call(env) })
     @server.start
+    sleep 0.1
 
     req = Net::HTTP::Post::Multipart.new("/", "foo" => "bar")
     Net::HTTP.start('localhost', 8080) do |http|

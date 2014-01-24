@@ -119,8 +119,11 @@ module Jubilee
     def load_rack_adapter(&block)
       if block
         @options[:rackapp] = Rack::Builder.new(&block).to_app
+      elsif @options[:chdir]
+        @options[:chdir].gsub!(/\/$/, '')
+        @options[:rackup] = @options[:chdir] + "/" + rackup
       else
-        @options[:rackup] = @opitons[:chdir] + "/" if @options[:chdir]
+        @options[:rackup] = rackup
       end
     end
 

@@ -4,7 +4,7 @@ feature 'basic rails4 test' do
 
   before(:all) do
     configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/rails4/basic")
-    @server = Jubilee::Server.new(configurator.app, configurator.options)
+    @server = Jubilee::Server.new(nil, configurator.options)
     @server.start
     sleep 0.1
   end

@@ -188,7 +188,6 @@ class TestResponse < MiniTest::Unit::TestCase
 
 
   def test_two_requests_in_one_chunk
-    @server.persistent_timeout = 3
 
     req = @valid_request.to_s
     req << "GET /second HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"
@@ -205,7 +204,6 @@ class TestResponse < MiniTest::Unit::TestCase
   end
 
   def test_second_request_not_in_first_req_body
-    @server.persistent_timeout = 3
 
     req = @valid_request.to_s
     req << "GET /second HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"

@@ -18,6 +18,8 @@ import java.util.Map;
  * Created by isaiah on 23/01/2014.
  */
 public class RubyPlatformManager extends RubyObject {
+  private PlatformManager pm;
+
   public static void createPlatformManagerClass(Ruby runtime) {
     RubyModule mJubilee = runtime.defineModule("Jubilee");
     RubyClass serverClass = mJubilee.defineClassUnder("PlatformManager", runtime.getObject(), ALLOCATOR);
@@ -37,20 +39,26 @@ public class RubyPlatformManager extends RubyObject {
   @JRubyMethod
   public IRubyObject initialize(ThreadContext context, IRubyObject config) {
     RubyHash options = config.convertToHash();
-    PlatformManager pm = PlatformLocator.factory.createPlatformManager();
+    pm = PlatformLocator.factory.createPlatformManager();
     int ins = RubyNumeric.num2int(options.op_aref(context, RubySymbol.newSymbol(context.runtime, "instances")));
     pm.deployVerticle("org.jruby.jubilee.JubileeVerticle", new JsonObject(parseOptions(options)),
             context.runtime.getJRubyClassLoader().getURLs(), ins, null, new AsyncResultHandler<String>() {
       @Override
       public void handle(AsyncResult<String> result) {
         if (result.succeeded()) {
-          System.out.println("Deployment ID is " + result.result());
+//          System.out.println("Deployment ID is " + result.result());
         } else{
           result.cause().printStackTrace();
         }
       }
     });
     return this;
+  }
+
+  @JRubyMethod
+  public IRubyObject stop(ThreadContext context) {
+    pm.stop();
+    return context.runtime.getNil();
   }
 
   private Map<String, Object> parseOptions(RubyHash options) {
@@ -70,11 +78,11 @@ public class RubyPlatformManager extends RubyObject {
     map.put("host", options.op_aref(context, host_k).asJavaString());
     map.put("port", RubyNumeric.num2int(options.op_aref(context, port_k)));
 
-//    map.put("rackup", options.op_aref(context, rack_up_k).asJavaString());
-    map.put("rackup", "config.ru");
+    if (options.has_key_p(rack_up_k).isTrue())
+    map.put("rackup", options.op_aref(context, rack_up_k).asJavaString());
     if (options.has_key_p(rack_app_k).isTrue())
       map.put("rackapp", options.op_aref(context, rack_app_k));
-    map.put("quiet", options.op_aref(context, quiet_k).isTrue());
+    map.put("quiet", options.containsKey(quiet_k) && options.op_aref(context, quiet_k).isTrue());
 
     map.put("environment", options.op_aref(context, environment_k).asJavaString());
 
