@@ -1,7 +1,7 @@
 module Jubilee
   class Server < PlatformManager
     def initialize(app, opts = {})
-      options = {Host: "0.0.0.0", Port: 8080, ssl: false, instances: 1, environment: "development"}.merge(opts)
+      options = {Host: "0.0.0.0", Port: 8080, ssl: false, instances: 1, environment: "development", quiet: true}.merge(opts)
       if (options[:ssl]) && options[:ssl_keystore].nil?
           raise ArgumentError, "Please provide a keystore for ssl"
       end
