@@ -75,6 +75,7 @@ class TestRackServer < MiniTest::Unit::TestCase
     @server = Jubilee::Server.new @checker
 
     @server.start
+    sleep 0.5
 
     big = "x" * (1024 * 16)
 
