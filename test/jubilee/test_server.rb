@@ -32,7 +32,7 @@ class TestJubileeServer < MiniTest::Unit::TestCase
     config = Jubilee::Configuration.new(rackup: File.expand_path("../../config/config.ru", __FILE__))
     @server = Jubilee::Server.new(nil, config.options)
     @server.start
-    sleep 0.1
+    sleep 0.5
     http, body = Net::HTTP.new(@host, @port), nil
     http.start do
       req = Net::HTTP::Get.new "/", {}
@@ -49,7 +49,7 @@ class TestJubileeServer < MiniTest::Unit::TestCase
                                  ssl_keystore: File.join(File.dirname(__FILE__), "../../examples/keystore.jks"),
     ssl_password: "hellojubilee"})
     @server.start
-    sleep 0.1
+    sleep 0.5
     http = Net::HTTP.new @host, @port
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
