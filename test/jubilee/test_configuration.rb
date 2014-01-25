@@ -66,7 +66,7 @@ class TestConfig < MiniTest::Unit::TestCase
   #end
 
   def test_config_file_working_directory
-    @tmp.syswrite(%q(working_directory "chatapp"))
+    @tmp.syswrite(%q(working_directory "examples/chatapp"))
     options = Jubilee::Configuration.new(config_file: @tmp.path).options
     assert_match(/chatapp/, options[:chdir])
   end

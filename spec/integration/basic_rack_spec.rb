@@ -6,10 +6,12 @@ feature "basic rack at non-root context" do
     configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/rack/basic")
     @server = Jubilee::Server.new(nil, configurator.options)
     @server.start
+    sleep 0.1
   end
 
   after(:all) do
     @server.stop
+    sleep 0.1
   end
 
   it "should work for basic requests" do

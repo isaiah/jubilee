@@ -9,13 +9,14 @@ class TestJubileeServer < MiniTest::Unit::TestCase
 
   def teardown
     @server.stop if @server
+    sleep 0.1
   end
 
   def test_server_lambda
     app = lambda {|env| [200, {"Content-Type" => "text/plain"}, ["http"]] }
     @server = Jubilee::Server.new(app)
     @server.start
-    sleep 0.1
+    sleep 0.5
 
     http, body = Net::HTTP.new(@host, @port), nil
     http.start do
