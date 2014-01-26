@@ -50,7 +50,9 @@ public class JubileeVerticle extends Verticle {
       if (config.containsField("event_bus")) {
         JsonArray allowAll = new JsonArray();
         allowAll.add(new JsonObject());
-        vertx.createSockJSServer(httpServer).bridge(config.getObject("event_bus"), allowAll, allowAll);
+        JsonObject ebconf = new JsonObject();
+        ebconf.putString("prefix", config.getString("event_bus"));
+        vertx.createSockJSServer(httpServer).bridge(ebconf, allowAll, allowAll);
       }
       if (ssl) httpServer.setSSL(true).setKeyStorePath(config.getString("keystore_path"))
               .setKeyStorePassword(config.getString("keystore_password"));

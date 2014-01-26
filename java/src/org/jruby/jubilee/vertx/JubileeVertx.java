@@ -1,7 +1,6 @@
 package org.jruby.jubilee.vertx;
 
 import org.vertx.java.core.Vertx;
-import org.vertx.java.core.VertxFactory;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,24 +12,14 @@ public class JubileeVertx {
   public static Vertx vertx;
   private JubileeVertx() {
   }
-  public static synchronized Vertx init(int port, String host) {
-    if (JubileeVertx.vertx != null) return vertx;
-    JubileeVertx.vertx = VertxFactory.newVertx(port, host);
-    return JubileeVertx.vertx;
-  }
-  public static synchronized Vertx init(String host) {
-    if (JubileeVertx.vertx != null) return vertx;
-    JubileeVertx.vertx = VertxFactory.newVertx(host);
-    return JubileeVertx.vertx;
-  }
-  public static synchronized Vertx init() {
-    if (JubileeVertx.vertx != null) return vertx;
-    JubileeVertx.vertx = VertxFactory.newVertx();
-    return JubileeVertx.vertx;
+
+  public static void init(Vertx vertx) {
+    JubileeVertx.vertx = vertx;
   }
 
   public synchronized static Vertx vertx() {
-    if (JubileeVertx.vertx == null) init();
+    if (JubileeVertx.vertx == null)
+      throw new RuntimeException("vertx is not initialized, do you run in jubilee server?");
     return JubileeVertx.vertx;
   }
 }

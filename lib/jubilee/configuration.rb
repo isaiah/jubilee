@@ -16,17 +16,6 @@ module Jubilee
       @block = block
 
       reload
-      # initialize vertx as early as possible
-      # XXX vertx is managed by PlatformManager now
-      if chost = @options[:cluster_host]
-        if cport = @options[:cluster_port]
-          org.jruby.jubilee.vertx.JubileeVertx.init(cport.to_java(:int), chost.to_java)
-        else
-          org.jruby.jubilee.vertx.JubileeVertx.init(chost.to_java)
-        end
-      else
-        org.jruby.jubilee.vertx.JubileeVertx.init()
-      end
     end
 
     def reload

@@ -107,7 +107,7 @@ module Jubilee
         o.separator ""
         o.separator "Clustering options:"
         o.on "--cluster", "Enable clustering" do
-          @options[:cluster_host] = "0.0.0.0"
+          @options[:clustered] = true
         end
         o.on "--cluster-port PORT", "If the cluster option has also been specified then this determines which port will be used for cluster communication with other Vert.x instances. Default is 0 -which means 'chose a free ephemeral port. You don't usually need to specify this parameter unless you really need to bind to a specific port." do |port|
           @options[:cluster_port] = port.to_i
