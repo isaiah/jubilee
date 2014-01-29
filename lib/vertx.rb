@@ -16,6 +16,7 @@ include Java
 
 require 'vertx/buffer'
 require 'vertx/event_bus'
+require 'vertx/http'
 
 # This is the module for vertx related feature like EventBus and SharedData,
 # these features are built into jubilee server, by requiring 'vertx' in your
