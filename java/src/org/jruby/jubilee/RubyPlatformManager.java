@@ -102,8 +102,6 @@ public class RubyPlatformManager extends RubyObject {
 
     if (options.has_key_p(rack_up_k).isTrue())
     map.put("rackup", options.op_aref(context, rack_up_k).asJavaString());
-    if (options.has_key_p(rack_app_k).isTrue())
-      map.put("rackapp", options.op_aref(context, rack_app_k));
     map.put("quiet", options.containsKey(quiet_k) && options.op_aref(context, quiet_k).isTrue());
 
     map.put("environment", options.op_aref(context, environment_k).asJavaString());
@@ -118,7 +116,7 @@ public class RubyPlatformManager extends RubyObject {
     if (options.has_key_p(eventbus_prefix_k).isTrue())
       map.put("event_bus", options.op_aref(context, eventbus_prefix_k).asJavaString());
     // This is a trick to put an Object into the config object
-    map.put("ruby", runtime);
+    // map.put("ruby", runtime);
     return map;
   }
   /*

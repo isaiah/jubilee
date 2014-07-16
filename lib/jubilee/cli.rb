@@ -127,7 +127,7 @@ module Jubilee
         end
 
         o.on "-v", "--version", "Print the version information" do
-          puts "jubilee version #{Jubilee::Version::STRING} on Vert.x 2.1M3"
+          puts "jubilee version #{Jubilee::Version::STRING} on Vert.x 2.1.1"
           exit 0
         end
       end

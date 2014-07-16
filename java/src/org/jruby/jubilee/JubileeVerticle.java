@@ -16,31 +16,18 @@ import java.io.IOException;
  * Created by isaiah on 23/01/2014.
  */
 public class JubileeVerticle extends Verticle {
-  private Ruby ruby;
+  private Ruby runtime;
 
   @Override
   public void start() {
     JsonObject config = container.config();
     HttpServer httpServer = vertx.createHttpServer();
-    ruby = config.getValue("ruby");
-    IRubyObject rackApplication;
+    runtime = createRuntime();
+    IRubyObject rackApplication = initRackApplication(config);
     final RackApplication app;
     boolean ssl =config.getBoolean("ssl");
-    if (config.containsField("rackapp")) rackApplication = config.getValue("rackapp");
-    else {
-      String rackup = config.getString("rackup");
-      String rackScript = "require 'rack'\n" +
-              "require 'jubilee'\n" +
-              "app, _ = Rack::Builder.parse_file('" + rackup + "')\n";
-      if (!config.getBoolean("quiet") && config.getString("environment").equals("development")) {
-        rackScript += "logger = STDOUT\n" +
-                "app = Rack::CommonLogger.new(app, logger)\n";
-      }
-      rackScript += "Jubilee::Application.new(app)\n";
-      rackApplication = ruby.evalScriptlet(rackScript);
-    }
     try {
-      app = new RackApplication((WrappedVertx) vertx, ruby.getCurrentContext(), rackApplication, ssl);
+      app = new RackApplication((WrappedVertx) vertx, runtime.getCurrentContext(), rackApplication, ssl);
       httpServer.setAcceptBacklog(10000);
       httpServer.requestHandler(new Handler<HttpServerRequest>() {
         public void handle(final HttpServerRequest req) {
@@ -64,6 +51,29 @@ public class JubileeVerticle extends Verticle {
 
   @Override
   public void stop() {
-    this.ruby.tearDown(false);
+    this.runtime.tearDown(false);
+  }
+
+  private Ruby createRuntime() {
+      Ruby runtime;
+      if (Ruby.isGlobalRuntimeReady()) {
+          runtime = Ruby.getGlobalRuntime();
+      } else {
+          throw new RuntimeException("ruby runtime is not available!");
+      }
+      return runtime;
+  }
+
+  private IRubyObject initRackApplication(JsonObject config) {
+      String rackup = config.getString("rackup");
+      String rackScript = "require 'rack'\n" +
+              "require 'jubilee'\n" +
+              "app, _ = Rack::Builder.parse_file('" + rackup + "')\n";
+      if (!config.getBoolean("quiet") && config.getString("environment").equals("development")) {
+        rackScript += "logger = STDOUT\n" +
+                "app = Rack::CommonLogger.new(app, logger)\n";
+      }
+      rackScript += "Jubilee::Application.new(app)\n";
+      return runtime.evalScriptlet(rackScript);
   }
 }
