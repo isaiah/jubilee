@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class create a ruby IO interface by wrapping a Vertx NetSocket object.
- *
+ * <p/>
  * Not threadsafe.
  */
 public class RubyNetSocket extends RubyObject {
@@ -56,7 +56,7 @@ public class RubyNetSocket extends RubyObject {
             @Override
             public void handle(Buffer buffer) {
                 if (buf.isWritable(buffer.length()))
-                  buf.writeBytes(buffer.getByteBuf());
+                    buf.writeBytes(buffer.getByteBuf());
                 else sock.pause();
             }
         });
@@ -69,12 +69,13 @@ public class RubyNetSocket extends RubyObject {
         });
     }
 
-  /**
-   * Both of the calls block
-   * @param context
-   * @param args
-   * @return
-   */
+    /**
+     * Both of the calls block
+     *
+     * @param context
+     * @param args
+     * @return
+     */
     @JRubyMethod(name = {"read", "read_nonblock"}, required = 1, optional = 1)
     public IRubyObject read(ThreadContext context, IRubyObject[] args) {
         if (this.readClosed) throw context.runtime.newIOError("closed stream");
@@ -84,24 +85,25 @@ public class RubyNetSocket extends RubyObject {
             data = new byte[length];
         else data = ((RubyString) args[1]).getBytes();
         if (!(eof.get() || buf.isReadable())) {
-          this.buf.clear();
-          this.sock.resume();
+            this.buf.clear();
+            this.sock.resume();
         }
         waitReadable(this.buf);
         while (!eof.get() && length > 0) {
-          int readedLength =  Math.min(this.buf.readableBytes(), length);
-          this.buf.readBytes(data, this.buf.readerIndex(), readedLength);
-          length -= readedLength;
+            int readedLength = Math.min(this.buf.readableBytes(), length);
+            this.buf.readBytes(data, this.buf.readerIndex(), readedLength);
+            length -= readedLength;
         }
         return context.runtime.newString(new ByteList(data));
     }
 
-  /**
-   * Though required by rack spec to impelement write_nonblock, it's just easier to block both of the calls.
-   * @param context the calling threadcontext
-   * @param str the string to write to the underline stream
-   * @return the length written
-   */
+    /**
+     * Though required by rack spec to impelement write_nonblock, it's just easier to block both of the calls.
+     *
+     * @param context the calling threadcontext
+     * @param str     the string to write to the underline stream
+     * @return the length written
+     */
     @JRubyMethod(name = {"write", "write_nonblock"}, required = 1)
     public IRubyObject write(ThreadContext context, IRubyObject str) {
         if (this.writeClosed) throw context.runtime.newIOError("closed stream");
@@ -111,7 +113,7 @@ public class RubyNetSocket extends RubyObject {
         else
             data = (RubyString) str.callMethod(context, "to_s");
         if (this.sock.writeQueueFull())
-          waitWritable(this.sock);
+            waitWritable(this.sock);
         this.sock.write(data.asJavaString());
         // TODO return the length actually written
         return data.length();
@@ -149,17 +151,17 @@ public class RubyNetSocket extends RubyObject {
     private void waitWritable(WriteStream<?> stream) {
         final AtomicBoolean writable = new AtomicBoolean(false);
         stream.drainHandler(new Handler<Void>() {
-          @Override
-          public void handle(Void _) {
-            writable.set(true);
-          }
+            @Override
+            public void handle(Void _) {
+                writable.set(true);
+            }
         });
-        while(!writable.get())
-          ;
+        while (!writable.get())
+            ;
     }
 
     private void waitReadable(ByteBuf buf) {
-       while(! buf.isReadable())
-         ;
+        while (!buf.isReadable())
+            ;
     }
 }

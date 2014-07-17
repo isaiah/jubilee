@@ -14,36 +14,39 @@ import org.jruby.runtime.builtin.IRubyObject;
  * There must be a class in JRuby for this, but I just couldn't find it.
  */
 public class RubyCallable extends RubyObject {
-  private Callable callable;
+    private Callable callable;
 
-  public static RubyClass createClallableClass(final Ruby runtime) {
-    RubyModule jubilee = runtime.getOrCreateModule("Jubilee");
-    RubyClass klazz = jubilee.defineClassUnder("Callable", runtime.getObject(), new ObjectAllocator() {
-      @Override
-      public IRubyObject allocate(Ruby ruby, RubyClass rubyClass) {
-        return new RubyCallable(ruby, rubyClass);
-      }
-    });
-    klazz.defineAnnotatedMethods(RubyCallable.class);
-    return klazz;
-  }
+    public static RubyClass createClallableClass(final Ruby runtime) {
+        RubyModule jubilee = runtime.getOrCreateModule("Jubilee");
+        RubyClass klazz = jubilee.defineClassUnder("Callable", runtime.getObject(), new ObjectAllocator() {
+            @Override
+            public IRubyObject allocate(Ruby ruby, RubyClass rubyClass) {
+                return new RubyCallable(ruby, rubyClass);
+            }
+        });
+        klazz.defineAnnotatedMethods(RubyCallable.class);
+        return klazz;
+    }
 
-  public RubyCallable(Ruby ruby, RubyClass rubyClass) {
-    super(ruby, rubyClass);
-  }
+    public RubyCallable(Ruby ruby, RubyClass rubyClass) {
+        super(ruby, rubyClass);
+    }
 
-  public RubyCallable(Ruby ruby, RubyClass rubyClass, Callable callable) {
-    super(ruby, rubyClass);
-    this.callable = callable;
-  }
+    public RubyCallable(Ruby ruby, RubyClass rubyClass, Callable callable) {
+        super(ruby, rubyClass);
+        this.callable = callable;
+    }
 
-  @JRubyMethod
-  public IRubyObject call(ThreadContext context) {
-    this.callable.call();
-    return context.runtime.getNil();
-  }
+    @JRubyMethod
+    public IRubyObject call(ThreadContext context) {
+        this.callable.call();
+        return context.runtime.getNil();
+    }
 
-  public static abstract class Callable {
-    public void call(){};
-  }
+    public static abstract class Callable {
+        public void call() {
+        }
+
+        ;
+    }
 }

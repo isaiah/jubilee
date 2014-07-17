@@ -102,6 +102,6 @@ public class RubyNullIO extends RubyObject implements RackInput {
      */
     @Override
     public IRubyObject close(ThreadContext context) {
-      return getRuntime().getNil();
+        return getRuntime().getNil();
     }
 }

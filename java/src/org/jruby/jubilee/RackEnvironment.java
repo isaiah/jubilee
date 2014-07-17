@@ -1,13 +1,7 @@
 package org.jruby.jubilee;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.jruby.Ruby;
-import org.jruby.RubyArray;
-import org.jruby.RubyFixnum;
-import org.jruby.RubyHash;
-import org.jruby.RubyIO;
-import org.jruby.RubyString;
-
+import org.jruby.*;
 import org.jruby.jubilee.utils.RubyHelper;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -96,7 +90,7 @@ public class RackEnvironment {
         env.lazyPut(RACK_KEY.CONTENT_TYPE, headers.get(HttpHeaders.Names.CONTENT_TYPE), true);
         env.lazyPut(RACK_KEY.REQUEST_URI, request.uri(), false);
         env.lazyPut(RACK_KEY.REMOTE_ADDR, getRemoteAddr(request), true);
-        env.lazyPut(RACK_KEY.URL_SCHEME, isSSL? Const.HTTPS : Const.HTTP, true);
+        env.lazyPut(RACK_KEY.URL_SCHEME, isSSL ? Const.HTTPS : Const.HTTP, true);
         env.lazyPut(RACK_KEY.VERSION, rackVersion, false);
         env.lazyPut(RACK_KEY.MULTITHREAD, runtime.getTrue(), false);
         env.lazyPut(RACK_KEY.MULTIPROCESS, runtime.getFalse(), false);
@@ -105,10 +99,10 @@ public class RackEnvironment {
         // Hijack handling
         env.lazyPut(RACK_KEY.HIJACK_P, runtime.getTrue(), false);
         env.lazyPut(RACK_KEY.HIJACK, new RubyCallable.Callable() {
-          @Override
-          public void call() {
-            env.put("rack.hijack_io", new RubyNetSocket(runtime, netSocketClass, request.netSocket()));
-          }
+            @Override
+            public void call() {
+                env.put("rack.hijack_io", new RubyNetSocket(runtime, netSocketClass, request.netSocket()));
+            }
         }, false);
 
 
@@ -124,24 +118,25 @@ public class RackEnvironment {
         return env;
     }
 
-    public String[] getHostInfo(String host) {
-      String[] hostInfo;
-      if (host != null) {
-        int colon = host.indexOf(":");
-        if (colon > 0)
-          hostInfo = new String[]{host.substring(0, colon), host.substring(colon + 1)};
-        else
-          hostInfo = new String[]{host, Const.PORT_80};
 
-      } else {
-        hostInfo = new String[]{Const.LOCALHOST, Const.PORT_80};
-      }
-      return hostInfo;
+    public String[] getHostInfo(String host) {
+        String[] hostInfo;
+        if (host != null) {
+            int colon = host.indexOf(":");
+            if (colon > 0)
+                hostInfo = new String[]{host.substring(0, colon), host.substring(colon + 1)};
+            else
+                hostInfo = new String[]{host, Const.PORT_80};
+
+        } else {
+            hostInfo = new String[]{Const.LOCALHOST, Const.PORT_80};
+        }
+        return hostInfo;
     }
 
     private static String getRemoteAddr(final HttpServerRequest request) {
         InetSocketAddress sourceAddress = request.remoteAddress();
-        if(sourceAddress == null) {
+        if (sourceAddress == null) {
             return "";
         }
         return sourceAddress.getHostString();

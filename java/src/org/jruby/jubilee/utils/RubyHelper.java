@@ -2,14 +2,8 @@ package org.jruby.jubilee.utils;
 
 import org.jcodings.specific.USASCIIEncoding;
 import org.jruby.Ruby;
-import org.jruby.RubyHash;
-import org.jruby.RubyModule;
 import org.jruby.RubyString;
-import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.util.ByteList;
-
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Ruby reflection helper utilities.
