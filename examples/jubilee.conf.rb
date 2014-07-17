@@ -1,12 +1,17 @@
 # Listen to port 3000
 listen 3000
 
-# the ssl certification path
-ssl_keystore "jubilee/keystore.jks"
+# enable https mode
+ssl keystore: "keystore.jks", password: "hellojubilee"
 
-# the ssl certification key
-ssl_password "helloworld"
+# the directory where the rack app seats in
+working_directory "chatapp"
 
-pid "tmp/jubilee.pid"
-stderr_path "log/jubilee.stderr.log"
-stdout_path "log/jubilee.stdout.log"
+# rack environment
+environment "development"
+
+eventbus "/eventbus", inbound: [{}], outbound: [{}]
+
+clustering true
+
+debug true

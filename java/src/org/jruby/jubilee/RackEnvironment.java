@@ -1,17 +1,19 @@
 package org.jruby.jubilee;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.jruby.*;
+import org.jruby.Ruby;
+import org.jruby.RubyArray;
+import org.jruby.RubyFixnum;
+import org.jruby.RubyHash;
+import org.jruby.RubyIO;
+import org.jruby.RubyString;
 
 import org.jruby.jubilee.utils.RubyHelper;
-import org.jruby.runtime.*;
-import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpVersion;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,45 +75,34 @@ public class RackEnvironment {
     public RubyHash getEnv(final HttpServerRequest request,
                            final RackInput input,
                            final boolean isSSL) throws IOException {
-        // XXX
-        String contextPath = "/";
         MultiMap headers = request.headers();
-        // TODO: Should we only use this faster RackEnvironmentHash if we detect
-        // specific JRuby versions that we know are compatible?
         final RackEnvironmentHash env = new RackEnvironmentHash(runtime, headers, rackKeyMap);
         env.lazyPut(RACK_KEY.RACK_INPUT, input, false);
         env.lazyPut(RACK_KEY.RACK_ERRORS, errors, false);
 
-        // Don't use request.getPathInfo because that gets decoded by the container
         String pathInfo = request.path();
 
-        // strip contextPath and servletPath from pathInfo
-        if (pathInfo.startsWith(contextPath) && !contextPath.equals("/")) {
-            pathInfo = pathInfo.substring(contextPath.length());
-        }
-
-        String scriptName = contextPath;
-        // SCRIPT_NAME should be an empty string for the root
-        if (scriptName.equals("/")) {
-            scriptName = "";
-        }
+        String scriptName = "";
+        String[] hostInfo = getHostInfo(request.headers().get(Const.HOST));
 
         env.lazyPut(RACK_KEY.REQUEST_METHOD, request.method(), true);
         env.lazyPut(RACK_KEY.SCRIPT_NAME, scriptName, false);
         env.lazyPut(RACK_KEY.PATH_INFO, pathInfo, false);
         env.lazyPut(RACK_KEY.QUERY_STRING, orEmpty(request.query()), false);
-        env.lazyPut(RACK_KEY.SERVER_NAME, Const.LOCALHOST, false);
-        env.lazyPut(RACK_KEY.SERVER_PORT, Const.PORT_80, true);
+        env.lazyPut(RACK_KEY.SERVER_NAME, hostInfo[0], false);
+        env.lazyPut(RACK_KEY.SERVER_PORT, hostInfo[1], true);
         env.lazyPut(RACK_KEY.HTTP_VERSION,
                 request.version() == HttpVersion.HTTP_1_1 ? Const.HTTP_11 : Const.HTTP_10, true);
         env.lazyPut(RACK_KEY.CONTENT_TYPE, headers.get(HttpHeaders.Names.CONTENT_TYPE), true);
-        env.lazyPut(RACK_KEY.REQUEST_URI, scriptName + pathInfo, false);
+        env.lazyPut(RACK_KEY.REQUEST_URI, request.uri(), false);
         env.lazyPut(RACK_KEY.REMOTE_ADDR, getRemoteAddr(request), true);
         env.lazyPut(RACK_KEY.URL_SCHEME, isSSL? Const.HTTPS : Const.HTTP, true);
         env.lazyPut(RACK_KEY.VERSION, rackVersion, false);
         env.lazyPut(RACK_KEY.MULTITHREAD, runtime.getTrue(), false);
         env.lazyPut(RACK_KEY.MULTIPROCESS, runtime.getFalse(), false);
         env.lazyPut(RACK_KEY.RUN_ONCE, runtime.getFalse(), false);
+
+        // Hijack handling
         env.lazyPut(RACK_KEY.HIJACK_P, runtime.getTrue(), false);
         env.lazyPut(RACK_KEY.HIJACK, new RubyCallable.Callable() {
           @Override
@@ -133,16 +124,27 @@ public class RackEnvironment {
         return env;
     }
 
+    public String[] getHostInfo(String host) {
+      String[] hostInfo;
+      if (host != null) {
+        int colon = host.indexOf(":");
+        if (colon > 0)
+          hostInfo = new String[]{host.substring(0, colon), host.substring(colon + 1)};
+        else
+          hostInfo = new String[]{host, Const.PORT_80};
+
+      } else {
+        hostInfo = new String[]{Const.LOCALHOST, Const.PORT_80};
+      }
+      return hostInfo;
+    }
+
     private static String getRemoteAddr(final HttpServerRequest request) {
         InetSocketAddress sourceAddress = request.remoteAddress();
         if(sourceAddress == null) {
             return "";
         }
-        InetAddress address = sourceAddress.getAddress();
-        if(address == null) {
-            return "";
-        }
-        return address.getHostAddress();
+        return sourceAddress.getHostString();
     }
 
     private static int getContentLength(final MultiMap headers) {

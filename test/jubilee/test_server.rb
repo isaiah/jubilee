@@ -9,14 +9,14 @@ class TestJubileeServer < MiniTest::Unit::TestCase
 
   def teardown
     @server.stop if @server
+    sleep 0.1
   end
 
-  def test_server_lambda
-    app = lambda {|env| [200, {"Content-Type" => "text/plain"}, ["http"]] }
-    @server = Jubilee::Server.new(app)
+  def test_server_embedded
+    config = Jubilee::Configuration.new(rackup: File.expand_path("../../config/config.ru", __FILE__))
+    @server = Jubilee::Server.new(config.options)
     @server.start
-    sleep 0.1
-
+    sleep 0.5
     http, body = Net::HTTP.new(@host, @port), nil
     http.start do
       req = Net::HTTP::Get.new "/", {}
@@ -24,35 +24,16 @@ class TestJubileeServer < MiniTest::Unit::TestCase
         body = resp.body
       end
     end
-    assert_equal "http", body
-  end
-
-  def test_server_embeded
-    config = Jubilee::Configuration.new(rackup: File.join(File.dirname(__FILE__), "../config/app.rb"))
-    @server = Jubilee::Server.new(config.app)
-    @server.start
-    sleep 0.1
-    http, body = Net::HTTP.new(@host, @port), nil
-    http.start do
-      req = Net::HTTP::Get.new "/", {}
-      http.request(req) do |resp|
-        body = resp.body
-      end
-    end
-    assert_equal "embeded app", body
-  end
-
-  def test_large_post_body
-    skip
+    assert_equal "embedded app", body
   end
 
   def test_url_scheme_for_https
-    app = lambda { |env| [200, {}, [env['rack.url_scheme']]] }
-    @server = Jubilee::Server.new(app, {port:@port, ssl:true, 
-                                 keystore_path: File.join(File.dirname(__FILE__), "../../examples/jubilee/server-keystore.jks"),
-    keystore_password: "wibble"})
+    config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/url_scheme.ru", __FILE__), port: @port, ssl: true,
+                                        ssl_keystore: File.join(File.dirname(__FILE__), "../../examples/keystore.jks"),
+                                        ssl_password: "hellojubilee")
+    @server = Jubilee::Server.new(config.options)
     @server.start
-    sleep 0.1
+    sleep 0.5
     http = Net::HTTP.new @host, @port
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE

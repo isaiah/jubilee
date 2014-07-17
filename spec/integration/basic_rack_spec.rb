@@ -4,12 +4,14 @@ feature "basic rack at non-root context" do
 
   before(:all) do
     configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/rack/basic")
-    @server = Jubilee::Server.new(configurator.app, configurator.options)
+    @server = Jubilee::Server.new(configurator.options)
     @server.start
+    sleep 0.1
   end
 
   after(:all) do
     @server.stop
+    sleep 0.1
   end
 
   it "should work for basic requests" do
@@ -85,5 +87,4 @@ feature "basic rack at non-root context" do
       response.body.should include("<div id='posted'>field=nothing</div>")
     end
   end
-
 end

@@ -17,9 +17,6 @@ Why another rack server?
 > that's designed for modern mobile, web, and enterprise applications."
 >      - vertx.io site
 
-In short, Vertx is nodejs on the JVM, only much more faster, checkout the awesome
-[benchmarks](http://vertxproject.wordpress.com/2012/05/09/vert-x-vs-node-js-simple-http-benchmarks/)
-
 By using Vertx, jubilee inherent advantages in terms of performance, and all
 the other cool features of Vertx:
 
@@ -35,6 +32,16 @@ Installation
     $ jruby -S gem install jubilee
 
 Jubilee requires JRuby 1.7.5 or later, and JDK 7+
+
+Build from source
+-----------------
+
+Checkout the source and run the following command in the root directory of the
+project:
+
+```shell
+bundle && bundle exec rake install
+```
 
 Get started
 -----------
@@ -62,7 +69,8 @@ Event Bus
 =========
 
 Event Bus is a pub/sub mechanism, it can be used from server to server, server
-to client and client to client, with the same API!
+to client and client to client, with the same API! You can use it to build
+living real time web application.
 
 Examples
 --------
@@ -91,7 +99,9 @@ var eb = new vertx.EventBus("/eventbus");
 eb.send("test", "hello, world");
 ```
 
-For more advanced examples, checkout the
+In the previous tab it should print the greetings you just sent.
+
+For more advanced examples, please checkout the
 [chatapp](https://github.com/isaiah/jubilee/tree/master/examples/chatapp).
 
 Performance Tuning

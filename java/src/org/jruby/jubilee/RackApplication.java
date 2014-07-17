@@ -6,6 +6,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
+import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.RubyIORackInput;
 import org.jruby.jubilee.impl.RubyNullIO;
@@ -17,8 +18,11 @@ import org.vertx.java.core.VoidHandler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.impl.DefaultVertx;
+import org.vertx.java.platform.impl.WrappedVertx;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -31,17 +35,17 @@ public class RackApplication {
     private IRubyObject app;
     private boolean ssl;
     private Ruby runtime;
-    private DefaultVertx vertx;
+    private WrappedVertx vertx;
     private RubyClass rackIOInputClass;
     private RubyClass httpServerResponseClass;
     private RubyArray rackVersion;
     private RubyNullIO nullio;
     private RackEnvironment rackEnv;
 
-    public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, boolean ssl) throws IOException {
+    public RackApplication(WrappedVertx vertx, ThreadContext context, IRubyObject app, boolean ssl) throws IOException {
         this.app = app;
         this.ssl = ssl;
-        this.vertx = (DefaultVertx) vertx;
+        this.vertx = vertx;
         this.runtime = context.runtime;
         this.rackVersion = RubyArray.newArrayLight(runtime, RubyFixnum.one(runtime), RubyFixnum.four(runtime));
         // Memorize the ruby classes
@@ -77,23 +81,34 @@ public class RackApplication {
                     eof.set(true);
                 }
             });
+        request.exceptionHandler(new Handler<Throwable>() {
+            @Override
+            public void handle(Throwable ignore) {
+                eof.set(true);
+            }
+        });
 //        } else {
 //            input = nullio;
 //        }
         Runnable task = new Runnable() {
             @Override
             public void run() {
-                // This is a different context, do NOT replace runtime.getCurrentContext()
-//                IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", env.getEnv());
                 try {
-                    IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", rackEnv.getEnv(request, input, ssl));
+                  // This is a different context, do NOT replace runtime.getCurrentContext()
+                  IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", rackEnv.getEnv(request, input, ssl));
                     RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
                     RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
                             httpServerResponseClass,
                             request.response());
                     response.respond(resp);
-                } catch (IOException e) {
-                    // noop
+                } catch (Exception e) {
+                  request.response().setStatusCode(500);
+                  String message = "Jubilee caught this error: " + e.getMessage() + "\n";
+                  StringWriter stringWriter = new StringWriter();
+                  PrintWriter printWriter = new PrintWriter(stringWriter);
+                  e.printStackTrace(printWriter);
+                  request.response().end(message + stringWriter.toString());
+                  e.printStackTrace(runtime.getErrorStream());
                 }
             }
         };

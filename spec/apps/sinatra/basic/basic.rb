@@ -3,6 +3,7 @@ require 'rubygems'
 require 'sinatra'
 
 disable :logging
+set :root, File.dirname(__FILE__)
 
 options '/' do
   response.headers['Access-Control-Allow-Origin'] = '*'

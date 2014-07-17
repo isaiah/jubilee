@@ -1,7 +1,6 @@
 require 'jubilee'
 require 'capybara/poltergeist'
 require 'capybara/rspec'
-require 'ostruct'
 require 'net/http'
 
 Capybara.app_host = "http://localhost:8080"

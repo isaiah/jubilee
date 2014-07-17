@@ -4,12 +4,14 @@ feature "basic sinatra test" do
 
   before(:all) do
     configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/sinatra/basic")
-    @server = Jubilee::Server.new(configurator.app, configurator.options)
+    @server = Jubilee::Server.new(configurator.options)
     @server.start
+    sleep 1
   end
 
   after(:all) do
     @server.stop
+    sleep 0.1
   end
 
   it "should work" do
@@ -31,9 +33,10 @@ feature "basic sinatra test" do
 
   it "should return 304 for unmodified static assets" do
     uri = URI.parse("#{Capybara.app_host}/some_page.html")
+    mtime = File.mtime(File.expand_path("../../apps/sinatra/basic/public/some_page.html", __FILE__)).gmtime.strftime("%a, %d %b %Y %H:%M:%S GMT")
     Net::HTTP.start(uri.host, uri.port) do |http|
       request = Net::HTTP::Get.new(uri.request_uri)
-      request.add_field('If-Modified-Since', 'Sat, 31 Dec 2050 00:00:00 GMT')
+      request.add_field('If-Modified-Since', mtime)
       response = http.request(request)
       response.code.should == "304"
     end
@@ -76,5 +79,4 @@ feature "basic sinatra test" do
       end
     end
   end
-
 end

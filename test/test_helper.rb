@@ -9,15 +9,7 @@ require 'yaml'
 def hit(uris)
   sleep 0.1
   uris.map do |u|
-    res = nil
-
-    if u.kind_of? String
-      res = Net::HTTP.get(URI.parse(u))
-    else
-      url = URI.parse(u[0])
-      res = Net::HTTP.new(url.host, url.port).start {|h| h.request(u[1]) }
-    end
-
+    res = Net::HTTP.get_response(URI(u))
     assert res != nil, "Didn't get a response: #{u}"
     res
   end
@@ -59,6 +51,7 @@ module Helpers
   attr_reader :status, :response
 
   def GET(path, header={})
+    sleep 0.1
     Net::HTTP.start(@host, @port) { |http|
       user = header.delete(:user)
       passwd = header.delete(:passwd)
@@ -77,6 +70,7 @@ module Helpers
   end
 
   def POST(path, formdata={}, header={})
+    sleep 0.1
     Net::HTTP.start(@host, @port) { |http|
       user = header.delete(:user)
       passwd = header.delete(:passwd)

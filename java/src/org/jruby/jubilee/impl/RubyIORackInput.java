@@ -73,14 +73,13 @@ public class RubyIORackInput extends RubyObject implements RackInput {
 
         if (isEOF()) return runtime.getNil();
 
-        int lineEnd = -1;
+        int lineEnd = buf.indexOf(buf.readerIndex(), buf.writerIndex(), Const.EOL);
         while (lineEnd == -1 && !eof.get()) {
             lineEnd = buf.indexOf(buf.readerIndex(), buf.writerIndex(), Const.EOL);
         }
 
         // No line break found, read all
-        if (lineEnd == -1)
-            return readAll(runtime, line);
+        if (lineEnd == -1) return readAll(runtime, line);
 
         int readLength = lineEnd - buf.readerIndex();
         byte[] dst = new byte[readLength + 1];

@@ -39,11 +39,16 @@ module Jubilee
         `jubilee_d #{(@argv - ["-d", "--daemon"]).join(" ")}`
       else
         @config = Jubilee::Configuration.new(@options)
-        server = Jubilee::Server.new(@config.app, @config.options)
-        server.start
-        puts "Jubilee is listening on port #{@config.options[:Port]}, press Ctrl+C to quit"
-        starter = org.jruby.jubilee.deploy.Starter.new
-        starter.block
+        server = Jubilee::Server.new(@config.options)
+        #server.start
+        thread = Thread.current
+        Signal.trap("INT") do
+          server.stop
+          puts "Jubilee is shutting down gracefully..."
+          thread.wakeup
+        end
+        puts "Jubilee is initializing..."
+        sleep
       end
     end
 
@@ -51,9 +56,10 @@ module Jubilee
       @options = {
         debug: false,
         daemon: false,
-        Port: 8080,
-        Host: "0.0.0.0",
         ssl: false,
+        Port: 8080,
+        instances: 4,
+        quiet: false,
         environment: ENV["RACK_ENV"] || "development"
       }
       @parser = OptionParser.new do |o|
@@ -67,27 +73,30 @@ module Jubilee
           @options[:daemon] = true
         end
         o.on "--dir DIR", "Change to DIR before starting" do |arg|
-          @options[:working_directory] = arg
+          @options[:chdir] = arg
         end
-        o.on "-p", "--port PORT", "Defind which PORT the server should bind" do |arg|
+        o.on "-p", "--port PORT", "Define which PORT the server should bind" do |arg|
           @options[:Port] = arg.to_i
         end
-        o.on "--host HOST", "Defind which HOST the server should bind, default 0.0.0.0" do |arg|
+        o.on "-b", "--host HOST", "Define which HOST the server should bind, default 0.0.0.0" do |arg|
           @options[:Host] = arg
         end
         o.on "-e", "--environment ENV", "Rack environment" do |arg|
           @options[:environment] = arg
         end
+        o.on "-n", "--instances NUM", "Define how many instances of web servers to run" do |arg|
+          @options[:instances] = arg.to_i
+        end
         o.separator ""
         o.separator "SSL options:"
-        o.on "--ssl", "Enable SSL connection" do 
+        o.on "--ssl", "Enable SSL connection" do
           @options[:ssl] = true
         end
         o.on "--ssl-keystore PATH", "SSL keystore path" do |arg|
-          @options[:keystore_path] = arg
+          @options[:ssl_keystore] = arg
         end
         o.on "--ssl-password PASS", "SSL keystore password" do |arg|
-          @options[:keystore_password] = arg
+          @options[:ssl_password] = arg
         end
         o.separator ""
         o.separator "Event bus options:"
@@ -98,12 +107,12 @@ module Jubilee
         o.separator ""
         o.separator "Clustering options:"
         o.on "--cluster", "Enable clustering" do
-          @options[:cluster_host] = "0.0.0.0"
+          @options[:clustered] = true
         end
-        o.on "--cluster-port", "If the cluster option has also been specified then this determines which port will be used for cluster communication with other Vert.x instances. Default is 0 -which means 'chose a free ephemeral port. You don't usually need to specify this parameter unless you really need to bind to a specific port." do |port|
-          @options[:cluster_host] = port
+        o.on "--cluster-port PORT", "If the cluster option has also been specified then this determines which port will be used for cluster communication with other Vert.x instances. Default is 0 -which means 'chose a free ephemeral port. You don't usually need to specify this parameter unless you really need to bind to a specific port." do |port|
+          @options[:cluster_port] = port.to_i
         end
-        o.on "--cluster-host", "If the cluster option has also been specified then this determines which host address will be used for cluster communication with other Vert.x instances. By default it will try and pick one from the available interfaces. If you have more than one interface and you want to use a specific one, specify it here." do |host|
+        o.on "--cluster-host HOST", "If the cluster option has also been specified then this determines which host address will be used for cluster communication with other Vert.x instances. By default it will try and pick one from the available interfaces. If you have more than one interface and you want to use a specific one, specify it here." do |host|
           @options[:cluster_host] = host
         end
 
@@ -112,8 +121,14 @@ module Jubilee
         o.on "--verbose", "Log low level debug information" do
           @options[:debug] = true
         end
-        o.on "-q", "--quiet" do
+
+        o.on "-q", "--quiet", "Disable logging" do
           @options[:quiet] = true
+        end
+
+        o.on "-v", "--version", "Print the version information" do
+          puts "jubilee version #{Jubilee::Version::STRING} on Vert.x 2.1.1"
+          exit 0
         end
       end
 
