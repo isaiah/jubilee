@@ -43,12 +43,13 @@ public class RubyPlatformManager extends RubyObject {
   }
 
   @JRubyMethod
-  public IRubyObject initialize(ThreadContext context, IRubyObject config) {
-    RubyHash options = config.convertToHash();
+  public IRubyObject initialize(final ThreadContext context, IRubyObject config) {
+    final RubyHash options = config.convertToHash();
     Ruby runtime = context.runtime;
     RubySymbol clustered_k = runtime.newSymbol("clustered");
     RubySymbol cluster_host_k = runtime.newSymbol("cluster_host");
     RubySymbol cluster_port_k = runtime.newSymbol("cluster_port");
+      final RubySymbol port_k = runtime.newSymbol("Port");
     if (options.containsKey(clustered_k) && options.op_aref(context, clustered_k).isTrue()) {
       int clusterPort = 0;
       String clusterHost = null;
@@ -68,6 +69,7 @@ public class RubyPlatformManager extends RubyObject {
       @Override
       public void handle(AsyncResult<String> result) {
         if (result.succeeded()) {
+            context.runtime.getOutputStream().println("Jubilee is listening on port " + options.op_aref(context, port_k) +", press Ctrl+C to quit");
 //          System.out.println("Deployment ID is " + result.result());
         } else{
           result.cause().printStackTrace();

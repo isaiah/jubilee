@@ -4,7 +4,7 @@ feature "basic sinatra test" do
 
   before(:all) do
     configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/sinatra/basic")
-    @server = Jubilee::Server.new(nil, configurator.options)
+    @server = Jubilee::Server.new(configurator.options)
     @server.start
     sleep 1
   end

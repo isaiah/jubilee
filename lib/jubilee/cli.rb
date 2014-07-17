@@ -47,7 +47,7 @@ module Jubilee
           puts "Jubilee is shutting down gracefully..."
           thread.wakeup
         end
-        puts "Jubilee is listening on port #{@config.options[:Port]}, press Ctrl+C to quit"
+        puts "Jubilee is initializing..."
         sleep
       end
     end
