@@ -2,4 +2,4 @@ language: ruby
 rvm:
   - jruby-19mode # JRuby in 1.9 mode
 
-script: "bundle exec rake spec test"
+script: "bundle exec rake spec"

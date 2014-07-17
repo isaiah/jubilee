@@ -10,17 +10,16 @@ module Jubilee
     attr_accessor :config_file
     attr_reader :options
 
-    def initialize(options, &block)
+    def initialize(options)
       @config_file = options.delete(:config_file)
       @options = options.dup
-      @block = block
 
       reload
     end
 
     def reload
       instance_eval(File.read(config_file), config_file) if config_file
-      load_rack_adapter(&@block)
+      load_rack_adapter
     end
 
     # sets the host and port jubilee listens to +address+ may be an Integer port 
@@ -106,9 +105,6 @@ module Jubilee
 
     private
     def load_rack_adapter(&block)
-      if block
-        @options[:rackapp] = Rack::Builder.new(&block).to_app
-      end
       Dir.chdir(@options[:chdir]) if @options[:chdir]
       @options[:rackup] = rackup
     end

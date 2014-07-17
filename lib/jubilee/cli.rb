@@ -39,7 +39,7 @@ module Jubilee
         `jubilee_d #{(@argv - ["-d", "--daemon"]).join(" ")}`
       else
         @config = Jubilee::Configuration.new(@options)
-        server = Jubilee::Server.new(nil, @config.options)
+        server = Jubilee::Server.new(@config.options)
         #server.start
         thread = Thread.current
         Signal.trap("INT") do
@@ -96,7 +96,7 @@ module Jubilee
           @options[:ssl_keystore] = arg
         end
         o.on "--ssl-password PASS", "SSL keystore password" do |arg|
-          @options[:ssl_keystore] = arg
+          @options[:ssl_password] = arg
         end
         o.separator ""
         o.separator "Event bus options:"

@@ -5,7 +5,6 @@ class TestConfig < MiniTest::Unit::TestCase
 
   def setup
     @tmp = Tempfile.new("jubilee_config")
-    @resp = [200, {"Content-Type" => "text/plain"}, ["embedded app"]]
     @dir = Dir.getwd
   end
 

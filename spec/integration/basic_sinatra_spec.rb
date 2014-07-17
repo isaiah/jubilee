@@ -79,5 +79,4 @@ feature "basic sinatra test" do
       end
     end
   end
-
 end
