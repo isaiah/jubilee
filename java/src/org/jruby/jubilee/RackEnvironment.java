@@ -3,9 +3,12 @@ package org.jruby.jubilee;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.jruby.*;
 import org.jruby.jubilee.utils.RubyHelper;
+import org.jruby.runtime.*;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpVersion;
+import org.vertx.java.core.net.NetSocket;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -98,12 +101,7 @@ public class RackEnvironment {
 
         // Hijack handling
         env.lazyPut(RACK_KEY.HIJACK_P, runtime.getTrue(), false);
-        env.lazyPut(RACK_KEY.HIJACK, new RubyCallable.Callable() {
-            @Override
-            public void call() {
-                env.put("rack.hijack_io", new RubyNetSocket(runtime, netSocketClass, request.netSocket()));
-            }
-        }, false);
+        env.lazyPut(RACK_KEY.HIJACK, hijackProc(env, request.netSocket()), false);
 
 
         final int contentLength = getContentLength(headers);
@@ -118,6 +116,30 @@ public class RackEnvironment {
         return env;
     }
 
+    private IRubyObject hijackProc(final RackEnvironmentHash env, final NetSocket sock) {
+        CompiledBlockCallback19 callback = new CompiledBlockCallback19() {
+            @Override
+            public IRubyObject call(ThreadContext context, IRubyObject self, IRubyObject[] args, Block block) {
+                RubyNetSocket rubyNetSocket = new RubyNetSocket(context.runtime, netSocketClass, sock);
+                env.put("rack.hijack_io", rubyNetSocket);
+                return rubyNetSocket;
+            }
+
+            @Override
+            public String getFile() {
+                return null;
+            }
+
+            @Override
+            public int getLine() {
+                return 0;
+            }
+        };
+        BlockBody body = CompiledBlockLight19.newCompiledBlockLight(Arity.NO_ARGUMENTS, runtime.getStaticScopeFactory().getDummyScope(), callback, false, 0, new String[]{});
+        Block b = new Block(body, runtime.newBinding().getBinding());
+
+        return RubyProc.newProc(runtime, b, Block.Type.LAMBDA);
+    }
 
     public String[] getHostInfo(String host) {
         String[] hostInfo;
