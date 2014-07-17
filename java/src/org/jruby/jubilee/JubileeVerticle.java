@@ -76,9 +76,12 @@ public class JubileeVerticle extends Verticle {
         runtime = Ruby.newInstance(instanceConfig);
 //        }
         RubyArray loadPath = (RubyArray) Ruby.getGlobalRuntime().getLoadService().getLoadPath();
+        RubyArray defaultPaths = (RubyArray) runtime.getLoadService().getLoadPath();
         for (int i = 0; i < loadPath.size(); i++) {
             IRubyObject entry = loadPath.eltInternal(i);
-            runtime.getLoadService().addPaths(entry.asJavaString());
+            if (!defaultPaths.includes(runtime.getCurrentContext(), entry)) {
+                runtime.getLoadService().addPaths(entry.asJavaString());
+            }
         }
         runtime.getLoadService().addPaths(root);
         return runtime;

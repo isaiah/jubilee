@@ -101,7 +101,7 @@ public class RackEnvironment {
 
         // Hijack handling
         env.lazyPut(RACK_KEY.HIJACK_P, runtime.getTrue(), false);
-        env.lazyPut(RACK_KEY.HIJACK, hijackProc(env, request.netSocket()), false);
+        env.lazyPut(RACK_KEY.HIJACK, hijackProc(env, request), false);
 
 
         final int contentLength = getContentLength(headers);
@@ -116,11 +116,11 @@ public class RackEnvironment {
         return env;
     }
 
-    private IRubyObject hijackProc(final RackEnvironmentHash env, final NetSocket sock) {
+    private IRubyObject hijackProc(final RackEnvironmentHash env, final HttpServerRequest req) {
         CompiledBlockCallback19 callback = new CompiledBlockCallback19() {
             @Override
             public IRubyObject call(ThreadContext context, IRubyObject self, IRubyObject[] args, Block block) {
-                RubyNetSocket rubyNetSocket = new RubyNetSocket(context.runtime, netSocketClass, sock);
+                RubyNetSocket rubyNetSocket = new RubyNetSocket(context.runtime, netSocketClass, req.netSocket());
                 env.put("rack.hijack_io", rubyNetSocket);
                 return rubyNetSocket;
             }
