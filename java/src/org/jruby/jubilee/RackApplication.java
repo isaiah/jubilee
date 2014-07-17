@@ -81,6 +81,12 @@ public class RackApplication {
                     eof.set(true);
                 }
             });
+        request.exceptionHandler(new Handler<Throwable>() {
+            @Override
+            public void handle(Throwable ignore) {
+                eof.set(true);
+            }
+        });
 //        } else {
 //            input = nullio;
 //        }
