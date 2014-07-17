@@ -152,7 +152,7 @@ public class RubyNetSocket extends RubyObject {
         final AtomicBoolean writable = new AtomicBoolean(false);
         stream.drainHandler(new Handler<Void>() {
             @Override
-            public void handle(Void _) {
+            public void handle(Void empty) {
                 writable.set(true);
             }
         });

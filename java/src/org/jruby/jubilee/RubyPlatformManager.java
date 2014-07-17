@@ -98,9 +98,12 @@ public class RubyPlatformManager extends RubyObject {
         RubySymbol eventbus_prefix_k = runtime.newSymbol("eventbus_prefix");
         RubySymbol quiet_k = runtime.newSymbol("quiet");
         RubySymbol environment_k = runtime.newSymbol("environment");
+        RubySymbol root_k = runtime.newSymbol("root");
         Map<String, Object> map = new HashMap<>();
         map.put("host", options.op_aref(context, host_k).asJavaString());
         map.put("port", RubyNumeric.num2int(options.op_aref(context, port_k)));
+        if (options.has_key_p(root_k).isTrue())
+            map.put("root", options.op_aref(context, root_k).asJavaString());
 
         if (options.has_key_p(rack_up_k).isTrue())
             map.put("rackup", options.op_aref(context, rack_up_k).asJavaString());

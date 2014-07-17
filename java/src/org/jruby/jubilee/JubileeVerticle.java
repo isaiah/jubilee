@@ -1,7 +1,9 @@
 package org.jruby.jubilee;
 
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyInstanceConfig;
+import org.jruby.RubyString;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServer;
@@ -73,6 +75,11 @@ public class JubileeVerticle extends Verticle {
         instanceConfig.setArgv(Arrays.copyOf(argv, argv.length, String[].class));
         runtime = Ruby.newInstance(instanceConfig);
 //        }
+        RubyArray loadPath = (RubyArray) Ruby.getGlobalRuntime().getLoadService().getLoadPath();
+        for (int i = 0; i < loadPath.size(); i++) {
+            IRubyObject entry = loadPath.eltInternal(i);
+            runtime.getLoadService().addPaths(entry.asJavaString());
+        }
         runtime.getLoadService().addPaths(root);
         return runtime;
     }

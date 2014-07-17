@@ -3,7 +3,7 @@ require 'spec_helper'
 feature "basic sinatra test" do
 
   before(:all) do
-    configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/sinatra/basic")
+    configurator = Jubilee::Configuration.new(root: "#{apps_dir}/sinatra/basic")
     @server = Jubilee::Server.new(configurator.options)
     @server.start
     sleep 1

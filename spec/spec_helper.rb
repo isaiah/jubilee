@@ -1,3 +1,4 @@
+$:.unshift(File.expand_path("../../lib", __FILE__))
 require 'jubilee'
 require 'capybara/poltergeist'
 require 'capybara/rspec'
