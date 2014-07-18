@@ -209,7 +209,6 @@ class TestUpload < MiniTest::Unit::TestCase
     config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/sha1.ru", __FILE__), instances: 1)
     @server = Jubilee::Server.new(config.options)
     @server.start
-    sleep 1
+    sleep 2
   end
-
 end
