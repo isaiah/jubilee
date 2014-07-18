@@ -57,14 +57,6 @@ this is also required if you want use rails http streaming,
 
     $ jubilee
 
-or if you prefer to use the rack handler(e.g. development) use:
-
-    $ rails s jubilee
-
-or
-
-    $ rackup -s jubilee
-
 Event Bus
 =========
 
