@@ -41,7 +41,7 @@ Jeweler::RubygemsDotOrgTasks.new
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
   test.libs << 'lib' << 'test' << 'spec'
-  test.pattern = 'test/**/test_*.rb'
+  test.pattern = 'test/**/test_hijack.rb'
   test.verbose = true
 end
 

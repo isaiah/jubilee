@@ -9,17 +9,18 @@ import org.vertx.java.core.Vertx;
  * Time: 15:24
  */
 public class JubileeVertx {
-  public static Vertx vertx;
-  private JubileeVertx() {
-  }
+    public static Vertx vertx;
 
-  public static void init(Vertx vertx) {
-    JubileeVertx.vertx = vertx;
-  }
+    private JubileeVertx() {
+    }
 
-  public synchronized static Vertx vertx() {
-    if (JubileeVertx.vertx == null)
-      throw new RuntimeException("vertx is not initialized, do you run in jubilee server?");
-    return JubileeVertx.vertx;
-  }
+    public static void init(Vertx vertx) {
+        JubileeVertx.vertx = vertx;
+    }
+
+    public synchronized static Vertx vertx() {
+        if (JubileeVertx.vertx == null)
+            throw new RuntimeException("vertx is not initialized, do you run in jubilee server?");
+        return JubileeVertx.vertx;
+    }
 }

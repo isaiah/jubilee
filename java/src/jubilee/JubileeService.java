@@ -2,6 +2,7 @@ package jubilee;
 
 import org.jruby.Ruby;
 import org.jruby.jubilee.RubyHttpServerResponse;
+import org.jruby.jubilee.RubyNetSocket;
 import org.jruby.jubilee.RubyPlatformManager;
 import org.jruby.jubilee.RubyServer;
 import org.jruby.jubilee.impl.RubyIORackInput;
@@ -16,7 +17,8 @@ public class JubileeService implements BasicLibraryService {
         RubyHttpServerResponse.createHttpServerResponseClass(ruby);
         RubyIORackInput.createIORackInputClass(ruby);
         RubyNullIO.createNullIOClass(ruby);
-      RubyPlatformManager.createPlatformManagerClass(ruby);
+        RubyNetSocket.createNetSocketClass(ruby);
+        RubyPlatformManager.createPlatformManagerClass(ruby);
         return true;
     }
 }

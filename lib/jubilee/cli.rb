@@ -73,7 +73,7 @@ module Jubilee
           @options[:daemon] = true
         end
         o.on "--dir DIR", "Change to DIR before starting" do |arg|
-          @options[:chdir] = arg
+          @options[:root] = arg
         end
         o.on "-p", "--port PORT", "Define which PORT the server should bind" do |arg|
           @options[:Port] = arg.to_i

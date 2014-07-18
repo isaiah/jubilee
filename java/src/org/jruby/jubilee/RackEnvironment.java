@@ -1,17 +1,14 @@
 package org.jruby.jubilee;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.jruby.Ruby;
-import org.jruby.RubyArray;
-import org.jruby.RubyFixnum;
-import org.jruby.RubyHash;
-import org.jruby.RubyIO;
-import org.jruby.RubyString;
-
+import org.jruby.*;
 import org.jruby.jubilee.utils.RubyHelper;
+import org.jruby.runtime.*;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpVersion;
+import org.vertx.java.core.net.NetSocket;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -27,12 +24,14 @@ public class RackEnvironment {
         PATH_INFO, QUERY_STRING, SERVER_NAME, SERVER_PORT,
         CONTENT_TYPE, REQUEST_URI, REMOTE_ADDR, URL_SCHEME,
         VERSION, MULTITHREAD, MULTIPROCESS, RUN_ONCE, CONTENT_LENGTH,
-        HTTPS, HTTP_VERSION
+        HTTPS, HTTP_VERSION, HIJACK_P, HIJACK//, HIJACK_IO
     }
+
     static final int NUM_RACK_KEYS = RACK_KEY.values().length;
 
     public RackEnvironment(final Ruby runtime) throws IOException {
         this.runtime = runtime;
+        this.netSocketClass = (RubyClass) runtime.getClassFromPath("Jubilee::NetSocket");
         rackVersion = RubyArray.newArray(runtime, RubyFixnum.one(runtime), RubyFixnum.four(runtime));
         errors = new RubyIO(runtime, runtime.getErr());
         errors.setAutoclose(false);
@@ -58,6 +57,10 @@ public class RackEnvironment {
         putRack("rack.multithread", RACK_KEY.MULTITHREAD);
         putRack("rack.multiprocess", RACK_KEY.MULTIPROCESS);
         putRack("rack.run_once", RACK_KEY.RUN_ONCE);
+        putRack("rack.hijack?", RACK_KEY.HIJACK_P);
+        putRack("rack.hijack", RACK_KEY.HIJACK);
+        // putRack("rack.hijack_io", RACK_KEY.HIJACK_IO); Don't have to be lazy, since once rack.hijack is called, the io
+        // object has to be required by the caller.
         putRack("CONTENT_LENGTH", RACK_KEY.CONTENT_LENGTH);
         putRack("HTTPS", RACK_KEY.HTTPS);
     }
@@ -90,11 +93,16 @@ public class RackEnvironment {
         env.lazyPut(RACK_KEY.CONTENT_TYPE, headers.get(HttpHeaders.Names.CONTENT_TYPE), true);
         env.lazyPut(RACK_KEY.REQUEST_URI, request.uri(), false);
         env.lazyPut(RACK_KEY.REMOTE_ADDR, getRemoteAddr(request), true);
-        env.lazyPut(RACK_KEY.URL_SCHEME, isSSL? Const.HTTPS : Const.HTTP, true);
+        env.lazyPut(RACK_KEY.URL_SCHEME, isSSL ? Const.HTTPS : Const.HTTP, true);
         env.lazyPut(RACK_KEY.VERSION, rackVersion, false);
         env.lazyPut(RACK_KEY.MULTITHREAD, runtime.getTrue(), false);
         env.lazyPut(RACK_KEY.MULTIPROCESS, runtime.getFalse(), false);
         env.lazyPut(RACK_KEY.RUN_ONCE, runtime.getFalse(), false);
+
+        // Hijack handling
+        env.lazyPut(RACK_KEY.HIJACK_P, runtime.getTrue(), false);
+        env.lazyPut(RACK_KEY.HIJACK, hijackProc(env, request), false);
+
 
         final int contentLength = getContentLength(headers);
         if (contentLength >= 0) {
@@ -108,24 +116,49 @@ public class RackEnvironment {
         return env;
     }
 
-    public String[] getHostInfo(String host) {
-      String[] hostInfo;
-      if (host != null) {
-        int colon = host.indexOf(":");
-        if (colon > 0)
-          hostInfo = new String[]{host.substring(0, colon), host.substring(colon + 1)};
-        else
-          hostInfo = new String[]{host, Const.PORT_80};
+    private IRubyObject hijackProc(final RackEnvironmentHash env, final HttpServerRequest req) {
+        CompiledBlockCallback19 callback = new CompiledBlockCallback19() {
+            @Override
+            public IRubyObject call(ThreadContext context, IRubyObject self, IRubyObject[] args, Block block) {
+                RubyNetSocket rubyNetSocket = new RubyNetSocket(context.runtime, netSocketClass, req.netSocket());
+                env.put("rack.hijack_io", rubyNetSocket);
+                return rubyNetSocket;
+            }
 
-      } else {
-        hostInfo = new String[]{Const.LOCALHOST, Const.PORT_80};
-      }
-      return hostInfo;
+            @Override
+            public String getFile() {
+                return null;
+            }
+
+            @Override
+            public int getLine() {
+                return 0;
+            }
+        };
+        BlockBody body = CompiledBlockLight19.newCompiledBlockLight(Arity.NO_ARGUMENTS, runtime.getStaticScopeFactory().getDummyScope(), callback, false, 0, new String[]{});
+        Block b = new Block(body, runtime.newBinding().getBinding());
+
+        return RubyProc.newProc(runtime, b, Block.Type.LAMBDA);
+    }
+
+    public String[] getHostInfo(String host) {
+        String[] hostInfo;
+        if (host != null) {
+            int colon = host.indexOf(":");
+            if (colon > 0)
+                hostInfo = new String[]{host.substring(0, colon), host.substring(colon + 1)};
+            else
+                hostInfo = new String[]{host, Const.PORT_80};
+
+        } else {
+            hostInfo = new String[]{Const.LOCALHOST, Const.PORT_80};
+        }
+        return hostInfo;
     }
 
     private static String getRemoteAddr(final HttpServerRequest request) {
         InetSocketAddress sourceAddress = request.remoteAddress();
-        if(sourceAddress == null) {
+        if (sourceAddress == null) {
             return "";
         }
         return sourceAddress.getHostString();
@@ -147,4 +180,5 @@ public class RackEnvironment {
     private final RubyArray rackVersion;
     private final RubyIO errors;
     private final Map<RubyString, RACK_KEY> rackKeyMap = new HashMap<>();
+    private final RubyClass netSocketClass;
 }

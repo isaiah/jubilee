@@ -19,7 +19,7 @@ module Jubilee
 
     def reload
       instance_eval(File.read(config_file), config_file) if config_file
-      load_rack_adapter
+      @options[:rackup] = rackup
     end
 
     # sets the host and port jubilee listens to +address+ may be an Integer port 
@@ -34,7 +34,7 @@ module Jubilee
 
     # sets the working directory for jubilee
     def working_directory(path)
-      @options[:chdir] = File.expand_path(path)
+      @options[:root] = File.expand_path(path)
     end
 
     # sets the RACK_ENV environment variable
@@ -104,11 +104,6 @@ module Jubilee
     end
 
     private
-    def load_rack_adapter(&block)
-      Dir.chdir(@options[:chdir]) if @options[:chdir]
-      @options[:rackup] = rackup
-    end
-
     def rackup
       @options[:rackup] || "config.ru"
     end

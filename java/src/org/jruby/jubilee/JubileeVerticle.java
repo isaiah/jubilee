@@ -1,7 +1,9 @@
 package org.jruby.jubilee;
 
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyInstanceConfig;
+import org.jruby.RubyString;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServer;
@@ -12,13 +14,14 @@ import org.vertx.java.platform.Verticle;
 import org.vertx.java.platform.impl.WrappedVertx;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by isaiah on 23/01/2014.
  */
 public class JubileeVerticle extends Verticle {
-    private Ruby runtime;
 
     @Override
     public void start() {
@@ -59,6 +62,10 @@ public class JubileeVerticle extends Verticle {
         this.runtime.tearDown();
     }
 
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
     private Ruby createRuntime(String root, JsonObject options) {
         Ruby runtime;
 //        if (Ruby.isGlobalRuntimeReady()) {
@@ -71,9 +78,17 @@ public class JubileeVerticle extends Verticle {
         }
         Object[] argv = options.getArray("argv", new JsonArray(new String[]{})).toArray();
         instanceConfig.setArgv(Arrays.copyOf(argv, argv.length, String[].class));
-        runtime = Ruby.newInstance(instanceConfig);
 //        }
-        runtime.getLoadService().addPaths(root);
+        RubyArray globalLoadPaths = (RubyArray) Ruby.getGlobalRuntime().getLoadService().getLoadPath();
+        List<String> loadPaths = new ArrayList<>();
+        for (int i = 0; i < globalLoadPaths.size(); i++) {
+            IRubyObject entry = globalLoadPaths.eltInternal(i);
+            loadPaths.add(entry.asJavaString());
+        }
+        instanceConfig.setLoadPaths(loadPaths);
+
+        instanceConfig.setLoader(getClassLoader());
+        runtime = Ruby.newInstance(instanceConfig);
         return runtime;
     }
 
@@ -89,4 +104,14 @@ public class JubileeVerticle extends Verticle {
         rackScript += "Jubilee::Application.new(app)\n";
         return runtime.evalScriptlet(rackScript);
     }
+
+    private ClassLoader getClassLoader() {
+        if (this.classLoader != null) return this.classLoader;
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl != null) return cl;
+        return getClass().getClassLoader();
+    }
+
+    private Ruby runtime;
+    private ClassLoader classLoader;
 }

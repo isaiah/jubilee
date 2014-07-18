@@ -1,8 +1,8 @@
 package org.jruby.jubilee.impl;
 
 import io.netty.buffer.ByteBuf;
-import org.jcodings.specific.ASCIIEncoding;
 import org.jcodings.Encoding;
+import org.jcodings.specific.ASCIIEncoding;
 import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.jubilee.Const;
@@ -68,8 +68,8 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     @Override
     @JRubyMethod
     public IRubyObject gets(ThreadContext context) {
-      Ruby runtime = context.runtime;
-      RubyString line = RubyString.newEmptyString(context.runtime, BINARY);
+        Ruby runtime = context.runtime;
+        RubyString line = RubyString.newEmptyString(context.runtime, BINARY);
 
         if (isEOF()) return runtime.getNil();
 
@@ -176,10 +176,10 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     }
 
     private int readableBytes() {
-      if (! this.chunked) {
-        return Math.min(buf.readableBytes(), this.len - buf.readerIndex());
-      }
-      return buf.readableBytes();
+        if (!this.chunked) {
+            return Math.min(buf.readableBytes(), this.len - buf.readerIndex());
+        }
+        return buf.readableBytes();
     }
 
     private boolean isEOF() {
@@ -189,8 +189,8 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     }
 
     private IRubyObject readAll(Ruby runtime, RubyString dst) {
-        while(!eof.get())
-          ; // wait until all data received
+        while (!eof.get())
+            ; // wait until all data received
         int length = this.chunked ? buf.readableBytes() : Math.min(this.len, buf.readableBytes());
         byte[] data = new byte[length];
         buf.readBytes(data);

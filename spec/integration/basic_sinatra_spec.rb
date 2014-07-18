@@ -3,10 +3,10 @@ require 'spec_helper'
 feature "basic sinatra test" do
 
   before(:all) do
-    configurator = Jubilee::Configuration.new(chdir: "#{apps_dir}/sinatra/basic")
+    configurator = Jubilee::Configuration.new(root: "#{apps_dir}/sinatra/basic", instances: 1)
     @server = Jubilee::Server.new(configurator.options)
     @server.start
-    sleep 1
+    sleep 2
   end
 
   after(:all) do
@@ -71,7 +71,6 @@ feature "basic sinatra test" do
     uri = URI.parse("#{Capybara.app_host}/poster")
     Net::HTTP.start(uri.host, uri.port) do |http|
       100.times do |i|
-        http.request(Net::HTTP::Get.new(uri.request_uri))
         request = Net::HTTP::Post.new(uri.request_uri)
         request.form_data = {'field' => 'nothing'}
         response = http.request(request)
