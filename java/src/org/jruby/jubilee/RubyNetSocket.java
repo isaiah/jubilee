@@ -3,6 +3,7 @@ package org.jruby.jubilee;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jruby.*;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p/>
  * Not threadsafe.
  */
+@JRubyClass(name="NetSocket")
 public class RubyNetSocket extends RubyObject {
     private NetSocket sock;
     private ByteBuf buf;

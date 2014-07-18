@@ -13,6 +13,7 @@ module Jubilee
     CGI_VER = "CGI/1.2".freeze
 
     RACK_INPUT = "rack.input".freeze
+    HIJACK = "rack.hijack".freeze
 
     REQUEST_METHOD = 'REQUEST_METHOD'.freeze
     GET = 'GET'.freeze

@@ -93,10 +93,13 @@ public class RackApplication {
                 try {
                     // This is a different context, do NOT replace runtime.getCurrentContext()
                     IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", rackEnv.getEnv(request, input, ssl));
+                    if (request.isHijacked()) {
+                        // It's the hijacker's response to close the socket.
+                        return;
+                    }
                     RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
                     RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
-                            httpServerResponseClass,
-                            request.response());
+                            httpServerResponseClass, request);
                     response.respond(resp);
                 } catch (Exception e) {
                     request.response().setStatusCode(500);

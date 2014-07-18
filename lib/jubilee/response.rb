@@ -8,6 +8,7 @@ module Jubilee
       @status, @headers, @body = *array
       @status = @status.to_i
       @content_length = nil
+      @hijack = nil
       if @body.kind_of? Array and @body.size == 1
         @content_length = @body[0].bytesize
       end
@@ -18,6 +19,10 @@ module Jubilee
       no_body = @status < 200 || STATUS_WITH_NO_ENTITY_BODY[@status]
       write_status(response)
       write_headers(response)
+      if @hijack
+        @hijack.call(response.net_socket)
+        return
+      end
       if no_body
         response.end
       else 
@@ -47,6 +52,9 @@ module Jubilee
           next
         when TRANSFER_ENCODING
           @content_length = nil
+        when HIJACK
+          @hijack = values
+          next
         end
         # Multiple values are joined by \n
         response.put_header(key, values)

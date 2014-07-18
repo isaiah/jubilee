@@ -6,6 +6,8 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.vertx.java.core.http.HttpServer;
+import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpServerResponse;
 
 import java.util.Arrays;
@@ -16,6 +18,7 @@ import java.util.Arrays;
 @JRubyClass(name = "HttpServerResponse")
 public class RubyHttpServerResponse extends RubyObject {
     private HttpServerResponse resp;
+    private HttpServerRequest req;
     private String lineSeparator;
 
     public static RubyClass createHttpServerResponseClass(final Ruby runtime) {
@@ -34,9 +37,10 @@ public class RubyHttpServerResponse extends RubyObject {
         super(ruby, rubyClass);
     }
 
-    public RubyHttpServerResponse(Ruby ruby, RubyClass rubyClass, HttpServerResponse resp) {
+    public RubyHttpServerResponse(Ruby ruby, RubyClass rubyClass, HttpServerRequest request) {
         super(ruby, rubyClass);
-        this.resp = resp;
+        this.resp = request.response();
+        this.req = request;
         this.lineSeparator = System.getProperty("line.separator");
     }
 
@@ -84,5 +88,13 @@ public class RubyHttpServerResponse extends RubyObject {
     public IRubyObject putDefaultHeaders(ThreadContext context) {
         this.resp.putHeader("Server", Const.JUBILEE_VERSION);
         return context.runtime.getNil();
+    }
+
+    //TODO(isaiah) At the moment Vertx doesn't support hijack the response socket,
+    // between request.response() and request.netSocket() only one can be invoked.
+    @JRubyMethod
+    public IRubyObject net_socket(ThreadContext context) {
+        RubyClass netSocketClass = (RubyClass) context.runtime.getClassFromPath("Jubilee::NetSocket");
+        return new RubyNetSocket(context.runtime, netSocketClass, this.req.netSocket());
     }
 }
