@@ -63,19 +63,29 @@ public class RubyPlatformManager extends RubyObject {
             pm = PlatformLocator.factory.createPlatformManager();
         }
         JubileeVertx.init(pm.vertx());
-        int ins = RubyNumeric.num2int(options.op_aref(context, RubySymbol.newSymbol(context.runtime, "instances")));
-        pm.deployVerticle("org.jruby.jubilee.JubileeVerticle", new JsonObject(parseOptions(options)),
-                context.runtime.getJRubyClassLoader().getURLs(), ins, null, new AsyncResultHandler<String>() {
+        JsonObject verticleConf =  new JsonObject(parseOptions(options));
+        pm.deployVerticle("org.jruby.jubilee.JubileeVerticle", verticleConf,
+                context.runtime.getJRubyClassLoader().getURLs(), 1, null, new AsyncResultHandler<String>() {
                     @Override
                     public void handle(AsyncResult<String> result) {
                         if (result.succeeded()) {
                             context.runtime.getOutputStream().println("Jubilee is listening on port " + options.op_aref(context, port_k) + ", press Ctrl+C to quit");
-//          System.out.println("Deployment ID is " + result.result());
                         } else {
                             result.cause().printStackTrace();
                         }
                     }
                 });
+
+        int ins = RubyNumeric.num2int(options.op_aref(context, RubySymbol.newSymbol(context.runtime, "instances"))) - 1;
+        if (ins <= 0) return this;
+        pm.deployVerticle("org.jruby.jubilee.JubileeVerticle", verticleConf,
+                context.runtime.getJRubyClassLoader().getURLs(), ins, null, new AsyncResultHandler<String>() {
+                    @Override
+                    public void handle(AsyncResult<String> result) {
+                        if (!result.succeeded()) result.cause().printStackTrace(context.runtime.getErrorStream());
+                    }
+                }
+        );
         return this;
     }
 
