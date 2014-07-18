@@ -1,2 +1,2 @@
 use Rack::MethodOverride
-run lambda { |env| [200, { "X-Header" => "Works" }, ["Hello"]] }
+run lambda { |env| [200, { "X-Header" => "Works" }, [env["REQUEST_METHOD"]]] }

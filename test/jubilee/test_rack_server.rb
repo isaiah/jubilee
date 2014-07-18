@@ -1,16 +1,8 @@
 require 'test_helper'
-require 'rack/lint'
-require 'rack/commonlogger'
+require 'json'
 
 class TestRackServer < MiniTest::Unit::TestCase
   include Helpers
-
-  def setup
-    @valid_request = "GET / HTTP/1.1\r\nHost: test.com\r\nContent-Type: text/plain\r\n\r\n"
-    @checker = "checker.ru"
-    @host = "localhost"
-    @port = 8080
-  end
 
   def teardown
     @server.stop if @server
@@ -18,98 +10,68 @@ class TestRackServer < MiniTest::Unit::TestCase
   end
 
   def test_lint
-    @server = Jubilee::Server.new @checker
+    start_server("checker")
+    resp = hit(['http://127.0.0.1:8080/test']).first
 
-    @server.start
-
-    hit(['http://127.0.0.1:8080/test'])
-
-    if exc = @checker.exception
+    if exc = JSON.parse(resp.body)["exception"]
       raise exc
     end
   end
 
   def test_large_post_body
-    @checker = ErrorChecker.new ServerLint.new(@simple)
-    @server = Jubilee::Server.new @checker
-
-    @server.start
+    start_server("checker")
     sleep 0.5
-
     big = "x" * (1024 * 16)
-
-    Net::HTTP.post_form URI.parse('http://127.0.0.1:8080/test'),
-                 { "big" => big }
-
-    if exc = @checker.exception
+    resp = POST('/test', { "big" => big })
+    if exc = JSON.parse(resp.body)["exception"]
       raise exc
     end
   end
 
   def test_path_info
-    input = nil
-    @server = Jubilee::Server.new(lambda { |env| input = env; @simple.call(env) })
-    @server.start
-
-    hit(['http://127.0.0.1:8080/test/a/b/c'])
-
-    assert_equal "/test/a/b/c", input['PATH_INFO']
+    start_server("simple")
+    resp = hit(['http://127.0.0.1:8080/test/a/b/c']).first
+    assert_equal "/test/a/b/c", JSON.parse(resp.body)['PATH_INFO']
   end
 
   def test_request_method
-    input = nil
-    @server = Jubilee::Server.new(Rack::MethodOverride.new(lambda { |env| input = env; @simple.call(env) }))
-    @server.start
-
-    POST('/test/a/b/c', {"_method" => "delete", "user" => 1})
-    assert_equal "DELETE", input['REQUEST_METHOD']
+    start_server("method_override")
+    resp = POST('/test/a/b/c', {"_method" => "delete", "user" => 1})
+    assert_equal "DELETE", resp.body
 
     # it should not memorize env
-    POST('/test/a/b/c', {"foo" => "bar"})
-    assert_equal "POST", input['REQUEST_METHOD']
-
+    resp = POST('/test/a/b/c', {"foo" => "bar"})
+    assert_equal "POST", resp.body
   end
 
   def test_query_string
-    input = nil
-    @server = Jubilee::Server.new(lambda { |env| input = env; @simple.call(env) })
-    @server.start
-    sleep 0.1
-
-    hit(['http://127.0.0.1:8080/test/a/b/c?foo=bar'])
-
-    assert_equal "foo=bar", input['QUERY_STRING']
+    start_server("simple")
+    resp = hit(['http://127.0.0.1:8080/test/a/b/c?foo=bar']).first
+    assert_equal "foo=bar", JSON.parse(resp.body)['QUERY_STRING']
   end
 
   def test_post_data
     require 'rack/request'
-    input = nil
-    @server = Jubilee::Server.new(lambda { |env| input = env; @simple.call(env) })
-    @server.start
-    sleep 0.1
+    start_server("simple")
 
     req = Net::HTTP::Post::Multipart.new("/", "foo" => "bar")
-    Net::HTTP.start('localhost', 8080) do |http|
+    resp = Net::HTTP.start('localhost', 8080) do |http|
       http.request req
     end
 
-    #Net::HTTP.post_form URI.parse('http://127.0.0.1:8080/test'), { "foo" => "bar" }
-
-    request = Rack::Request.new input
-    assert_equal "bar", request.params["foo"]
+    assert_equal "bar", JSON.parse(resp.body)["foo"]
   end
 
   def test_end_request_when_rack_crashes
-    @server = Jubilee::Server.new(RackCrasher.new(@simple))
-    @server.start
+    start_server("rack_crasher")
     res = hit(['http://127.0.0.1:8080/test'])
     assert_kind_of Net::HTTPServerError, res[0]
   end
 
-  # GH_9
-  def test_string_port_value
-    @server = Jubilee::Server.new(@simple, {Port: "3000"})
-    # assert_wont_raise_anything
+  def start_server(ru)
+    config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/#{ru}.ru", __FILE__), instances: 1)
+    @server = Jubilee::Server.new(config.options)
     @server.start
+    sleep 1
   end
 end

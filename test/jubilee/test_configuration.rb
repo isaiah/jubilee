@@ -5,13 +5,11 @@ class TestConfig < MiniTest::Unit::TestCase
 
   def setup
     @tmp = Tempfile.new("jubilee_config")
-    @dir = Dir.getwd
   end
 
   def teardown
     @tmp.close
     @tmp.unlink
-    Dir.chdir(@dir)
   end
 
   def test_config_invalid
@@ -67,7 +65,7 @@ class TestConfig < MiniTest::Unit::TestCase
   def test_config_file_working_directory
     @tmp.syswrite(%q(working_directory "examples/chatapp"))
     options = Jubilee::Configuration.new(config_file: @tmp.path).options
-    assert_match(/chatapp/, options[:chdir])
+    assert_match(/chatapp/, options[:root])
   end
 
   def test_config_file_environment

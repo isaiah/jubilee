@@ -1,3 +1,4 @@
+require 'digest'
 bs = 4096
 hdr = {'Content-Type' => 'text/plain', 'Content-Length' => '0'}
 sha1_app = lambda do |env|
@@ -31,6 +32,7 @@ sha1_app = lambda do |env|
   end
   resp[:size] = i
   resp[:expect_size] = expect_size
+  resp[:content_md5] = env['HTTP_X_CONTENT_MD5']
 
   [ 200, hdr.merge({'X-Resp' => resp.inspect}), [] ]
 end

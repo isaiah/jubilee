@@ -1,7 +1,7 @@
 # -*- encoding: binary -*-
 
 require 'test_helper'
-require 'digest/md5'
+require 'digest'
 
 class TestUpload < MiniTest::Unit::TestCase
 
@@ -41,10 +41,10 @@ class TestUpload < MiniTest::Unit::TestCase
 
   def test_put_content_md5
     start_server
-    skip "Vert.x doesn't hendle trailing headers"
     md5 = Digest::MD5.new
     sock = TCPSocket.new(@addr, @port)
     sock.syswrite("PUT / HTTP/1.0\r\nTransfer-Encoding: chunked\r\n" \
+                  "X-Expect-Size: #{length}\r\n" \
                   "Trailer: Content-MD5\r\n\r\n")
     @count.times do |i|
       buf = @random.sysread(@bs)
@@ -60,8 +60,10 @@ class TestUpload < MiniTest::Unit::TestCase
     read = sock.read.split(/\r\n/)
     assert_equal "HTTP/1.0 200 OK", read[0]
     resp = eval(read.grep(/^X-Resp: /).first.sub!(/X-Resp: /, ''))
+    assert_equal length, resp[:size]
     assert_equal @sha1.hexdigest, resp[:sha1]
-    assert_equal content_md5, resp[:content_md5]
+    #Vert.x doesn't handle trailing headers
+    #assert_equal content_md5, resp[:content_md5]
   end
 
   def test_put_trickle_small
@@ -113,6 +115,8 @@ class TestUpload < MiniTest::Unit::TestCase
   def test_put_excessive_overwrite_closed
     config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/overwrite_check.ru", __FILE__))
     @server = Jubilee::Server.new(config.options)
+    @server.start
+    sleep 1
 
     sock = TCPSocket.new(@addr, @port)
     # buf = ' ' * @bs # Something is wrong with the vertx http compression
@@ -168,59 +172,6 @@ class TestUpload < MiniTest::Unit::TestCase
     assert_match(/sysread_read_byte_match/, resp)
   end
 
-=begin
-  def test_chunked_upload_via_curl
-    # POSIX doesn't require all of these to be present on a system
-    which('curl') or return
-    which('sha1sum') or return
-    which('dd') or return
-
-    start_server
-
-    tmp = Tempfile.new('dd_dest')
-    assert(system("dd", "if=#{@random.path}", "of=#{tmp.path}",
-                        "bs=#{@bs}", "count=#{@count}"),
-           "dd #@random to #{tmp}")
-    sha1_re = %r!\b([a-f0-9]{40})\b!
-    sha1_out = `sha1sum #{tmp.path}`
-    assert $?.success?, 'sha1sum ran OK'
-
-    assert_match(sha1_re, sha1_out)
-    sha1 = sha1_re.match(sha1_out)[1]
-    cmd = "curl -H 'X-Expect-Size: #{tmp.size}' --tcp-nodelay \
-           -isSf --no-buffer -T- " \
-          "http://#@addr:#@port/"
-    resp = Tempfile.new('resp')
-    resp.sync = true
-
-    rd, wr = IO.pipe
-    wr.sync = rd.sync = true
-    pid = fork {
-      STDIN.reopen(rd)
-      rd.close
-      wr.close
-      STDOUT.reopen(resp)
-      exec cmd
-    }
-    rd.close
-
-    tmp.rewind
-    @count.times { |i|
-      wr.write(tmp.read(@bs))
-      sleep(rand / 10) if 0 == i % 8
-    }
-    wr.close
-    pid, status = Process.waitpid2(pid)
-
-    resp.rewind
-    resp = resp.read
-    assert status.success?, 'curl ran OK'
-    assert_match(%r!\b#{sha1}\b!, resp)
-    assert_match(/sysread_read_byte_match/, resp)
-    assert_match(/expect_size_match/, resp)
-  end
-=end
-
   def test_curl_chunked_small
     # POSIX doesn't require all of these to be present on a system
     which('curl') or return
@@ -255,10 +206,10 @@ class TestUpload < MiniTest::Unit::TestCase
   end
 
   def start_server
-    config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/sha1.ru", __FILE__))
+    config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/sha1.ru", __FILE__), instances: 1)
     @server = Jubilee::Server.new(config.options)
     @server.start
-    sleep 0.1
+    sleep 1
   end
 
 end

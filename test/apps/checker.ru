@@ -1,4 +1,5 @@
-require 'rack'
+require 'rack/lint'
+require 'json'
 class ErrorChecker
   def initialize(app)
     @app = app
@@ -18,7 +19,7 @@ class ErrorChecker
       [
         500,
         { "X-Exception" => e.message, "X-Exception-Class" => e.class.to_s },
-        ["Error detected"]
+        [JSON.dump({"exception" => e.message})]
       ]
     end
   end
@@ -35,4 +36,5 @@ end
 
 use ServerLint
 use ErrorChecker
-run lambda { |env| [200, { "X-Header" => "Works" }, ["Hello"]] }
+app = lambda { |env| [200, { "X-Header" => "Works" }, [JSON.dump({r:'Hello'})]] }
+run app

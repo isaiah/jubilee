@@ -11,7 +11,7 @@ class TestJubileeCLI < MiniTest::Unit::TestCase
   def test_chdir
     cli = Jubilee::CLI.new(["--dir", "test", "app.ru"])
     cli.parse_options
-    assert_equal "test", cli.options[:chdir]
+    assert_equal "test", cli.options[:root]
   end
 
   def test_eventbus_prefix

@@ -52,7 +52,7 @@ module Helpers
 
   def GET(path, header={})
     sleep 0.1
-    Net::HTTP.start(@host, @port) { |http|
+    Net::HTTP.start("localhost", 8080) { |http|
       user = header.delete(:user)
       passwd = header.delete(:passwd)
 
@@ -71,7 +71,7 @@ module Helpers
 
   def POST(path, formdata={}, header={})
     sleep 0.1
-    Net::HTTP.start(@host, @port) { |http|
+    Net::HTTP.start("localhost", 8080) { |http|
       user = header.delete(:user)
       passwd = header.delete(:passwd)
 
