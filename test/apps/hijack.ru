@@ -1,8 +1,7 @@
 app = lambda do |env|
-  hijack = env["rack.hijack?"]
-  env["rack.hijack"].call
-  io = env["rack.hijack_io"]
-  [200, {}, ["hello"]]
+  io = env["rack.hijack"].call
+  io.write "HTTP/1.1 200\r\n\r\nBLAH\n"
+  [-1, {}, []]
 end
 
 run app
