@@ -3,19 +3,12 @@ require 'json'
 class ErrorChecker
   def initialize(app)
     @app = app
-    @exception = nil
-    @env = nil
   end
-
-  attr_reader :exception, :env
 
   def call(env)
     begin
-      @env = env
       return @app.call(env)
     rescue Exception => e
-      @exception = e
-
       [
         500,
         { "X-Exception" => e.message, "X-Exception-Class" => e.class.to_s },

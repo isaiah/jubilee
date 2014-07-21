@@ -40,7 +40,9 @@ module Jubilee
       else
         @config = Jubilee::Configuration.new(@options)
         server = Jubilee::Server.new(@config.options)
-        #server.start
+        server.start do
+          puts "Jubilee is listening on port #{@config.options[:Port]}, press Ctrl+C to quit"
+        end
         thread = Thread.current
         Signal.trap("INT") do
           server.stop

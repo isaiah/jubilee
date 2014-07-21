@@ -15,12 +15,12 @@ class TestUpload < MiniTest::Unit::TestCase
 
     # we want random binary data to test 1.9 encoding-aware IO craziness
     @random = File.open('/dev/urandom','rb')
-    sleep 1
   end
 
   def teardown
     @server.stop
     @random.close
+    sleep 0.1
   end
 
   def test_put
@@ -115,8 +115,9 @@ class TestUpload < MiniTest::Unit::TestCase
   def test_put_excessive_overwrite_closed
     config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/overwrite_check.ru", __FILE__))
     @server = Jubilee::Server.new(config.options)
-    @server.start
-    sleep 1
+    q = Queue.new
+    @server.start { q << 1 }
+    q.pop
 
     sock = TCPSocket.new(@addr, @port)
     # buf = ' ' * @bs # Something is wrong with the vertx http compression
@@ -208,7 +209,8 @@ class TestUpload < MiniTest::Unit::TestCase
   def start_server
     config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/sha1.ru", __FILE__), instances: 1)
     @server = Jubilee::Server.new(config.options)
-    @server.start
-    sleep 2
+    q = Queue.new
+    @server.start{ q << 1 }
+    q.pop
   end
 end

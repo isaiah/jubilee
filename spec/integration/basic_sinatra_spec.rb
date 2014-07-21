@@ -5,8 +5,9 @@ feature "basic sinatra test" do
   before(:all) do
     configurator = Jubilee::Configuration.new(root: "#{apps_dir}/sinatra/basic", instances: 1)
     @server = Jubilee::Server.new(configurator.options)
-    @server.start
-    sleep 2
+    q = Queue.new
+    @server.start{ q << 1 }
+    q.pop
   end
 
   after(:all) do

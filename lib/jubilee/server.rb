@@ -9,8 +9,5 @@ module Jubilee
       options[:Port] = options[:Port].to_i
       super(options)
     end
-
-    def start
-    end
   end
 end
