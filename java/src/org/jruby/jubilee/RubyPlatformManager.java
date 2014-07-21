@@ -3,6 +3,7 @@ package org.jruby.jubilee;
 import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.jubilee.vertx.JubileeVertx;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -25,6 +26,7 @@ import java.util.Map;
  */
 public class RubyPlatformManager extends RubyObject {
     private PlatformManager pm;
+    private RubyHash options;
 
     public static void createPlatformManagerClass(Ruby runtime) {
         RubyModule mJubilee = runtime.defineModule("Jubilee");
@@ -43,13 +45,12 @@ public class RubyPlatformManager extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject initialize(final ThreadContext context, IRubyObject config) {
-        final RubyHash options = config.convertToHash();
+    public IRubyObject initialize(ThreadContext context, IRubyObject config) {
+        this.options = config.convertToHash();
         Ruby runtime = context.runtime;
         RubySymbol clustered_k = runtime.newSymbol("clustered");
         RubySymbol cluster_host_k = runtime.newSymbol("cluster_host");
         RubySymbol cluster_port_k = runtime.newSymbol("cluster_port");
-        final RubySymbol port_k = runtime.newSymbol("Port");
         if (options.containsKey(clustered_k) && options.op_aref(context, clustered_k).isTrue()) {
             int clusterPort = 0;
             String clusterHost = null;
@@ -58,17 +59,28 @@ public class RubyPlatformManager extends RubyObject {
             if (options.containsKey(cluster_host_k))
                 clusterHost = options.op_aref(context, cluster_host_k).asJavaString();
             if (clusterHost == null) clusterHost = getDefaultAddress();
-            pm = PlatformLocator.factory.createPlatformManager(clusterPort, clusterHost);
+            this.pm = PlatformLocator.factory.createPlatformManager(clusterPort, clusterHost);
         } else {
-            pm = PlatformLocator.factory.createPlatformManager();
+            this.pm = PlatformLocator.factory.createPlatformManager();
         }
-        JubileeVertx.init(pm.vertx());
+        JubileeVertx.init(this.pm.vertx());
+        return this;
+    }
+    @JRubyMethod(name = "start")
+    public IRubyObject start(final ThreadContext context, final Block block) {
+        final RubySymbol port_k = context.runtime.newSymbol("Port");
         JsonObject verticleConf =  new JsonObject(parseOptions(options));
-        pm.deployVerticle("org.jruby.jubilee.JubileeVerticle", verticleConf,
+        this.pm.deployVerticle("org.jruby.jubilee.JubileeVerticle", verticleConf,
                 context.runtime.getJRubyClassLoader().getURLs(), 1, null, new AsyncResultHandler<String>() {
                     @Override
                     public void handle(AsyncResult<String> result) {
                         if (result.succeeded()) {
+                            context.runtime.getOutputStream().println("yielding");
+                            if (block.isGiven()) {
+                                context.runtime.getOutputStream().println("yielding");
+                                block.yieldSpecific(context);
+                            }
+
                             context.runtime.getOutputStream().println("Jubilee is listening on port " + options.op_aref(context, port_k) + ", press Ctrl+C to quit");
                         } else {
                             result.cause().printStackTrace();
@@ -78,7 +90,7 @@ public class RubyPlatformManager extends RubyObject {
 
         int ins = RubyNumeric.num2int(options.op_aref(context, RubySymbol.newSymbol(context.runtime, "instances"))) - 1;
         if (ins <= 0) return this;
-        pm.deployVerticle("org.jruby.jubilee.JubileeVerticle", verticleConf,
+        this.pm.deployVerticle("org.jruby.jubilee.JubileeVerticle", verticleConf,
                 context.runtime.getJRubyClassLoader().getURLs(), ins, null, new AsyncResultHandler<String>() {
                     @Override
                     public void handle(AsyncResult<String> result) {
@@ -91,7 +103,7 @@ public class RubyPlatformManager extends RubyObject {
 
     @JRubyMethod
     public IRubyObject stop(ThreadContext context) {
-        pm.stop();
+        this.pm.stop();
         return context.runtime.getNil();
     }
 
@@ -119,7 +131,10 @@ public class RubyPlatformManager extends RubyObject {
             map.put("rackup", options.op_aref(context, rack_up_k).asJavaString());
         map.put("quiet", options.containsKey(quiet_k) && options.op_aref(context, quiet_k).isTrue());
 
-        map.put("environment", options.op_aref(context, environment_k).asJavaString());
+        String environ = options.op_aref(context, environment_k).asJavaString();
+        map.put("environment", environ);
+        if (environ.equals("production"))
+            map.put("hide_error_stack", true);
 
         boolean ssl = options.op_aref(context, ssl_k).isTrue();
         if (ssl) {

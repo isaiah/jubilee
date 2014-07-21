@@ -35,7 +35,7 @@ public class JubileeVerticle extends Verticle {
         final RackApplication app;
         boolean ssl = config.getBoolean("ssl");
         try {
-            app = new RackApplication((WrappedVertx) vertx, runtime.getCurrentContext(), rackApplication, ssl);
+            app = new RackApplication((WrappedVertx) vertx, runtime.getCurrentContext(), rackApplication, config);
             httpServer.setAcceptBacklog(10000);
             httpServer.requestHandler(new Handler<HttpServerRequest>() {
                 public void handle(final HttpServerRequest req) {

@@ -10,68 +10,77 @@ class TestRackServer < MiniTest::Unit::TestCase
   end
 
   def test_lint
-    start_server("checker")
-    resp = hit(['http://127.0.0.1:8080/test']).first
+    start_server("checker") {
+      resp = hit(['http://127.0.0.1:8080/test']).first
 
-    if exc = JSON.parse(resp.body)["exception"]
-      raise exc
-    end
+      if exc = JSON.parse(resp.body)["exception"]
+        raise exc
+      end
+    }
   end
 
   def test_large_post_body
-    start_server("checker")
-    sleep 0.5
-    big = "x" * (1024 * 16)
-    resp = POST('/test', { "big" => big })
-    if exc = JSON.parse(resp.body)["exception"]
-      raise exc
-    end
+    start_server("checker") {
+      big = "x" * (1024 * 16)
+      resp = POST('/test', { "big" => big })
+      if exc = JSON.parse(resp.body)["exception"]
+        raise exc
+      end
+    }
   end
 
   def test_path_info
-    start_server("simple")
-    resp = hit(['http://127.0.0.1:8080/test/a/b/c']).first
-    assert_equal "/test/a/b/c", JSON.parse(resp.body)['PATH_INFO']
+    start_server("simple") {
+      resp = hit(['http://127.0.0.1:8080/test/a/b/c']).first
+      assert_equal "/test/a/b/c", JSON.parse(resp.body)['PATH_INFO']
+    }
   end
 
   def test_request_method
-    start_server("method_override")
-    resp = POST('/test/a/b/c', {"_method" => "delete", "user" => 1})
-    assert_equal "DELETE", resp.body
+    start_server("method_override") {
+      resp = POST('/test/a/b/c', {"_method" => "delete", "user" => 1})
+      assert_equal "DELETE", resp.body
 
-    # it should not memorize env
-    resp = POST('/test/a/b/c', {"foo" => "bar"})
-    assert_equal "POST", resp.body
+      # it should not memorize env
+      resp = POST('/test/a/b/c', {"foo" => "bar"})
+      assert_equal "POST", resp.body
+    }
   end
 
   def test_query_string
-    start_server("simple")
-    resp = hit(['http://127.0.0.1:8080/test/a/b/c?foo=bar']).first
-    assert_equal "foo=bar", JSON.parse(resp.body)['QUERY_STRING']
+    start_server("simple") do
+      resp = hit(['http://127.0.0.1:8080/test/a/b/c?foo=bar']).first
+      assert_equal "foo=bar", JSON.parse(resp.body)['QUERY_STRING']
+    end
   end
 
   def test_post_data
     require 'rack/request'
-    start_server("simple")
+    start_server("simple") do
+      req = Net::HTTP::Post::Multipart.new("/", "foo" => "bar")
+      resp = Net::HTTP.start('localhost', 8080) do |http|
+        http.request req
+      end
 
-    req = Net::HTTP::Post::Multipart.new("/", "foo" => "bar")
-    resp = Net::HTTP.start('localhost', 8080) do |http|
-      http.request req
+      assert_equal "bar", JSON.parse(resp.body)["foo"]
     end
-
-    assert_equal "bar", JSON.parse(resp.body)["foo"]
   end
 
   def test_end_request_when_rack_crashes
-    start_server("rack_crasher")
-    res = hit(['http://127.0.0.1:8080/test'])
-    assert_kind_of Net::HTTPServerError, res[0]
+    start_server("rack_crasher") do
+      puts "foo"
+      res = hit(['http://127.0.0.1:8080/test'])
+      assert_kind_of Net::HTTPServerError, res[0]
+    end
   end
 
-  def start_server(ru)
+  def start_server(ru, &block)
     config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/#{ru}.ru", __FILE__), instances: 1)
     @server = Jubilee::Server.new(config.options)
-    @server.start
-    sleep 2
+    if block_given?
+      @server.start{ block.call }
+    else
+      @server.start
+    end
   end
 end
