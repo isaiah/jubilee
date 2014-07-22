@@ -86,7 +86,7 @@ module Jubilee
         o.on "-e", "--environment ENV", "Rack environment" do |arg|
           @options[:environment] = arg
         end
-        o.on "-n", "--instances NUM", "Define how many instances of web servers to run" do |arg|
+        o.on "-n", "--instances NUM", "Define how many instances of web servers to run, default 4" do |arg|
           @options[:instances] = arg.to_i
         end
         o.separator ""
