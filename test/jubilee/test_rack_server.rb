@@ -66,7 +66,7 @@ class TestRackServer < MiniTest::Unit::TestCase
     assert_kind_of Net::HTTPServerError, res[0]
   end
 
-  def start_server(ru, &block)
+  def start_server(ru)
     config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/#{ru}.ru", __FILE__), instances: 1)
     @server = Jubilee::Server.new(config.options)
     q = Queue.new

@@ -82,5 +82,6 @@ class TestJubileeServer < MiniTest::Unit::TestCase
     q = Queue.new
     @server.start { q << 1 }
     q.pop
+    sleep 0.1
   end
 end
