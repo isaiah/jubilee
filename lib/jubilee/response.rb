@@ -52,7 +52,9 @@ module Jubilee
           @content_length = values
           next
         when TRANSFER_ENCODING
-          @chunked = values == CHUNKED
+          if @chunked = (values == CHUNKED)
+            @content_length = nil
+          end
         when HIJACK
           @hijack = values
           next
@@ -64,10 +66,10 @@ module Jubilee
 
     def write_body(response)
       response.put_default_headers
-      if @chunked
-        response.chunked = true
-      else
+      if @content_length
         response.put_header(CONTENT_LENGTH, @content_length.to_s)
+      else
+        response.chunked = true
       end
 
       @body.each do |part|
