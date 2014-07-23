@@ -52,15 +52,14 @@ Get started
 Setup
 -----
 
-If you use bundler, you might want to add `jubilee` to your Gemfile,
-this is also required if you want use rails http streaming,
+If you use bundler, you might want to add `jubilee` to your Gemfile
 
     gem 'jubilee', '~> 2.0.0'
 
 Rails
 -----
 
-Under the default configuration, jubilee runs 4 instances of web
+Under the default setup, jubilee runs 4 instances of web
 servers, each with it's own jruby runtime, if you find that jubilee
 crashes or hangs with OutOfMemeoryError, please tune your JVM OPTS
 like this:
