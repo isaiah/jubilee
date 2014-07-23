@@ -6,9 +6,10 @@ module Jubilee
 
     def initialize(array)
       @status, @headers, @body = *array
-      @status = @status.to_i
-      @content_length = nil
-      @hijack = nil
+      @status                  = @status.to_i
+      @content_length          = nil
+      @chunked                 = false
+      @hijack                  = nil
       if @body.kind_of? Array and @body.size == 1
         @content_length = @body[0].bytesize
       end
@@ -25,7 +26,7 @@ module Jubilee
       end
       if no_body
         response.end
-      else 
+      else
         if @body.respond_to?(:to_path)
           response.send_file(@body.to_path)
         else
@@ -51,7 +52,7 @@ module Jubilee
           @content_length = values
           next
         when TRANSFER_ENCODING
-          @content_length = nil
+          @chunked = values == CHUNKED
         when HIJACK
           @hijack = values
           next
@@ -63,14 +64,38 @@ module Jubilee
 
     def write_body(response)
       response.put_default_headers
-      if @content_length
-        response.put_header(CONTENT_LENGTH, @content_length.to_s)
-      else
+      if @chunked
         response.chunked = true
+      else
+        response.put_header(CONTENT_LENGTH, @content_length.to_s)
       end
 
       @body.each do |part|
-        response.write(part)
+        if chunk = @chunked ? self.class.strip_term_markers(part) : part
+          response.write(chunk)
+        end
+      end
+    end
+
+    def self.strip_term_markers(chunk)
+      # Heavily copied from jruby-rack's rack/response.rb
+      term = "\r\n"
+      tail = "0#{term}#{term}".freeze
+      term_regex = /^([0-9a-fA-F]+)#{Regexp.escape(term)}(.+)#{Regexp.escape(term)}/mo
+      if chunk == tail
+        # end of chunking, do nothing
+        nil
+      elsif chunk =~ term_regex
+        # format is (size.to_s(16)) term (chunk) term
+        # if the size doesn't match then this is some
+        # output that just happened to match our regex
+        if $1.to_i(16) == $2.bytesize
+          $2
+        else
+          chunk
+        end
+      else
+        chunk
       end
     end
   end
