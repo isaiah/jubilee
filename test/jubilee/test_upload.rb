@@ -128,7 +128,9 @@ class TestUpload < MiniTest::Unit::TestCase
     assert_raises(Errno::ECONNRESET, Errno::EPIPE) do
       16384.times { sock.syswrite(buf) }
     end
-    sock.gets
+    assert_raises(Errno::ECONNRESET) do
+      sock.gets
+    end
     sock.close
   end
 
