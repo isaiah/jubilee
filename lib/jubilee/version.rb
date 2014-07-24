@@ -3,7 +3,7 @@ module Jubilee
     MAJOR = 2
     MINOR = 1
     PATCH = 0
-    BUILD = "Alpha1"
+    BUILD = "beta"
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
   end
