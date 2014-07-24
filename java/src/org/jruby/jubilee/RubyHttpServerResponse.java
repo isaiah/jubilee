@@ -6,9 +6,8 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 
 import java.util.Arrays;
 
@@ -46,7 +45,7 @@ public class RubyHttpServerResponse extends RubyObject {
 
     @JRubyMethod
     public IRubyObject write(ThreadContext context, IRubyObject string) {
-        this.resp.write(string.asJavaString());
+        this.resp.writeString(string.asJavaString());
         return context.runtime.getNil();
     }
 
@@ -81,6 +80,12 @@ public class RubyHttpServerResponse extends RubyObject {
     @JRubyMethod
     public IRubyObject end(ThreadContext context) {
         this.resp.end();
+        return context.runtime.getNil();
+    }
+
+    @JRubyMethod
+    public IRubyObject end(ThreadContext context, IRubyObject string) {
+        this.resp.writeStringAndEnd(string.asJavaString());
         return context.runtime.getNil();
     }
 

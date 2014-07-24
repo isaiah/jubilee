@@ -1,17 +1,19 @@
 package org.jruby.jubilee;
 
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.KeyCertOptions;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyInstanceConfig;
-import org.jruby.RubyString;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
-import org.vertx.java.platform.impl.WrappedVertx;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,12 +23,16 @@ import java.util.List;
 /**
  * Created by isaiah on 23/01/2014.
  */
-public class JubileeVerticle extends Verticle {
+public class JubileeVerticle implements Verticle {
 
     @Override
-    public void start() {
-        JsonObject config = container.config();
-        HttpServer httpServer = vertx.createHttpServer();
+    public void start(Future<Void> voidFuture) throws Exception{
+        JsonObject config = getConfig();
+        HttpServerOptions httpServerOptions = new HttpServerOptions();
+        httpServerOptions.setPort(config.getInteger("port"))
+                .setAcceptBacklog(10000)
+                .setHost(config.getString("host"));
+
         String root = config.getString("root", ".");
         this.runtime = createRuntime(root, config);
         String expandedRoot = this.runtime.evalScriptlet("File.expand_path(%q(" + root + "))").asJavaString();
@@ -34,9 +40,15 @@ public class JubileeVerticle extends Verticle {
         IRubyObject rackApplication = initRackApplication(config);
         final RackApplication app;
         boolean ssl = config.getBoolean("ssl");
+        if (ssl) {
+            KeyCertOptions keyStoreOptions = new KeyCertOptions();
+            keyStoreOptions.setCertPath(config.getString("keystore_path"))
+                    .setKeyPath((config.getString("keystore_password")));
+            httpServerOptions.setSsl(true).setKeyStore(keyStoreOptions);
+        }
+        HttpServer httpServer = getVertx().createHttpServer(httpServerOptions);
         try {
-            app = new RackApplication((WrappedVertx) vertx, runtime.getCurrentContext(), rackApplication, config);
-            httpServer.setAcceptBacklog(10000);
+            app = new RackApplication(getVertx(), runtime.getCurrentContext(), rackApplication, config);
             httpServer.requestHandler(new Handler<HttpServerRequest>() {
                 public void handle(final HttpServerRequest req) {
                     app.call(req);
@@ -47,18 +59,16 @@ public class JubileeVerticle extends Verticle {
                 allowAll.add(new JsonObject());
                 JsonObject ebconf = new JsonObject();
                 ebconf.putString("prefix", config.getString("event_bus"));
-                vertx.createSockJSServer(httpServer).bridge(ebconf, allowAll, allowAll);
+                getVertx().createSockJSServer(httpServer).bridge(ebconf, allowAll, allowAll);
             }
-            if (ssl) httpServer.setSSL(true).setKeyStorePath(config.getString("keystore_path"))
-                    .setKeyStorePassword(config.getString("keystore_password"));
-            httpServer.listen(config.getInteger("port"), config.getString("host"));
+
         } catch (IOException e) {
-            container.logger().fatal("Failed to create RackApplication");
+            getVertx().fatal("Failed to create RackApplication");
         }
     }
 
     @Override
-    public void stop() {
+    public void stop(Future<Void> future) throws Exception {
         this.runtime.tearDown();
     }
 
@@ -114,4 +124,37 @@ public class JubileeVerticle extends Verticle {
 
     private Ruby runtime;
     private ClassLoader classLoader;
+
+    @Override
+    public String getDeploymentID() {
+        return null;
+    }
+
+    @Override
+    public void setDeploymentID(String s) {
+
+    }
+
+    @Override
+    public Vertx getVertx() {
+        return vertx;
+    }
+
+    @Override
+    public void setVertx(Vertx vertx) {
+        this.vertx = vertx;
+    }
+
+    @Override
+    public JsonObject getConfig() {
+        return config;
+    }
+
+    @Override
+    public void setConfig(JsonObject jsonObject) {
+        this.config = jsonObject;
+    }
+
+    private JsonObject config;
+    private Vertx vertx;
 }

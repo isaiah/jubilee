@@ -2,21 +2,18 @@ package org.jruby.jubilee;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.VoidHandler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonObject;
 import org.jruby.Ruby;
-import org.jruby.RubyArray;
 import org.jruby.RubyClass;
-import org.jruby.RubyFixnum;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.RubyIORackInput;
-import org.jruby.jubilee.impl.RubyNullIO;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.VoidHandler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.impl.WrappedVertx;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,12 +31,12 @@ public class RackApplication {
     private boolean ssl;
     private boolean hideErrorStack;
     private Ruby runtime;
-    private WrappedVertx vertx;
+    private Vertx vertx;
     private RubyClass rackIOInputClass;
     private RubyClass httpServerResponseClass;
     private RackEnvironment rackEnv;
 
-    public RackApplication(WrappedVertx vertx, ThreadContext context, IRubyObject app, JsonObject config) throws IOException {
+    public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, JsonObject config) throws IOException {
         this.app = app;
         this.ssl = config.getBoolean("ssl");
         this.hideErrorStack = config.getBoolean("hide_error_stack", false);
@@ -107,9 +104,9 @@ public class RackApplication {
                     PrintWriter printWriter = new PrintWriter(stringWriter);
                     e.printStackTrace(printWriter);
                     if (hideErrorStack) {
-                        request.response().end("Internal error.");
+                        request.response().writeStringAndEnd("Internal error.");
                     } else {
-                        request.response().end(message + stringWriter.toString());
+                        request.response().writeStringAndEnd(message + stringWriter.toString());
                     }
                     e.printStackTrace(runtime.getErrorStream());
                 }

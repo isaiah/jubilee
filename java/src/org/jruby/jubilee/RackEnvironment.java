@@ -1,17 +1,16 @@
 package org.jruby.jubilee;
 
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpVersion;
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.net.SocketAddress;
 import org.jruby.*;
 import org.jruby.jubilee.utils.RubyHelper;
 import org.jruby.runtime.*;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpVersion;
-import org.vertx.java.core.net.NetSocket;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,7 +88,7 @@ public class RackEnvironment {
         env.lazyPut(RACK_KEY.SERVER_NAME, hostInfo[0], false);
         env.lazyPut(RACK_KEY.SERVER_PORT, hostInfo[1], true);
         env.lazyPut(RACK_KEY.HTTP_VERSION,
-                request.version() == HttpVersion.HTTP_1_1 ? Const.HTTP_11 : Const.HTTP_10, true);
+                request.version(), true);
         env.lazyPut(RACK_KEY.CONTENT_TYPE, headers.get(HttpHeaders.Names.CONTENT_TYPE), true);
         env.lazyPut(RACK_KEY.REQUEST_URI, request.uri(), false);
         env.lazyPut(RACK_KEY.REMOTE_ADDR, getRemoteAddr(request), true);
@@ -157,11 +156,11 @@ public class RackEnvironment {
     }
 
     private static String getRemoteAddr(final HttpServerRequest request) {
-        InetSocketAddress sourceAddress = request.remoteAddress();
+        SocketAddress sourceAddress = request.remoteAddress();
         if (sourceAddress == null) {
             return "";
         }
-        return sourceAddress.getHostString();
+        return sourceAddress.hostAddress();
     }
 
     private static int getContentLength(final MultiMap headers) {

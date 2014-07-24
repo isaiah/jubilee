@@ -2,6 +2,11 @@ package org.jruby.jubilee;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.Handler;
+import io.vertx.core.VoidHandler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.streams.WriteStream;
 import org.jruby.*;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
@@ -9,11 +14,6 @@ import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.VoidHandler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.core.streams.WriteStream;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -116,7 +116,7 @@ public class RubyNetSocket extends RubyObject {
             data = (RubyString) str.callMethod(context, "to_s");
         if (this.sock.writeQueueFull())
             waitWritable(this.sock);
-        this.sock.write(data.asJavaString());
+        this.sock.writeString(data.asJavaString());
         // TODO return the length actually written
         return data.length();
     }

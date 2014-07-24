@@ -13,9 +13,10 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.jruby.util.StringSupport;
-import org.vertx.java.core.http.HttpServerRequest;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.vertx.core.http.HttpServerRequest;
 
 /**
  * Created with IntelliJ IDEA.

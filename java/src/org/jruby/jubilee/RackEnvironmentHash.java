@@ -6,7 +6,7 @@ import org.jruby.jubilee.utils.RubyHelper;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.vertx.java.core.MultiMap;
+import io.vertx.core.MultiMap;
 
 import java.util.HashMap;
 import java.util.List;
