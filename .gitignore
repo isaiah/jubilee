@@ -3,3 +3,6 @@ pkg/
 *.iml
 *.class
 lib/jubilee/jubilee.jar
+.bundle
+.ruby-version
+
