@@ -1,6 +1,6 @@
 package org.jruby.jubilee.vertx;
 
-import org.vertx.java.core.Vertx;
+import io.vertx.core.Vertx;
 
 /**
  * Created with IntelliJ IDEA.

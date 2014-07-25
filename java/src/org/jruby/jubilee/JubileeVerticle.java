@@ -1,15 +1,16 @@
 package org.jruby.jubilee;
 
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Verticle;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.KeyCertOptions;
+import io.vertx.core.spi.cluster.VertxSPI;
+import io.vertx.ext.sockjs.BridgeOptions;
+import io.vertx.ext.sockjs.SockJSServer;
+import io.vertx.ext.sockjs.SockJSServerOptions;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyInstanceConfig;
@@ -23,7 +24,7 @@ import java.util.List;
 /**
  * Created by isaiah on 23/01/2014.
  */
-public class JubileeVerticle implements Verticle {
+public class JubileeVerticle extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> voidFuture) throws Exception{
@@ -48,7 +49,7 @@ public class JubileeVerticle implements Verticle {
         }
         HttpServer httpServer = getVertx().createHttpServer(httpServerOptions);
         try {
-            app = new RackApplication(getVertx(), runtime.getCurrentContext(), rackApplication, config);
+            app = new RackApplication((VertxSPI) getVertx(), runtime.getCurrentContext(), rackApplication, config);
             httpServer.requestHandler(new Handler<HttpServerRequest>() {
                 public void handle(final HttpServerRequest req) {
                     app.call(req);
@@ -59,11 +60,14 @@ public class JubileeVerticle implements Verticle {
                 allowAll.add(new JsonObject());
                 JsonObject ebconf = new JsonObject();
                 ebconf.putString("prefix", config.getString("event_bus"));
-                getVertx().createSockJSServer(httpServer).bridge(ebconf, allowAll, allowAll);
+                SockJSServerOptions sockjsOptions = new SockJSServerOptions();
+                sockjsOptions.setPrefix(config.getString("event_bus"));
+                SockJSServer sockJSServer = SockJSServer.newSockJSServer(getVertx(), httpServer);
+                sockJSServer.bridge(sockjsOptions, new BridgeOptions());
             }
 
         } catch (IOException e) {
-            getVertx().fatal("Failed to create RackApplication");
+            runtime.getErrorStream().println("Failed to create RackApplication");
         }
     }
 
@@ -124,37 +128,4 @@ public class JubileeVerticle implements Verticle {
 
     private Ruby runtime;
     private ClassLoader classLoader;
-
-    @Override
-    public String getDeploymentID() {
-        return null;
-    }
-
-    @Override
-    public void setDeploymentID(String s) {
-
-    }
-
-    @Override
-    public Vertx getVertx() {
-        return vertx;
-    }
-
-    @Override
-    public void setVertx(Vertx vertx) {
-        this.vertx = vertx;
-    }
-
-    @Override
-    public JsonObject getConfig() {
-        return config;
-    }
-
-    @Override
-    public void setConfig(JsonObject jsonObject) {
-        this.config = jsonObject;
-    }
-
-    private JsonObject config;
-    private Vertx vertx;
 }

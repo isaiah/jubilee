@@ -8,6 +8,7 @@ import io.vertx.core.VoidHandler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.spi.cluster.VertxSPI;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.javasupport.JavaEmbedUtils;
@@ -31,12 +32,12 @@ public class RackApplication {
     private boolean ssl;
     private boolean hideErrorStack;
     private Ruby runtime;
-    private Vertx vertx;
+    private VertxSPI vertx;
     private RubyClass rackIOInputClass;
     private RubyClass httpServerResponseClass;
     private RackEnvironment rackEnv;
 
-    public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, JsonObject config) throws IOException {
+    public RackApplication(VertxSPI vertx, ThreadContext context, IRubyObject app, JsonObject config) throws IOException {
         this.app = app;
         this.ssl = config.getBoolean("ssl");
         this.hideErrorStack = config.getBoolean("hide_error_stack", false);
@@ -83,36 +84,34 @@ public class RackApplication {
 //        } else {
 //            input = nullio;
 //        }
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // This is a different context, do NOT replace runtime.getCurrentContext()
-                    IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", rackEnv.getEnv(request, input, ssl));
-                    if (request.isHijacked()) {
-                        // It's the hijacker's response to close the socket.
-                        return;
-                    }
-                    RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
-                    RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
-                            httpServerResponseClass, request);
-                    response.respond(resp);
-                } catch (Exception e) {
-                    request.response().setStatusCode(500);
-                    String message = "Jubilee caught this error: " + e.getMessage() + "\n";
-                    StringWriter stringWriter = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(stringWriter);
-                    e.printStackTrace(printWriter);
-                    if (hideErrorStack) {
-                        request.response().writeStringAndEnd("Internal error.");
-                    } else {
-                        request.response().writeStringAndEnd(message + stringWriter.toString());
-                    }
-                    e.printStackTrace(runtime.getErrorStream());
+        vertx.executeBlocking(() -> {
+            try {
+                // This is a different context, do NOT replace runtime.getCurrentContext()
+                IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", rackEnv.getEnv(request, input, ssl));
+                if (request.isHijacked()) {
+                    // It's the hijacker's response to close the socket.
+                    return null;
                 }
+                RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
+                RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
+                        httpServerResponseClass, request);
+                response.respond(resp);
+                return null;
+            } catch (Exception e) {
+                request.response().setStatusCode(500);
+                String message = "Jubilee caught this error: " + e.getMessage() + "\n";
+                StringWriter stringWriter = new StringWriter();
+                PrintWriter printWriter = new PrintWriter(stringWriter);
+                e.printStackTrace(printWriter);
+                if (hideErrorStack) {
+                    request.response().writeStringAndEnd("Internal error.");
+                } else {
+                    request.response().writeStringAndEnd(message + stringWriter.toString());
+                }
+                e.printStackTrace(runtime.getErrorStream());
             }
-        };
-        vertx.startInBackground(task, false);
+            return null;
+        }, (ar) -> {});
     }
 
 }

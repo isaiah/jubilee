@@ -1,5 +1,7 @@
 package org.jruby.jubilee;
 
+import io.vertx.core.*;
+import io.vertx.core.json.JsonObject;
 import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.jubilee.vertx.JubileeVertx;
@@ -7,26 +9,19 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.AsyncResultHandler;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.PlatformLocator;
-import org.vertx.java.platform.PlatformManager;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by isaiah on 23/01/2014.
  */
 public class RubyPlatformManager extends RubyObject {
-    private PlatformManager pm;
     private RubyHash options;
+    private Vertx vertx;
 
     public static void createPlatformManagerClass(Ruby runtime) {
         RubyModule mJubilee = runtime.defineModule("Jubilee");
@@ -51,6 +46,8 @@ public class RubyPlatformManager extends RubyObject {
         RubySymbol clustered_k = runtime.newSymbol("clustered");
         RubySymbol cluster_host_k = runtime.newSymbol("cluster_host");
         RubySymbol cluster_port_k = runtime.newSymbol("cluster_port");
+
+        VertxOptions vertxOptions = new VertxOptions();
         if (options.containsKey(clustered_k) && options.op_aref(context, clustered_k).isTrue()) {
             int clusterPort = 0;
             String clusterHost = null;
@@ -59,43 +56,42 @@ public class RubyPlatformManager extends RubyObject {
             if (options.containsKey(cluster_host_k))
                 clusterHost = options.op_aref(context, cluster_host_k).asJavaString();
             if (clusterHost == null) clusterHost = getDefaultAddress();
-            this.pm = PlatformLocator.factory.createPlatformManager(clusterPort, clusterHost);
-        } else {
-            this.pm = PlatformLocator.factory.createPlatformManager();
+            vertxOptions.setClustered(true).setClusterHost(clusterHost).setClusterPort(clusterPort);
+
         }
-        JubileeVertx.init(this.pm.vertx());
+
+        this.vertx = Vertx.vertx(vertxOptions);
+        JubileeVertx.init(this.vertx);
         return this;
     }
 
     @JRubyMethod(name = "start")
     public IRubyObject start(final ThreadContext context, final Block block) {
 
-        JsonObject verticleConf = parseOptions(options);
-        int ins = verticleConf.getInteger("instances");
-        this.pm.deployVerticle("org.jruby.jubilee.JubileeVerticle", verticleConf,
-                context.runtime.getJRubyClassLoader().getURLs(), ins, null, new AsyncResultHandler<String>() {
-                    @Override
-                    public void handle(AsyncResult<String> result) {
-                        if (result.succeeded()) {
-                            if (block.isGiven()) {
-                                block.yieldSpecific(context);
-                            }
-                        } else {
-                            result.cause().printStackTrace(context.runtime.getErrorStream());
-                        }
+        DeploymentOptions verticleConf = parseOptions(options);
+        this.vertx.deployVerticle("java:org.jruby.jubilee.JubileeVerticle", verticleConf, new AsyncResultHandler<String>() {
+            @Override
+            public void handle(AsyncResult<String> result) {
+                if (result.succeeded()) {
+                    if (block.isGiven()) {
+                        block.yieldSpecific(context);
                     }
-                });
+                } else {
+                    result.cause().printStackTrace(context.runtime.getErrorStream());
+                }
+            }
+        });
         return this;
 
     }
 
     @JRubyMethod
     public IRubyObject stop(ThreadContext context) {
-        this.pm.stop();
+        this.vertx.close();
         return context.runtime.getNil();
     }
 
-    private JsonObject parseOptions(RubyHash options) {
+    private DeploymentOptions parseOptions(RubyHash options) {
         Ruby runtime = options.getRuntime();
         ThreadContext context = runtime.getCurrentContext();
         RubySymbol port_k = runtime.newSymbol("Port");
@@ -134,7 +130,9 @@ public class RubyPlatformManager extends RubyObject {
         map.putBoolean("ssl", ssl);
         if (options.has_key_p(eventbus_prefix_k).isTrue())
             map.putString("event_bus", options.op_aref(context, eventbus_prefix_k).asJavaString());
-        return map;
+        DeploymentOptions opts = new DeploymentOptions();
+        opts.setConfig(map);
+        return opts;
     }
 
     /*

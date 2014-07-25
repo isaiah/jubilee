@@ -10,6 +10,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by isaiah on 21/12/2013.
@@ -66,7 +67,7 @@ public class RubyHttpServerResponse extends RubyObject {
         String cookie = val.asJavaString();
         if (cookie.indexOf(this.lineSeparator) != -1)
             this.resp.putHeader(key.asJavaString(),
-                    Arrays.asList(val.asJavaString().split(this.lineSeparator)));
+                    (List<String>) Arrays.asList(val.asJavaString().split(this.lineSeparator)));
         else this.resp.putHeader(key.asJavaString(), val.asJavaString());
         return context.runtime.getNil();
     }
@@ -97,8 +98,8 @@ public class RubyHttpServerResponse extends RubyObject {
 
     //TODO(isaiah) At the moment Vertx doesn't support hijack the response socket,
     // between request.response() and request.netSocket() only one can be invoked.
-    @JRubyMethod
-    public IRubyObject net_socket(ThreadContext context) {
+    @JRubyMethod(name = "net_socket")
+    public IRubyObject netSocket(ThreadContext context) {
         RubyClass netSocketClass = (RubyClass) context.runtime.getClassFromPath("Jubilee::NetSocket");
         return new RubyNetSocket(context.runtime, netSocketClass, this.req.netSocket());
     }
