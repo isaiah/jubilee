@@ -45,8 +45,8 @@ module Jubilee
         end
         thread = Thread.current
         Signal.trap("INT") do
-          server.stop
           puts "Jubilee is shutting down gracefully..."
+          server.stop
           thread.wakeup
         end
         puts "Jubilee is initializing..."
