@@ -14,7 +14,7 @@ module Jubilee
     end
 
     def test_java_version!(version)
-      if version[0..2] < "1.7"
+      if version[0..2] < "1.8"
         puts("Error: Jubilee requires JDK 1.7.0 or later. You can use the official Oracle distribution or the OpenJDK version.")
         exit 1
       end
@@ -129,7 +129,7 @@ module Jubilee
         end
 
         o.on "-v", "--version", "Print the version information" do
-          puts "jubilee version #{Jubilee::Version::STRING} on Vert.x 2.1.2"
+          puts "jubilee version #{Jubilee::Version::STRING} on Vert.x 3.0.0-SNAPSHOT"
           exit 0
         end
       end
