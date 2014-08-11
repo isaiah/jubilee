@@ -47,7 +47,7 @@ public class RubyPlatformManager extends RubyObject {
         RubySymbol cluster_host_k = runtime.newSymbol("cluster_host");
         RubySymbol cluster_port_k = runtime.newSymbol("cluster_port");
 
-        VertxOptions vertxOptions = new VertxOptions();
+        VertxOptions vertxOptions = VertxOptions.options();
         if (options.containsKey(clustered_k) && options.op_aref(context, clustered_k).isTrue()) {
             int clusterPort = 0;
             String clusterHost = null;
@@ -69,6 +69,8 @@ public class RubyPlatformManager extends RubyObject {
     public IRubyObject start(final ThreadContext context, final Block block) {
         DeploymentOptions verticleConf = parseOptions(options);
         this.vertx.deployVerticle("java:org.jruby.jubilee.JubileeVerticle", verticleConf, (result) -> {
+//            System.out.println("helelo");
+//            context.runtime.getOutputStream().println("deployed");
             if (result.succeeded()) {
                 if (block.isGiven()) {
                     block.yieldSpecific(context);
@@ -126,9 +128,7 @@ public class RubyPlatformManager extends RubyObject {
         map.putBoolean("ssl", ssl);
         if (options.has_key_p(eventbus_prefix_k).isTrue())
             map.putString("event_bus", options.op_aref(context, eventbus_prefix_k).asJavaString());
-        DeploymentOptions opts = new DeploymentOptions();
-        opts.setConfig(map);
-        return opts;
+        return DeploymentOptions.options().setConfig(map);
     }
 
     /*

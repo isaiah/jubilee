@@ -27,12 +27,12 @@ import java.util.List;
 public class JubileeVerticle extends AbstractVerticle {
 
     @Override
-    public void start(Future<Void> voidFuture) throws Exception{
+    public void start(Future<Void> _voidFuture) throws Exception{
         JsonObject config = getConfig();
-        HttpServerOptions httpServerOptions = new HttpServerOptions();
-        httpServerOptions.setPort(config.getInteger("port"))
-                .setAcceptBacklog(10000)
-                .setHost(config.getString("host"));
+        HttpServerOptions httpServerOptions = HttpServerOptions.options();
+        httpServerOptions.setPort(config.getInteger("port"));
+        httpServerOptions.setHost(config.getString("host"));
+        httpServerOptions.setAcceptBacklog(10000);
 
         String root = config.getString("root", ".");
         this.runtime = createRuntime(root, config);
@@ -42,10 +42,10 @@ public class JubileeVerticle extends AbstractVerticle {
         final RackApplication app;
         boolean ssl = config.getBoolean("ssl");
         if (ssl) {
-            KeyCertOptions keyStoreOptions = new KeyCertOptions();
+            KeyCertOptions keyStoreOptions = KeyCertOptions.options();
             keyStoreOptions.setCertPath(config.getString("keystore_path"))
                     .setKeyPath((config.getString("keystore_password")));
-            httpServerOptions.setSsl(true).setKeyStore(keyStoreOptions);
+            httpServerOptions.setSsl(true).setKeyStoreOptions(keyStoreOptions);
         }
         HttpServer httpServer = getVertx().createHttpServer(httpServerOptions);
         try {
@@ -65,7 +65,6 @@ public class JubileeVerticle extends AbstractVerticle {
                 SockJSServer sockJSServer = SockJSServer.newSockJSServer(getVertx(), httpServer);
                 sockJSServer.bridge(sockjsOptions, new BridgeOptions());
             }
-
         } catch (IOException e) {
             runtime.getErrorStream().println("Failed to create RackApplication");
         }
