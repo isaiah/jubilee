@@ -26,35 +26,18 @@ the other cool features of Vertx:
 
 
 
-Installation
+Get started
 ------------
 
-    $ jruby -S gem install jubilee
-
-Jubilee 3.0 requires JRuby 1.7.5 or later, and JDK 8+
-
-Build from source
------------------
-
-Checkout the source and run the following command in the root directory of the
-project:
+Make sure you have JDK 8 installed.
 
 ```shell
 bundle && bundle exec rake install
 ```
 
-Get started
------------
-
-    $ cd a-rack-app
-    $ jruby -S jubilee
-
-Setup
------
-
-If you use bundler, you might want to add `jubilee` to your Gemfile
-
-    gem 'jubilee', '~> 3.0.0'
+This is the development branch of jubilee, it uses the vertx
+3.0-SNAPSHOT for a working version, please check out the
+[2.x branch](https://github.com/isaiah/jubilee/tree/2.x).
 
 Rails
 -----
