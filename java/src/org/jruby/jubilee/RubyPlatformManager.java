@@ -67,10 +67,9 @@ public class RubyPlatformManager extends RubyObject {
 
     @JRubyMethod(name = "start")
     public IRubyObject start(final ThreadContext context, final Block block) {
+        JubileeVerticle verticle = new JubileeVerticle();
         DeploymentOptions verticleConf = parseOptions(options);
-        this.vertx.deployVerticle("java:org.jruby.jubilee.JubileeVerticle", verticleConf, (result) -> {
-//            System.out.println("helelo");
-//            context.runtime.getOutputStream().println("deployed");
+        this.vertx.deployVerticleWithOptions(verticle, verticleConf, result -> {
             if (result.succeeded()) {
                 if (block.isGiven()) {
                     block.yieldSpecific(context);

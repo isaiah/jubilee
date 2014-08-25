@@ -1,8 +1,7 @@
 package org.jruby.jubilee;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpVersion;
-import io.vertx.core.MultiMap;
+import io.vertx.core.Headers;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.SocketAddress;
 import org.jruby.*;
@@ -71,7 +70,7 @@ public class RackEnvironment {
     public RubyHash getEnv(final HttpServerRequest request,
                            final RackInput input,
                            final boolean isSSL) throws IOException {
-        MultiMap headers = request.headers();
+        Headers headers = request.headers();
         final RackEnvironmentHash env = new RackEnvironmentHash(runtime, headers, rackKeyMap);
         env.lazyPut(RACK_KEY.RACK_INPUT, input, false);
         env.lazyPut(RACK_KEY.RACK_ERRORS, errors, false);
@@ -163,7 +162,7 @@ public class RackEnvironment {
         return sourceAddress.hostAddress();
     }
 
-    private static int getContentLength(final MultiMap headers) {
+    private static int getContentLength(final Headers headers) {
         final String contentLengthStr = headers.get(HttpHeaders.Names.CONTENT_LENGTH);
         if (contentLengthStr == null || contentLengthStr.isEmpty()) {
             return -1;

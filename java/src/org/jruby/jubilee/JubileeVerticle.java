@@ -3,14 +3,11 @@ package org.jruby.jubilee;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.KeyCertOptions;
 import io.vertx.core.spi.cluster.VertxSPI;
-import io.vertx.ext.sockjs.BridgeOptions;
 import io.vertx.ext.sockjs.SockJSServer;
-import io.vertx.ext.sockjs.SockJSServerOptions;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyInstanceConfig;
@@ -27,12 +24,13 @@ import java.util.List;
 public class JubileeVerticle extends AbstractVerticle {
 
     @Override
-    public void start(Future<Void> _voidFuture) throws Exception{
+    public void start() throws Exception {
         JsonObject config = getConfig();
         HttpServerOptions httpServerOptions = HttpServerOptions.options();
         httpServerOptions.setPort(config.getInteger("port"));
         httpServerOptions.setHost(config.getString("host"));
         httpServerOptions.setAcceptBacklog(10000);
+        httpServerOptions.setClientAuthRequired(false);
 
         String root = config.getString("root", ".");
         this.runtime = createRuntime(root, config);
@@ -50,20 +48,19 @@ public class JubileeVerticle extends AbstractVerticle {
         HttpServer httpServer = getVertx().createHttpServer(httpServerOptions);
         try {
             app = new RackApplication((VertxSPI) getVertx(), runtime.getCurrentContext(), rackApplication, config);
-            httpServer.requestHandler(new Handler<HttpServerRequest>() {
-                public void handle(final HttpServerRequest req) {
-                    app.call(req);
-                }
+            httpServer.requestHandler(req -> {
+                runtime.getOutputStream().println("jubilee verticle handle:");
+                app.call(req);
             });
             if (config.containsField("event_bus")) {
                 JsonArray allowAll = new JsonArray();
                 allowAll.add(new JsonObject());
                 JsonObject ebconf = new JsonObject();
                 ebconf.putString("prefix", config.getString("event_bus"));
-                SockJSServerOptions sockjsOptions = new SockJSServerOptions();
-                sockjsOptions.setPrefix(config.getString("event_bus"));
-                SockJSServer sockJSServer = SockJSServer.newSockJSServer(getVertx(), httpServer);
-                sockJSServer.bridge(sockjsOptions, new BridgeOptions());
+                SockJSServer sockJSServer = new SockJSServer(getVertx(), httpServer);
+                JsonArray permit = new JsonArray();
+                permit.addObject(new JsonObject());
+                sockJSServer.bridge(ebconf, permit, permit);
             }
         } catch (IOException e) {
             runtime.getErrorStream().println("Failed to create RackApplication");

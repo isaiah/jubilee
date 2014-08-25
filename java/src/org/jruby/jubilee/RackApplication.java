@@ -51,6 +51,7 @@ public class RackApplication {
     }
 
     public void call(final HttpServerRequest request) {
+        runtime.getOutputStream().println("rack application call:");
 //        String te = request.headers().get(Const.Vertx.TRANSFER_ENCODING);
 //        String contentLength;
         final RackInput input;
@@ -62,24 +63,15 @@ public class RackApplication {
         final AtomicBoolean eof = new AtomicBoolean(false);
         input = new RubyIORackInput(runtime, rackIOInputClass, request, bodyBuf, eof);
 
-        request.dataHandler(new Handler<Buffer>() {
-            @Override
-            public void handle(Buffer buffer) {
-                bodyBuf.writeBytes(buffer.getByteBuf());
-            }
+        request.dataHandler(buffer -> {
+            bodyBuf.writeBytes(buffer.getByteBuf());
         });
 
-        request.endHandler(new VoidHandler() {
-            @Override
-            protected void handle() {
-                eof.set(true);
-            }
+        request.endHandler(v -> {
+            eof.set(true);
         });
-        request.exceptionHandler(new Handler<Throwable>() {
-            @Override
-            public void handle(Throwable ignore) {
-                eof.set(true);
-            }
+        request.exceptionHandler(ignore -> {
+            eof.set(true);
         });
 //        } else {
 //            input = nullio;
@@ -111,7 +103,7 @@ public class RackApplication {
                 e.printStackTrace(runtime.getErrorStream());
             }
             return null;
-        }, (ar) -> {});
+        }, (ar) -> {runtime.getOutputStream().println("handle call");});
     }
 
 }

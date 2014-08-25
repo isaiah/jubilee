@@ -1,12 +1,12 @@
 package org.jruby.jubilee;
 
 import io.netty.handler.codec.http.HttpHeaders;
+import io.vertx.core.Headers;
 import org.jruby.*;
 import org.jruby.jubilee.utils.RubyHelper;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import io.vertx.core.MultiMap;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class RackEnvironmentHash extends RubyHash {
 
-    public RackEnvironmentHash(final Ruby runtime, final MultiMap headers,
+    public RackEnvironmentHash(final Ruby runtime, final Headers headers,
                                final Map<RubyString, RackEnvironment.RACK_KEY> rackKeyMap) {
         super(runtime);
         this.headers = headers;
@@ -144,7 +144,7 @@ public class RackEnvironmentHash extends RubyHash {
 
     private final Object[] rackValues = new Object[RackEnvironment.NUM_RACK_KEYS];
     private final boolean[] usAsciiValues = new boolean[RackEnvironment.NUM_RACK_KEYS];
-    private final MultiMap headers;
+    private final Headers headers;
     private final Map<RubyString, RackEnvironment.RACK_KEY> rackKeyMap;
     private final Map<RubyString, String> headerKeyMap;
     private boolean filledEntireHash = false;
