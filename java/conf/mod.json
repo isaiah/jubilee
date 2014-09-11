@@ -1,0 +1,10 @@
+{
+  "system": true,
+  "resident": true,
+
+  "description":"Rack application runner",
+  "licenses": ["MIT"],
+  "author": "isaiah",
+  "keywords": ["rack", "rails"],
+  "homepage": "https://github.com/isaiah/jubilee"
+}

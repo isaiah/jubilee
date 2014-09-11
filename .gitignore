@@ -6,3 +6,5 @@ lib/jubilee/jubilee.jar
 .bundle
 .ruby-version
 
+mods/
+out/

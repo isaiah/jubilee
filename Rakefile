@@ -102,6 +102,10 @@ end
 
 task :build => :jar
 
+task :zip => [:clean, :compile] do
+  ant.zip :basedir => "pkg/classes", :destfile => "jubilee.zip"
+end
+
 require 'rspec/core/rake_task'
 desc "Run integration tests"
 RSpec::Core::RakeTask.new do |t|

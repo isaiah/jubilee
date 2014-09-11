@@ -22,6 +22,13 @@ import java.util.List;
  * Created by isaiah on 23/01/2014.
  */
 public class JubileeVerticle extends Verticle {
+    private String rackup;
+
+    public JubileeVerticle(){}
+
+    public JubileeVerticle(String rackup) {
+        this.rackup = rackup;
+    }
 
     @Override
     public void start() {
@@ -93,7 +100,8 @@ public class JubileeVerticle extends Verticle {
     }
 
     private IRubyObject initRackApplication(JsonObject config) {
-        String rackup = config.getString("rackup");
+        if (this.rackup == null)
+            this.rackup = config.getString("rackup");
         String rackScript = "require 'rack'\n" +
                 "require 'jubilee'\n" +
                 "app, _ = Rack::Builder.parse_file('" + rackup + "')\n";

@@ -16,3 +16,6 @@ require 'jubilee/application'
 require 'jubilee/configuration'
 require 'jubilee/response'
 require 'rack/handler/jubilee'
+
+module Jubilee
+end

@@ -41,7 +41,7 @@ public class RackApplication {
 
     public RackApplication(WrappedVertx vertx, ThreadContext context, IRubyObject app, JsonObject config) throws IOException {
         this.app = app;
-        this.ssl = config.getBoolean("ssl");
+        this.ssl = config.getBoolean("ssl", false);
         this.hideErrorStack = config.getBoolean("hide_error_stack", false);
         this.vertx = vertx;
         this.runtime = context.runtime;
