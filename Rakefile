@@ -69,13 +69,15 @@ end
 
 require 'ant'
 
-DEST_PATH = "pkg/classes"
+DEST_PATH     = "pkg/classes"
 RESOURCE_PATH = "java/resources"
+MOD_PATH      = "mod"
 
 directory DEST_PATH
 
 desc "Clean up build artifacts"
 task :clean do
+  rm_rf "mod"
   rm_rf "pkg/classes"
   rm_rf "lib/jubilee/*.jar"
 end
@@ -102,8 +104,7 @@ end
 
 task :build => :jar
 
-task :zip => [:clean, :compile] do
-  ant.zip :basedir => "pkg/classes", :destfile => "jubilee.zip"
+task :mod => :jar do
 end
 
 require 'rspec/core/rake_task'

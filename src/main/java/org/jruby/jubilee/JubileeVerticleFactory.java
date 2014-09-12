@@ -167,7 +167,7 @@ public class JubileeVerticleFactory implements VerticleFactory {
                         throw new IllegalArgumentException("Cannot find verticle: " + rackup);
                     }
                     modName = "Mod___VertxInternalVert__" + seq.incrementAndGet();
-                    StringBuilder svert = new StringBuilder( "require 'vertx/vertx_require'\n").append("module ").append(modName).append(";extend self;");
+                    StringBuilder svert = new StringBuilder( "require 'core/vertx_require'\n").append("module ").append(modName).append(";extend self;");
                     String rackScript = "require 'rack'\n" +
                             "require 'jubilee'\n" +
                             "app, _ = Rack::Builder.parse_file('" + rackup + "')\n";

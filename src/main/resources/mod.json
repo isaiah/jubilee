@@ -1,6 +1,7 @@
 {
   "system": true,
   "resident": true,
+  "includes": "io.vertx~lang-jruby~2.1.0-final",
 
   "description":"Rack application runner",
   "licenses": ["MIT"],
