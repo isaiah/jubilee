@@ -6,7 +6,7 @@
   <groupId>org.jruby.jubilee</groupId>
   <artifactId>mod-rack</artifactId>
   <packaging>jar</packaging>
-  <version>0.1</version>
+  <version>0.1.1-SNAPSHOT</version>
   <name>Project - mod-rack</name>
   <url>http://maven.apache.org</url>
 
@@ -37,6 +37,7 @@
 
     <!--Dependency versions-->
     <vertx.version>2.1.2</vertx.version>
+    <lang-jruby.version>2.1.0-final</lang-jruby.version>
     <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
     <junit.version>4.11</junit.version>
 
@@ -88,6 +89,12 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-hazelcast</artifactId>
       <version>${vertx.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>lang-jruby</artifactId>
+      <version>${lang-jruby.version}</version>
       <scope>provided</scope>
     </dependency>
     <!--Test dependencies-->

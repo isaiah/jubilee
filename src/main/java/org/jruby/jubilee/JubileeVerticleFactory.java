@@ -35,14 +35,12 @@ import org.vertx.java.platform.Container;
 import org.vertx.java.platform.Verticle;
 import org.vertx.java.platform.VerticleFactory;
 import org.vertx.java.platform.impl.WrappedVertx;
+import org.vertx.java.platform.impl.JRubyVerticleFactory;
 
 import java.io.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * @author <a href="http://tfox.org">Tim Fox</a>
- */
 public class JubileeVerticleFactory implements VerticleFactory {
 
     private ClassLoader cl;
@@ -59,6 +57,7 @@ public class JubileeVerticleFactory implements VerticleFactory {
     public void init(Vertx vertx, Container container, ClassLoader cl) {
         this.cl = cl;
         // These statics are used by the Rhino scripts to look up references to vertx and the container
+        JRubyVerticleFactory.vertx = vertx;
         JubileeVerticleFactory.vertx = vertx;
         JubileeVerticleFactory.container = container;
         ClassLoader old = Thread.currentThread().getContextClassLoader();

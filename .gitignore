@@ -1,6 +1,8 @@
 pkg/
 .idea/
 *.iml
+*.ipr
+*.iws
 *.class
 lib/jubilee/jubilee.jar
 .bundle
