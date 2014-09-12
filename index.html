@@ -1,70 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <title>Jubilee by isaiah</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
-    <title>Jubilee by isaiah</title>
   </head>
-
   <body>
-    <header>
-      <div class="inner">
+    <div class="wrapper">
+      <header>
         <h1>Jubilee</h1>
-        <h2>A rack server with built upon Vertx</h2>
-        <a href="https://github.com/isaiah/jubilee" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
-
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <p><a href="https://travis-ci.org/isaiah/jubilee"><img src="https://travis-ci.org/isaiah/jubilee.png?branch=master" alt="Build Status"></a></p>
+        <p>A rack server with built upon Vertx</p>
+        <p class="view"><a href="https://github.com/isaiah/jubilee">View the Project on GitHub <small>isaiah/jubilee</small></a></p>
+        <ul>
+          <li><a href="https://github.com/isaiah/jubilee/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/isaiah/jubilee/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/isaiah/jubilee">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p><a href="https://travis-ci.org/isaiah/jubilee"><img src="https://travis-ci.org/isaiah/jubilee.png?branch=master" alt="Build Status"></a></p>
 
 <h1>
-<a name="jubilee-server" class="anchor" href="#jubilee-server"><span class="octicon octicon-link"></span></a>Jubilee server</h1>
+<a name="mod-rack" class="anchor" href="#mod-rack"><span class="octicon octicon-link"></span></a>mod-rack</h1>
 
 <blockquote>
-<p>"We need a web framework for Vertx.", you said.</p>
-
-<p>"But why not use Vertx in your Rails applications, it's the most productive web framework ever created."</p>
+<p>A vertx module that run rack applications.</p>
 </blockquote>
-
-<p>The Answer is Jubilee, a rack server with <a href="http://vertx.io">vertx 2.0</a> awesomeness builtin. Check out the
-<a href="http://192.241.201.68:8080/">demo</a> <a href="https://github.com/isaiah/jubilee/tree/master/examples/chatapp">application</a>.</p>
 
 <h2>
-<a name="why-another-rack-server" class="anchor" href="#why-another-rack-server"><span class="octicon octicon-link"></span></a>Why another rack server?</h2>
+<a name="get-started" class="anchor" href="#get-started"><span class="octicon octicon-link"></span></a>Get started</h2>
 
-<blockquote>
-<p>"Vert.x is a lightweight, high performance application platform for the JVM
-that's designed for modern mobile, web, and enterprise applications."
-     - vertx.io site</p>
-</blockquote>
+<p>Please checkout the <a href="https://github.com/isaiah/jubilee/wiki/Running-as-vertx-module">wiki
+page</a>
+before you proceed.</p>
 
-<p>By using Vertx, jubilee inherent advantages in terms of performance, and all
-the other cool features of Vertx:</p>
+<p>Add the following snippet to <code>$VERTX\_HOME/conf/langs.properties</code></p>
 
-<ul>
-<li><a href="https://github.com/isaiah/jubilee/wiki/Event-Bus">EventBus</a></li>
-<li><a href="https://github.com/isaiah/jubilee/wiki/SharedData">SharedData</a></li>
-<li><a href="https://github.com/isaiah/jubilee/wiki/Clustering">Clustering</a></li>
-</ul><h2>
-<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
-
-<pre><code>$ jruby -S gem install jubilee
+<pre><code>rackup=isaiah~mod-rack~0.1.1:org.jruby.jubilee.JubileeVerticleFactory
+.ru=rackup
 </code></pre>
 
-<p>Jubilee requires JRuby 1.7.5 or later, and JDK 7+</p>
+<p>Make sure JRUBY_HOME is correctly set, and <code>rack</code> gem is install before proceed.</p>
+
+<p>Then run the rackup file as a normal verticle,</p>
+
+<pre lang="shell"><code>vertx run config.ru
+</code></pre>
 
 <h2>
 <a name="build-from-source" class="anchor" href="#build-from-source"><span class="octicon octicon-link"></span></a>Build from source</h2>
@@ -72,38 +62,7 @@ the other cool features of Vertx:</p>
 <p>Checkout the source and run the following command in the root directory of the
 project:</p>
 
-<pre lang="shell"><code>bundle &amp;&amp; bundle exec rake install
-</code></pre>
-
-<h2>
-<a name="get-started" class="anchor" href="#get-started"><span class="octicon octicon-link"></span></a>Get started</h2>
-
-<pre><code>$ cd a-rack-app
-$ jruby -S jubilee
-</code></pre>
-
-<h2>
-<a name="setup" class="anchor" href="#setup"><span class="octicon octicon-link"></span></a>Setup</h2>
-
-<p>If you use bundler, you might want to add <code>jubilee</code> to your Gemfile</p>
-
-<pre><code>gem 'jubilee', '~&gt; 2.0.0'
-</code></pre>
-
-<h2>
-<a name="rails" class="anchor" href="#rails"><span class="octicon octicon-link"></span></a>Rails</h2>
-
-<p>Under the default setup, jubilee runs 4 instances of web
-servers, each with it's own jruby runtime, if you find that jubilee
-crashes or hangs with OutOfMemeoryError, please tune your JVM OPTS
-like this:</p>
-
-<pre><code>$ export JAVA_OPTS="-Xms1024m -Xmx2048m -XX:PermSize=512m -XX:MaxPermSize=512m"
-</code></pre>
-
-<p>If your OS memory is quite limited, please run jubilee with</p>
-
-<pre><code>$ jubilee -n 1
+<pre lang="shell"><code>mvn install
 </code></pre>
 
 <h1>
@@ -117,9 +76,16 @@ living real time web application.</p>
 <a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
 
 <p>Assume necessary javascript files are loaded in the page (they can be found <a href="https://github.com/isaiah/jubilee/tree/master/examples/client">here</a>),
-start jubilee in a rack application with:</p>
+run rack application with the following config:</p>
 
-<pre><code>$ jubilee --eventbus /eventbus
+<pre><code>$ cat config.json
+{ "host": "0.0.0.0",
+  "port": 8080,
+  "event_bus": "/eventbus"
+}
+</code></pre>
+
+<pre><code>$ vertx run config.ru -conf config.json
 </code></pre>
 
 <p>In one browser:</p>
@@ -192,26 +158,14 @@ Java and .NET applications. Take a look at YourKit's leading software products:
 <a href="http://www.yourkit.com/java/profiler/index.jsp">YourKit Java
 Profiler</a> and
 <a href="http://www.yourkit.com/.net/profiler/index.jsp">YourKit .NET Profiler</a>.</p>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/isaiah/jubilee/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/isaiah/jubilee/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/isaiah/jubilee"></a> is maintained by <a href="https://github.com/isaiah">isaiah</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+      </section>
     </div>
-
-            <script type="text/javascript">
+    <footer>
+      <p>Project maintained by <a href="https://github.com/isaiah">isaiah</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+              <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
