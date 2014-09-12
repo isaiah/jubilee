@@ -183,6 +183,9 @@
                 <resource>
                   <directory>target/classes</directory>
                 </resource>
+                <resource>
+                  <directory>lib</directory>
+                </resource>
               </resources>
             </configuration>
           </execution>

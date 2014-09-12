@@ -8,4 +8,5 @@
 src/main/resources
 target/classes
 target/dependencies
+lib/
 bin

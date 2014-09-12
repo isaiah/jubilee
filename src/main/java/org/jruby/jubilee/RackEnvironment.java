@@ -100,8 +100,8 @@ public class RackEnvironment {
         env.lazyPut(RACK_KEY.RUN_ONCE, runtime.getFalse(), false);
 
         // Hijack handling
-        env.lazyPut(RACK_KEY.HIJACK_P, runtime.getTrue(), false);
-        env.lazyPut(RACK_KEY.HIJACK, hijackProc(env, request), false);
+        env.lazyPut(RACK_KEY.HIJACK_P, runtime.getFalse(), false);
+//        env.lazyPut(RACK_KEY.HIJACK, hijackProc(env, request), false);
 
 
         final int contentLength = getContentLength(headers);
