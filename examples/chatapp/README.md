@@ -6,16 +6,6 @@ application.
 
 Make sure you are using jruby 1.7+ (jubilee 1.1.0+ require jruby 1.7.5 or later) and your JDK version is 7+
 
-There are two ways to run this application:
-
-1. Use jubilee server
-
-```shell
-bundle && jubilee --eventbus /eventbus
-```
-
-2. Run in vertx
-
 Install the lastest stable version of vertx(2.1.2), and put the following snippet in your vertx
 language configuration, you can find the file under $VERTX\_HOME/conf/langs.properties
 
@@ -33,3 +23,7 @@ vertx run config.ru -conf config.json
 Then go to http://localhost:8080 in your browser, if you have the page
 opened in multiple tabs or windows you can see the message you sent are
 broadcasted to all the other tabs.
+
+Checkout the [wiki
+page](https://github.com/isaiah/jubilee/wiki/Running-as-vertx-module) if
+you run into any trouble.
