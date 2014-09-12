@@ -50,6 +50,11 @@
     <maven.surefire.report.plugin.version>2.14</maven.surefire.report.plugin.version>
     <maven.javadoc.plugin.version>2.9</maven.javadoc.plugin.version>
     <maven.dependency.plugin.version>2.7</maven.dependency.plugin.version>
+    <maven.jar.plugin.version>2.5</maven.jar.plugin.version>
+
+    <!-- User defined properties -->
+    <jar.finalName>jubilee</jar.finalName>
+    <ruby.sources>lib</ruby.sources>
   </properties>
 
   <repositories>
@@ -58,7 +63,13 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
-
+  <distributionManagement>
+    <repository>
+      <id>bintray-isaiah-maven-mod-rack</id>
+      <name>isaiah-maven-mod-rack</name>
+      <url>https://api.bintray.com/maven/isaiah/maven/mod-rack</url>
+    </repository>
+  </distributionManagement>
   <dependencies>
     <!--Vertx provided dependencies-->
     <dependency>
@@ -184,7 +195,7 @@
                   <directory>target/classes</directory>
                 </resource>
                 <resource>
-                  <directory>lib</directory>
+                  <directory>${ruby.sources}</directory>
                 </resource>
               </resources>
             </configuration>
@@ -196,6 +207,7 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <version>${maven.dependency.plugin.version}</version>
         <executions>
+          <!--
           <execution>
             <id>copy-mod-dependencies-to-target</id>
             <phase>process-classes</phase>
@@ -207,6 +219,7 @@
               <includeScope>runtime</includeScope>
             </configuration>
           </execution>
+          -->
           <execution>
             <id>copy-mod-dependencies-to-target-dependencies</id>
             <phase>process-classes</phase>
@@ -219,6 +232,14 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven.jar.plugin.version}</version>
+        <configuration>
+          <outputDirectory>${ruby.sources}/jubilee</outputDirectory>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
