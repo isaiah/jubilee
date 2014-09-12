@@ -1,37 +1,30 @@
 [![Build Status](https://travis-ci.org/isaiah/jubilee.png?branch=master)](https://travis-ci.org/isaiah/jubilee)
 
-Jubilee server
+mod-rack
 =========
- 
-> "We need a web framework for Vertx.", you said.
 
-> "But why not use Vertx in your Rails applications, it's the most productive web framework ever created."
+> A vertx module that run rack applications.
 
-The Answer is Jubilee, a rack server with [vertx 2.0](http://vertx.io) awesomeness builtin. Check out the
-[demo](http://192.241.201.68:8080/) [application](https://github.com/isaiah/jubilee/tree/master/examples/chatapp).
+Get started
+-----------
 
-Why another rack server?
-------------------------
+Please checkout the [wiki
+page](https://github.com/isaiah/jubilee/wiki/Running-as-vertx-module)
+before you proceed.
 
-> "Vert.x is a lightweight, high performance application platform for the JVM
-> that's designed for modern mobile, web, and enterprise applications."
->      - vertx.io site
+Add the following snippet to ```$VERTX\_HOME/conf/langs.properties```
+```
+rackup=isaiah~mod-rack~0.1.1:org.jruby.jubilee.JubileeVerticleFactory
+.ru=rackup
+```
 
-By using Vertx, jubilee inherent advantages in terms of performance, and all
-the other cool features of Vertx:
+Make sure JRUBY_HOME is correctly set, and ```rack``` gem is install before proceed.
 
-* [EventBus](https://github.com/isaiah/jubilee/wiki/Event-Bus)
-* [SharedData](https://github.com/isaiah/jubilee/wiki/SharedData)
-* [Clustering](https://github.com/isaiah/jubilee/wiki/Clustering)
+Then run the rackup file as a normal verticle,
 
-
-
-Installation
-------------
-
-    $ jruby -S gem install jubilee
-
-Jubilee requires JRuby 1.7.5 or later, and JDK 7+
+```shell
+vertx run config.ru
+```
 
 Build from source
 -----------------
@@ -40,35 +33,8 @@ Checkout the source and run the following command in the root directory of the
 project:
 
 ```shell
-bundle && bundle exec rake install
+mvn install
 ```
-
-Get started
------------
-
-    $ cd a-rack-app
-    $ jruby -S jubilee
-
-Setup
------
-
-If you use bundler, you might want to add `jubilee` to your Gemfile
-
-    gem 'jubilee', '~> 2.0.0'
-
-Rails
------
-
-Under the default setup, jubilee runs 4 instances of web
-servers, each with it's own jruby runtime, if you find that jubilee
-crashes or hangs with OutOfMemeoryError, please tune your JVM OPTS
-like this:
-
-    $ export JAVA_OPTS="-Xms1024m -Xmx2048m -XX:PermSize=512m -XX:MaxPermSize=512m"
-
-If your OS memory is quite limited, please run jubilee with
-
-    $ jubilee -n 1
 
 Event Bus
 =========
@@ -81,10 +47,18 @@ Examples
 --------
 
 Assume necessary javascript files are loaded in the page (they can be found [here](https://github.com/isaiah/jubilee/tree/master/examples/client)),
-start jubilee in a rack application with:
+run rack application with the following config:
 
 ```
-$ jubilee --eventbus /eventbus
+$ cat config.json
+{ "host": "0.0.0.0",
+  "port": 8080,
+  "event_bus": "/eventbus"
+}
+```
+
+```
+$ vertx run config.ru -conf config.json
 ```
 
 In one browser:
