@@ -14,7 +14,7 @@ before you proceed.
 
 Add the following snippet to ```$VERTX\_HOME/conf/langs.properties```
 ```
-rackup=isaiah~mod-rack~0.1.1:org.jruby.jubilee.JubileeVerticleFactory
+rackup=isaiah~mod-rack~0.1.2:org.jruby.jubilee.JubileeVerticleFactory
 .ru=rackup
 ```
 
@@ -33,8 +33,11 @@ Checkout the source and run the following command in the root directory of the
 project:
 
 ```shell
-mvn install
+mvn package
+vertx create-module-link org.jruby.jubilee~mod-rack~0.1.3-SNAPSHOT
 ```
+
+then change your langs.properties file to point to the new module
 
 Event Bus
 =========
