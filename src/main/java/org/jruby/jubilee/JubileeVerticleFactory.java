@@ -197,9 +197,21 @@ public class JubileeVerticleFactory implements VerticleFactory {
                 if (config.containsField("event_bus")) {
                     JsonArray allowAll = new JsonArray();
                     allowAll.add(new JsonObject());
+                    JsonArray incomingAllowed;
+                    JsonArray outgoingAllowed;
+
+                    if (config.containsField("event_bus_security")) {
+                        JsonObject securitySettings = config.getObject("event_bus_security");
+                        incomingAllowed = securitySettings.getArray("incoming");
+                        outgoingAllowed = securitySettings.getArray("outgoing");
+                    } else {
+                        incomingAllowed = allowAll;
+                        outgoingAllowed = allowAll;
+                    }
                     JsonObject ebconf = new JsonObject();
                     ebconf.putString("prefix", config.getString("event_bus"));
-                    vertx.createSockJSServer(httpServer).bridge(ebconf, allowAll, allowAll);
+                    vertx.createSockJSServer(httpServer).bridge(ebconf, incomingAllowed, outgoingAllowed);                        
+
                 }
                 if (ssl) httpServer.setSSL(true).setKeyStorePath(config.getString("keystore_path"))
                         .setKeyStorePassword(config.getString("keystore_password"));
