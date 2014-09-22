@@ -1,9 +1,11 @@
 [![Build Status](https://travis-ci.org/isaiah/jubilee.png?branch=master)](https://travis-ci.org/isaiah/jubilee)
 
-mod-rack
-=========
+Jubilee / mod-rack
+==================
 
-> A vertx module that run rack applications.
+> A rack server for jruby.
+
+> Also works as vertx module.
 
 Get started
 -----------
@@ -29,15 +31,19 @@ vertx run config.ru
 Build from source
 -----------------
 
-Checkout the source and run the following command in the root directory of the
-project:
+First checkout the source from github.
+
+1. To run as a vertx module, run the following command in the root directory:
 
 ```shell
 mvn package
 vertx create-module-link org.jruby.jubilee~mod-rack~0.1.3-SNAPSHOT
 ```
 
-then change your langs.properties file to point to the new module
+then change your langs.properties file to point to the new module;
+
+2. To run as rubygem, run ```rake install``` in the root directory, maven is
+required.
 
 Event Bus
 =========
