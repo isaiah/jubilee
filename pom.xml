@@ -56,6 +56,7 @@
     <!-- User defined properties -->
     <jar.finalName>jubilee</jar.finalName>
     <ruby.sources>lib</ruby.sources>
+    <ruby.deps>jars</ruby.deps>
   </properties>
 
   <repositories>
@@ -77,19 +78,19 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
       <version>${vertx.version}</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-platform</artifactId>
       <version>${vertx.version}</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-hazelcast</artifactId>
       <version>${vertx.version}</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -114,7 +115,7 @@
       <groupId>org.jruby</groupId>
       <artifactId>jruby-complete</artifactId>
       <version>1.7.13</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Add any other dependencies that you want packaged into your module (in the lib dir) here
@@ -214,7 +215,6 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <version>${maven.dependency.plugin.version}</version>
         <executions>
-          <!--
           <execution>
             <id>copy-mod-dependencies-to-target</id>
             <phase>process-classes</phase>
@@ -222,11 +222,11 @@
               <goal>copy-dependencies</goal>
             </goals>
             <configuration>
-              <outputDirectory>${mods.directory}/${module.name}/lib</outputDirectory>
+              <outputDirectory>${ruby.deps}</outputDirectory>
               <includeScope>runtime</includeScope>
             </configuration>
           </execution>
-          -->
+          <!--
           <execution>
             <id>copy-mod-dependencies-to-target-dependencies</id>
             <phase>process-classes</phase>
@@ -238,6 +238,7 @@
               <includeScope>runtime</includeScope>
             </configuration>
           </execution>
+          -->
         </executions>
       </plugin>
       <plugin>

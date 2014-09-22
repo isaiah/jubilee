@@ -73,39 +73,35 @@ DEST_PATH     = "pkg/classes"
 RESOURCE_PATH = "java/resources"
 MOD_PATH      = "mod"
 
-directory DEST_PATH
+#directory DEST_PATH
+#
+#desc "Clean up build artifacts"
+#task :clean do
+#  system("mvn clean")
+#  rm_rf "mod"
+#  rm_rf "pkg/classes"
+#  rm_rf "lib/jubilee/*.jar"
+#end
 
-desc "Clean up build artifacts"
-task :clean do
-  rm_rf "mod"
-  rm_rf "pkg/classes"
-  rm_rf "lib/jubilee/*.jar"
-end
+#desc "Compile the extension, need jdk7 because vertx relies on it"
+#task :compile => [DEST_PATH, "#{DEST_PATH}/META-INF"] do |t|
+#  #ant.javac :srcdir => "java", :destdir => t.prerequisites.first,
+#  #  :source => "1.7", :target => "1.7", :debug => true, :includeantruntime => false,
+#  #  :classpath => "${java.class.path}:${sun.boot.class.path}:jars/vertx-core-2.1.2.jar:jars/netty-all-4.0.20.Final.jar:jars/jackson-core-2.2.2.jar:jars/jackson-databind-2.2.2.jar:jars/jackson-annotations-2.2.2.jar:jars/hazelcast-3.2.3.jar:jars/vertx-platform-2.1.2.jar:jars/vertx-hazelcast-2.1.2.jar"
+#end
 
-BUILDTIME_LIB_DIR = File.join(File.dirname(__FILE__), "jars")
-
-desc "Compile the extension, need jdk7 because vertx relies on it"
-task :compile => [DEST_PATH, "#{DEST_PATH}/META-INF"] do |t|
-  ant.javac :srcdir => "java", :destdir => t.prerequisites.first,
-    :source => "1.7", :target => "1.7", :debug => true, :includeantruntime => false,
-    :classpath => "${java.class.path}:${sun.boot.class.path}:jars/vertx-core-2.1.2.jar:jars/netty-all-4.0.20.Final.jar:jars/jackson-core-2.2.2.jar:jars/jackson-databind-2.2.2.jar:jars/jackson-annotations-2.2.2.jar:jars/hazelcast-3.2.3.jar:jars/vertx-platform-2.1.2.jar:jars/vertx-hazelcast-2.1.2.jar"
-end
-
-desc "Copy META-INF"
-task "#{DEST_PATH}/META-INF" => ["#{RESOURCE_PATH}/META-INF", "#{RESOURCE_PATH}/default-cluster.xml"] do |t|
-  FileUtils.cp_r t.prerequisites.first, t.name, verbose: true
-  cp t.prerequisites[1], DEST_PATH, verbose: true
-end
+#desc "Copy META-INF"
+#task "#{DEST_PATH}/META-INF" => ["#{RESOURCE_PATH}/META-INF", "#{RESOURCE_PATH}/default-cluster.xml"] do |t|
+#  FileUtils.cp_r t.prerequisites.first, t.name, verbose: true
+#  cp t.prerequisites[1], DEST_PATH, verbose: true
+#end
 
 desc "Build the jar"
-task :jar => [:clean, :compile] do
-  ant.jar :basedir => "pkg/classes", :destfile => "lib/jubilee/jubilee.jar"
+task :jar do
+  system("mvn clean package")
 end
 
 task :build => :jar
-
-task :mod => :jar do
-end
 
 require 'rspec/core/rake_task'
 desc "Run integration tests"

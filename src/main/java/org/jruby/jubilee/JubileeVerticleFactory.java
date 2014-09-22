@@ -151,7 +151,7 @@ public class JubileeVerticleFactory implements VerticleFactory {
         // JRuby keeps a static reference to a runtime - we must clear this manually to avoid a leak
         Ruby.clearGlobalRuntime();
     }
-    private class RackVerticle extends Verticle {
+    public class RackVerticle extends Verticle {
         public RackVerticle(String rackup) {
             this.rackup = rackup;
             this.vertx = JubileeVerticleFactory.vertx;
