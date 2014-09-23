@@ -1,5 +1,5 @@
 # this is only used when it's running as a rubygem
-Dir["jars/*.jar"].each{|jar| require jar}
+Dir["../../jars/*.jar"].each{|jar| require jar}
 
 require 'jubilee/jubilee.jar'
 require 'rack'
