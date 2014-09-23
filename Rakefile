@@ -34,6 +34,8 @@ Jeweler::Tasks.new do |gem|
   gem.version = Jubilee::Version::STRING
   gem.platform = "java"
   gem.files.include "lib/jubilee/jubilee.jar"
+  gem.files.include "jars/*.jar"
+  gem.files.include "lib/**/*.rb"
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
@@ -69,19 +71,17 @@ end
 
 require 'ant'
 
-DEST_PATH     = "pkg/classes"
-RESOURCE_PATH = "java/resources"
-MOD_PATH      = "mod"
-
-#directory DEST_PATH
-#
-#desc "Clean up build artifacts"
-#task :clean do
-#  system("mvn clean")
-#  rm_rf "mod"
-#  rm_rf "pkg/classes"
-#  rm_rf "lib/jubilee/*.jar"
-#end
+desc "Clean up build artifacts"
+task :clean do
+  sh "mvn clean"
+  rm_rf "jars"
+  rm_rf "lib/jubilee/*.jar"
+  rm_rf "lib/core"
+  rm_rf "lib/vertx.rb"
+  rm_rf "lib/vertx_tests.rb"
+  rm_rf "lib/container.rb"
+  rm_rf "lib/test_utils.rb"
+end
 
 #desc "Compile the extension, need jdk7 because vertx relies on it"
 #task :compile => [DEST_PATH, "#{DEST_PATH}/META-INF"] do |t|
@@ -97,8 +97,9 @@ MOD_PATH      = "mod"
 #end
 
 desc "Build the jar"
-task :jar do
-  system("mvn clean package")
+task :jar => :clean do
+  sh "mvn package"
+  sh "unzip jars/*.zip *.rb -d lib"
 end
 
 task :build => :jar

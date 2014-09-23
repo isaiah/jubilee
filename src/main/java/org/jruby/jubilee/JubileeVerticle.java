@@ -3,7 +3,6 @@ package org.jruby.jubilee;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyInstanceConfig;
-import org.jruby.RubyString;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServer;
@@ -11,6 +10,7 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
+import org.vertx.java.platform.impl.JRubyVerticleFactory;
 import org.vertx.java.platform.impl.WrappedVertx;
 
 import java.io.IOException;
@@ -32,6 +32,7 @@ public class JubileeVerticle extends Verticle {
 
     @Override
     public void start() {
+        JRubyVerticleFactory.vertx = vertx;
         JsonObject config = container.config();
         HttpServer httpServer = vertx.createHttpServer();
         String root = config.getString("root", ".");

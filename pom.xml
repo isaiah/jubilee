@@ -96,6 +96,12 @@
       <groupId>io.vertx</groupId>
       <artifactId>lang-jruby</artifactId>
       <version>${lang-jruby.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>lang-jruby</artifactId>
+      <version>${lang-jruby.version}</version>
       <type>zip</type>
       <classifier>mod</classifier>
       <scope>compile</scope>
