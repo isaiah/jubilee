@@ -5,6 +5,7 @@ pkg/
 *.iws
 *.class
 lib/jubilee/jubilee.jar
+jars/
 .bundle
 .ruby-version
 
