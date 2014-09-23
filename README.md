@@ -92,6 +92,34 @@ In the previous tab it should print the greetings you just sent.
 For more advanced examples, please checkout the
 [chatapp](https://github.com/isaiah/jubilee/tree/master/examples/chatapp).
 
+EventBus Security
+------------------
+
+The EventBus can (and probably should) be secured by passing in parameters in the config.json 
+object.
+
+The following config will allow all messages from the browser to `accounts.get_balances` and 
+only allow messages outward that match the format `accounts.get_balances.*`.
+ 
+```
+$ cat config.json
+{ 
+  "host": "0.0.0.0",
+  "port": 8080,
+  "event_bus": "/eventbus",
+  "event_bus_security": 
+    {
+      "incoming": [{address: "user_accounts.get_balances"}],
+      "outgoing": [{address_re: "user_accounts.balances.*"}]
+    }
+}
+```
+
+More details of parameters can be found in [the VertX docs](http://vertx.io/core_manual_ruby.html#securing-the-bridge)
+
+By default the bridge is left wide open.  Any browser connected to an application can observe *all* messages being 
+passed on your EventBus.
+
 Performance Tuning
 -------------------
 
