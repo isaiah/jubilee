@@ -195,16 +195,16 @@ public class JubileeVerticleFactory implements VerticleFactory {
                     }
                 });
                 if (config.containsField("event_bus")) {
-                    JsonArray allowAll = new JsonArray();
-                    allowAll.add(new JsonObject());
                     JsonArray incomingAllowed;
                     JsonArray outgoingAllowed;
 
                     if (config.containsField("event_bus_security")) {
                         JsonObject securitySettings = config.getObject("event_bus_security");
-                        incomingAllowed = securitySettings.getArray("incoming");
-                        outgoingAllowed = securitySettings.getArray("outgoing");
+                        incomingAllowed = securitySettings.getArray("incoming", allowAll);
+                        outgoingAllowed = securitySettings.getArray("outgoing", allowAll);
                     } else {
+                        JsonArray allowAll = new JsonArray();
+                        allowAll.add(new JsonObject());
                         incomingAllowed = allowAll;
                         outgoingAllowed = allowAll;
                     }
