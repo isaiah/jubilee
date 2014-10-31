@@ -33,6 +33,7 @@ public class JubileeVerticle extends Verticle {
     @Override
     public void start() {
         JRubyVerticleFactory.vertx = vertx;
+        JRubyVerticleFactory.container = container;
         JsonObject config = container.config();
         HttpServer httpServer = vertx.createHttpServer();
         String root = config.getString("root", ".");
