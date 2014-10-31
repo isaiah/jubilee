@@ -1,6 +1,7 @@
 require 'bundler/setup'
 Bundler.require(:default)
 require 'vertx'
+Vertx.deploy_verticle('test.rb')
 
 def to_a(shared_set)
   ret = []
