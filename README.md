@@ -34,13 +34,17 @@ Build from source
 First checkout the source from github.
 
 1. To run as a vertx module, run the following command in the root directory:
+  
+  ```shell
+  mvn package
+  vertx create-module-link org.jruby.jubilee~mod-rack~0.1.3-SNAPSHOT
+  ```
 
-```shell
-mvn package
-vertx create-module-link org.jruby.jubilee~mod-rack~0.1.3-SNAPSHOT
-```
-
-then change your langs.properties file to point to the new module;
+  then change your langs.properties file to point to the new module:
+  
+  ```
+  rackup=org.jruby.jubilee~mod-rack~0.1.3-SNAPSHOT:org.jruby.jubilee.JubileeVerticleFactory
+  ```
 
 2. To run as rubygem, run ```rake install``` in the root directory, maven is
 required.
@@ -143,19 +147,6 @@ sudo sysctl -w net.ipv4.tcp_max_syn_backlog=10000
 
 For other operating systems, please consult your operating system
 documentation.
-
-Contributing
--------------
-
-All kinds of contributions are welcome.
-
-File an issue [here](https://github.com/isaiah/jubilee/issues) if you encounter any problems. Or if you prefer to fix by yourself:
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
 
 License
 --------
