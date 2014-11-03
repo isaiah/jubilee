@@ -1,8 +1,20 @@
 pkg/
 .idea/
 *.iml
+*.ipr
+*.iws
 *.class
 lib/jubilee/jubilee.jar
+jars/
 .bundle
 .ruby-version
 
+mods/
+out/
+target/
+
+lib/container.rb
+lib/core/
+lib/test_utils.rb
+lib/vertx.rb
+lib/vertx_tests.rb
