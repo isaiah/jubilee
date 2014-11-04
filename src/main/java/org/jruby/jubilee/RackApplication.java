@@ -63,7 +63,7 @@ public class RackApplication {
         final AtomicBoolean eof = new AtomicBoolean(false);
         input = new RubyIORackInput(runtime, rackIOInputClass, request, bodyBuf, eof);
 
-        request.dataHandler(buffer -> {
+        request.handler(buffer -> {
             bodyBuf.writeBytes(buffer.getByteBuf());
         });
 
@@ -96,9 +96,9 @@ public class RackApplication {
                 PrintWriter printWriter = new PrintWriter(stringWriter);
                 e.printStackTrace(printWriter);
                 if (hideErrorStack) {
-                    request.response().writeStringAndEnd("Internal error.");
+                    request.response().end("Internal error.");
                 } else {
-                    request.response().writeStringAndEnd(message + stringWriter.toString());
+                    request.response().end(message + stringWriter.toString());
                 }
                 e.printStackTrace(runtime.getErrorStream());
             }

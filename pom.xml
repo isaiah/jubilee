@@ -88,6 +88,12 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-ext</artifactId>
+      <version>${vertx.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>lang-jruby</artifactId>
       <version>${lang-jruby.version}</version>
       <scope>compile</scope>

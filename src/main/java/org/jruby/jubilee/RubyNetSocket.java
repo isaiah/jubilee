@@ -54,13 +54,10 @@ public class RubyNetSocket extends RubyObject {
         this.sock = socket;
         this.buf = Unpooled.buffer(BUFSIZE);
         this.eof = new AtomicBoolean(false);
-        this.sock.dataHandler(new Handler<Buffer>() {
-            @Override
-            public void handle(Buffer buffer) {
-                if (buf.isWritable(buffer.length()))
-                    buf.writeBytes(buffer.getByteBuf());
-                else sock.pause();
-            }
+        this.sock.handler(buffer -> {
+            if (buf.isWritable(buffer.length()))
+                buf.writeBytes(buffer.getByteBuf());
+            else sock.pause();
         });
 
         this.sock.endHandler(new VoidHandler() {
@@ -116,7 +113,7 @@ public class RubyNetSocket extends RubyObject {
             data = (RubyString) str.callMethod(context, "to_s");
         if (this.sock.writeQueueFull())
             waitWritable(this.sock);
-        this.sock.writeString(data.asJavaString());
+        this.sock.write(data.asJavaString());
         // TODO return the length actually written
         return data.length();
     }

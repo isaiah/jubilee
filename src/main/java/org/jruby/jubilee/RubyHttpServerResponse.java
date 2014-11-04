@@ -46,7 +46,7 @@ public class RubyHttpServerResponse extends RubyObject {
 
     @JRubyMethod
     public IRubyObject write(ThreadContext context, IRubyObject string) {
-        this.resp.writeString(string.asJavaString());
+        this.resp.write(string.asJavaString());
         return context.runtime.getNil();
     }
 
@@ -86,7 +86,7 @@ public class RubyHttpServerResponse extends RubyObject {
 
     @JRubyMethod
     public IRubyObject end(ThreadContext context, IRubyObject string) {
-        this.resp.writeStringAndEnd(string.asJavaString());
+        this.resp.end(string.asJavaString());
         return context.runtime.getNil();
     }
 

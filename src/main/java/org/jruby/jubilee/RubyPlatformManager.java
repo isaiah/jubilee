@@ -47,7 +47,7 @@ public class RubyPlatformManager extends RubyObject {
         RubySymbol cluster_host_k = runtime.newSymbol("cluster_host");
         RubySymbol cluster_port_k = runtime.newSymbol("cluster_port");
 
-        VertxOptions vertxOptions = VertxOptions.options();
+        VertxOptions vertxOptions = new VertxOptions();
         if (options.containsKey(clustered_k) && options.op_aref(context, clustered_k).isTrue()) {
             int clusterPort = 0;
             String clusterHost = null;
@@ -69,7 +69,7 @@ public class RubyPlatformManager extends RubyObject {
     public IRubyObject start(final ThreadContext context, final Block block) {
         JubileeVerticle verticle = new JubileeVerticle();
         DeploymentOptions verticleConf = parseOptions(options);
-        this.vertx.deployVerticleWithOptions(verticle, verticleConf, result -> {
+        this.vertx.deployVerticle(verticle, verticleConf, result -> {
             if (result.succeeded()) {
                 if (block.isGiven()) {
                     block.yieldSpecific(context);
@@ -103,31 +103,31 @@ public class RubyPlatformManager extends RubyObject {
         RubySymbol root_k = runtime.newSymbol("root");
         RubySymbol instances_k = RubySymbol.newSymbol(context.runtime, "instances");
         JsonObject map = new JsonObject();
-        map.putString("host", options.op_aref(context, host_k).asJavaString());
-        map.putNumber("port", RubyNumeric.num2int(options.op_aref(context, port_k)));
+        map.put("host", options.op_aref(context, host_k).asJavaString());
+        map.put("port", RubyNumeric.num2int(options.op_aref(context, port_k)));
 
-        map.putNumber("instances", RubyNumeric.num2int(options.op_aref(context, instances_k)));
+        map.put("instances", RubyNumeric.num2int(options.op_aref(context, instances_k)));
         if (options.has_key_p(root_k).isTrue())
-            map.putString("root", options.op_aref(context, root_k).asJavaString());
+            map.put("root", options.op_aref(context, root_k).asJavaString());
 
-        map.putString("rackup", options.op_aref(context, rack_up_k).asJavaString());
-        map.putBoolean("quiet", options.containsKey(quiet_k) && options.op_aref(context, quiet_k).isTrue());
+        map.put("rackup", options.op_aref(context, rack_up_k).asJavaString());
+        map.put("quiet", options.containsKey(quiet_k) && options.op_aref(context, quiet_k).isTrue());
 
         String environ = options.op_aref(context, environment_k).asJavaString();
-        map.putString("environment", environ);
+        map.put("environment", environ);
         if (environ.equals("production"))
-            map.putBoolean("hide_error_stack", true);
+            map.put("hide_error_stack", true);
 
         boolean ssl = options.op_aref(context, ssl_k).isTrue();
         if (ssl) {
-            map.putString("keystore_path", options.op_aref(context, ssl_keystore_k).asJavaString());
+            map.put("keystore_path", options.op_aref(context, ssl_keystore_k).asJavaString());
             if (options.has_key_p(ssl_password_k).isTrue())
-                map.putString("keystore_password", options.op_aref(context, ssl_password_k).asJavaString());
+                map.put("keystore_password", options.op_aref(context, ssl_password_k).asJavaString());
         }
-        map.putBoolean("ssl", ssl);
+        map.put("ssl", ssl);
         if (options.has_key_p(eventbus_prefix_k).isTrue())
-            map.putString("event_bus", options.op_aref(context, eventbus_prefix_k).asJavaString());
-        return DeploymentOptions.options().setConfig(map);
+            map.put("event_bus", options.op_aref(context, eventbus_prefix_k).asJavaString());
+        return new DeploymentOptions().setConfig(map);
     }
 
     /*

@@ -25,8 +25,8 @@ public class JubileeVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
-        JsonObject config = getConfig();
-        HttpServerOptions httpServerOptions = HttpServerOptions.options();
+        JsonObject config = config();
+        HttpServerOptions httpServerOptions = new HttpServerOptions();
         httpServerOptions.setPort(config.getInteger("port"));
         httpServerOptions.setHost(config.getString("host"));
         httpServerOptions.setAcceptBacklog(10000);
@@ -40,7 +40,7 @@ public class JubileeVerticle extends AbstractVerticle {
         final RackApplication app;
         boolean ssl = config.getBoolean("ssl");
         if (ssl) {
-            KeyCertOptions keyStoreOptions = KeyCertOptions.options();
+            KeyCertOptions keyStoreOptions = new KeyCertOptions();
             keyStoreOptions.setCertPath(config.getString("keystore_path"))
                     .setKeyPath((config.getString("keystore_password")));
             httpServerOptions.setSsl(true).setKeyStoreOptions(keyStoreOptions);
@@ -52,14 +52,14 @@ public class JubileeVerticle extends AbstractVerticle {
                 runtime.getOutputStream().println("jubilee verticle handle:");
                 app.call(req);
             });
-            if (config.containsField("event_bus")) {
+            if (config.containsKey("event_bus")) {
                 JsonArray allowAll = new JsonArray();
                 allowAll.add(new JsonObject());
                 JsonObject ebconf = new JsonObject();
-                ebconf.putString("prefix", config.getString("event_bus"));
+                ebconf.put("prefix", config.getString("event_bus"));
                 SockJSServer sockJSServer = new SockJSServer(getVertx(), httpServer);
                 JsonArray permit = new JsonArray();
-                permit.addObject(new JsonObject());
+                permit.add(new JsonObject());
                 sockJSServer.bridge(ebconf, permit, permit);
             }
         } catch (IOException e) {
@@ -86,7 +86,7 @@ public class JubileeVerticle extends AbstractVerticle {
         if (!jrubyHome.isEmpty()) {
             instanceConfig.setJRubyHome(jrubyHome);
         }
-        Object[] argv = options.getArray("argv", new JsonArray(new String[]{})).toArray();
+        Object[] argv = options.getJsonArray("argv").getList().toArray();
         instanceConfig.setArgv(Arrays.copyOf(argv, argv.length, String[].class));
 //        }
         RubyArray globalLoadPaths = (RubyArray) Ruby.getGlobalRuntime().getLoadService().getLoadPath();
