@@ -86,7 +86,7 @@ public class JubileeVerticle extends AbstractVerticle {
         if (!jrubyHome.isEmpty()) {
             instanceConfig.setJRubyHome(jrubyHome);
         }
-        Object[] argv = options.getJsonArray("argv").getList().toArray();
+        Object[] argv = options.getJsonArray("argv", new JsonArray()).getList().toArray();
         instanceConfig.setArgv(Arrays.copyOf(argv, argv.length, String[].class));
 //        }
         RubyArray globalLoadPaths = (RubyArray) Ruby.getGlobalRuntime().getLoadService().getLoadPath();

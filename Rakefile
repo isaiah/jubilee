@@ -34,6 +34,8 @@ Jeweler::Tasks.new do |gem|
   gem.version = Jubilee::Version::STRING
   gem.platform = "java"
   gem.files.include "lib/jubilee/jubilee.jar"
+  gem.files.include "jars/*.jar"
+  gem.files.include "lib/**/*.rb"
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
@@ -69,35 +71,35 @@ end
 
 require 'ant'
 
-DEST_PATH = "pkg/classes"
-RESOURCE_PATH = "java/resources"
-
-directory DEST_PATH
-
 desc "Clean up build artifacts"
 task :clean do
-  rm_rf "pkg/classes"
+  sh "mvn clean"
+  rm_rf "jars"
   rm_rf "lib/jubilee/*.jar"
+  rm_rf "lib/core"
+  rm_rf "lib/vertx.rb"
+  rm_rf "lib/vertx_tests.rb"
+  rm_rf "lib/container.rb"
+  rm_rf "lib/test_utils.rb"
 end
 
-BUILDTIME_LIB_DIR = File.join(File.dirname(__FILE__), "jars")
+#desc "Compile the extension, need jdk7 because vertx relies on it"
+#task :compile => [DEST_PATH, "#{DEST_PATH}/META-INF"] do |t|
+#  #ant.javac :srcdir => "java", :destdir => t.prerequisites.first,
+#  #  :source => "1.7", :target => "1.7", :debug => true, :includeantruntime => false,
+#  #  :classpath => "${java.class.path}:${sun.boot.class.path}:jars/vertx-core-2.1.2.jar:jars/netty-all-4.0.20.Final.jar:jars/jackson-core-2.2.2.jar:jars/jackson-databind-2.2.2.jar:jars/jackson-annotations-2.2.2.jar:jars/hazelcast-3.2.3.jar:jars/vertx-platform-2.1.2.jar:jars/vertx-hazelcast-2.1.2.jar"
+#end
 
-desc "Compile the extension, need jdk7 because vertx relies on it"
-task :compile => [DEST_PATH, "#{DEST_PATH}/META-INF"] do |t|
-  ant.javac :srcdir => "java", :destdir => t.prerequisites.first,
-    :source => "1.8", :target => "1.8", :debug => true, :includeantruntime => false,
-    :classpath => "${java.class.path}:${sun.boot.class.path}:jars/vertx-core-3.0.0-SNAPSHOT.jar:jars/netty-all-4.0.23.Final.jar:jars/jackson-core-2.4.0.jar:jars/jackson-databind-2.4.0.jar:jars/jackson-annotations-2.4.0.jar:jars/hazelcast-3.2.5.jar:jars/vertx-hazelcast-3.0.0-SNAPSHOT.jar:jars/vertx-ext-3.0.0-SNAPSHOT.jar:jars/codegen-1.0-SNAPSHOT.jar"
-end
-
-desc "Copy META-INF"
-task "#{DEST_PATH}/META-INF" => ["#{RESOURCE_PATH}/META-INF", "#{RESOURCE_PATH}/default-cluster.xml"] do |t|
-  FileUtils.cp_r t.prerequisites.first, t.name, verbose: true
-  cp t.prerequisites[1], DEST_PATH, verbose: true
-end
+#desc "Copy META-INF"
+#task "#{DEST_PATH}/META-INF" => ["#{RESOURCE_PATH}/META-INF", "#{RESOURCE_PATH}/default-cluster.xml"] do |t|
+#  FileUtils.cp_r t.prerequisites.first, t.name, verbose: true
+#  cp t.prerequisites[1], DEST_PATH, verbose: true
+#end
 
 desc "Build the jar"
-task :jar => [:clean, :compile] do
-  ant.jar :basedir => "pkg/classes", :destfile => "lib/jubilee/jubilee.jar"
+task :jar => :clean do
+  sh "mvn package"
+  sh "unzip jars/*.zip *.rb -d lib"
 end
 
 task :build => :jar
