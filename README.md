@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/isaiah/jubilee.png?branch=master)](https://travis-ci.org/isaiah/jubilee)
-
 Jubilee / mod-rack
 ==================
 
