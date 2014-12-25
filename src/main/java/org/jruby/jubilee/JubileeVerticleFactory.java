@@ -63,7 +63,7 @@ public class JubileeVerticleFactory implements VerticleFactory {
         ClassLoader old = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(cl);
-            this.scontainer = new ScriptingContainer(LocalContextScope.SINGLETHREAD);
+            this.scontainer = new ScriptingContainer(LocalContextScope.CONCURRENT);
             scontainer.setCompatVersion(CompatVersion.RUBY1_9);
             //Prevent JRuby from logging errors to stderr - we want to log ourselves
             scontainer.setErrorWriter(new NullWriter());

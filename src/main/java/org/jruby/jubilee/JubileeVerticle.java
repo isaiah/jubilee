@@ -3,6 +3,8 @@ package org.jruby.jubilee;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyInstanceConfig;
+import org.jruby.embed.LocalContextScope;
+import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServer;
@@ -14,6 +16,7 @@ import org.vertx.java.platform.impl.JRubyVerticleFactory;
 import org.vertx.java.platform.impl.WrappedVertx;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +25,6 @@ import java.util.List;
  * Created by isaiah on 23/01/2014.
  */
 public class JubileeVerticle extends Verticle {
-    private String rackup;
 
     public JubileeVerticle(){}
 
@@ -32,19 +34,24 @@ public class JubileeVerticle extends Verticle {
 
     @Override
     public void start() {
+        // This is setup for the ruby apishims
         JRubyVerticleFactory.vertx = vertx;
         JRubyVerticleFactory.container = container;
+
         JsonObject config = container.config();
         HttpServer httpServer = vertx.createHttpServer();
         String root = config.getString("root", ".");
-        this.runtime = createRuntime(root, config);
-        String expandedRoot = this.runtime.evalScriptlet("File.expand_path(%q(" + root + "))").asJavaString();
-        this.runtime.setCurrentDirectory(expandedRoot);
+        this.scontainer =  new ScriptingContainer(LocalContextScope.CONCURRENT);
+        String jrubyHome = config.getString("jruby-home", "");
+        if (jrubyHome != null)
+            this.scontainer.setHomeDirectory(jrubyHome);
+        String expandedRoot = (String) this.scontainer.runScriptlet("File.expand_path(%q(" + root + "))");
+        this.scontainer.setCurrentDirectory(expandedRoot);
         IRubyObject rackApplication = initRackApplication(config);
         final RackApplication app;
         boolean ssl = config.getBoolean("ssl");
         try {
-            app = new RackApplication((WrappedVertx) vertx, runtime.getCurrentContext(), rackApplication, config);
+            app = new RackApplication((WrappedVertx) vertx, rackApplication.getRuntime().getCurrentContext(), rackApplication, config);
             httpServer.setAcceptBacklog(10000);
             httpServer.requestHandler(new Handler<HttpServerRequest>() {
                 public void handle(final HttpServerRequest req) {
@@ -68,37 +75,8 @@ public class JubileeVerticle extends Verticle {
 
     @Override
     public void stop() {
-        this.runtime.tearDown();
-    }
-
-    public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
-    private Ruby createRuntime(String root, JsonObject options) {
-        Ruby runtime;
-//        if (Ruby.isGlobalRuntimeReady()) {
-//            runtime = Ruby.getGlobalRuntime();
-//        } else {
-        RubyInstanceConfig instanceConfig = new RubyInstanceConfig();
-        String jrubyHome = options.getString("jruby-home", "");
-        if (!jrubyHome.isEmpty()) {
-            instanceConfig.setJRubyHome(jrubyHome);
-        }
-        Object[] argv = options.getArray("argv", new JsonArray(new String[]{})).toArray();
-        instanceConfig.setArgv(Arrays.copyOf(argv, argv.length, String[].class));
-//        }
-        RubyArray globalLoadPaths = (RubyArray) Ruby.getGlobalRuntime().getLoadService().getLoadPath();
-        List<String> loadPaths = new ArrayList<>();
-        for (int i = 0; i < globalLoadPaths.size(); i++) {
-            IRubyObject entry = globalLoadPaths.eltInternal(i);
-            loadPaths.add(entry.asJavaString());
-        }
-        instanceConfig.setLoadPaths(loadPaths);
-
-        instanceConfig.setLoader(getClassLoader());
-        runtime = Ruby.newInstance(instanceConfig);
-        return runtime;
+        this.scontainer.clear();
+        Ruby.clearGlobalRuntime();
     }
 
     private IRubyObject initRackApplication(JsonObject config) {
@@ -112,16 +90,9 @@ public class JubileeVerticle extends Verticle {
                     "app = Rack::CommonLogger.new(app, logger)\n";
         }
         rackScript += "Jubilee::Application.new(app)\n";
-        return runtime.evalScriptlet(rackScript);
+        return (IRubyObject) scontainer.runScriptlet(new StringReader(rackScript), rackup);
     }
 
-    private ClassLoader getClassLoader() {
-        if (this.classLoader != null) return this.classLoader;
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        if (cl != null) return cl;
-        return getClass().getClassLoader();
-    }
-
-    private Ruby runtime;
-    private ClassLoader classLoader;
+    private ScriptingContainer scontainer;
+    private String rackup;
 }
