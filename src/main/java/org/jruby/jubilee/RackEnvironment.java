@@ -159,7 +159,7 @@ public class RackEnvironment {
         if (sourceAddress == null) {
             return "";
         }
-        return sourceAddress.hostAddress();
+        return sourceAddress.host();
     }
 
     private static int getContentLength(final MultiMap headers) {

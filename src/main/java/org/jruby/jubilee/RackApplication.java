@@ -2,13 +2,9 @@ package org.jruby.jubilee;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.VoidHandler;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.spi.cluster.VertxSPI;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.javasupport.JavaEmbedUtils;
@@ -32,12 +28,12 @@ public class RackApplication {
     private boolean ssl;
     private boolean hideErrorStack;
     private Ruby runtime;
-    private VertxSPI vertx;
+    private Vertx vertx;
     private RubyClass rackIOInputClass;
     private RubyClass httpServerResponseClass;
     private RackEnvironment rackEnv;
 
-    public RackApplication(VertxSPI vertx, ThreadContext context, IRubyObject app, JsonObject config) throws IOException {
+    public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, JsonObject config) throws IOException {
         this.app = app;
         this.ssl = config.getBoolean("ssl");
         this.hideErrorStack = config.getBoolean("hide_error_stack", false);
@@ -76,19 +72,19 @@ public class RackApplication {
 //        } else {
 //            input = nullio;
 //        }
-        vertx.executeBlocking(() -> {
+        vertx.executeBlocking((future) -> {
             try {
                 // This is a different context, do NOT replace runtime.getCurrentContext()
                 IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", rackEnv.getEnv(request, input, ssl));
-                if (request.isHijacked()) {
-                    // It's the hijacker's response to close the socket.
-                    return null;
-                }
+//                if (request.isHijacked()) {
+//                    // It's the hijacker's response to close the socket.
+//                    return;
+//                }
                 RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
                 RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
                         httpServerResponseClass, request);
                 response.respond(resp);
-                return null;
+                future.complete();
             } catch (Exception e) {
                 request.response().setStatusCode(500);
                 String message = "Jubilee caught this error: " + e.getMessage() + "\n";
@@ -102,8 +98,7 @@ public class RackApplication {
                 }
                 e.printStackTrace(runtime.getErrorStream());
             }
-            return null;
-        }, (ar) -> {runtime.getOutputStream().println("handle call");});
+        }, false, (ar) -> {});
     }
 
 }

@@ -1,13 +1,14 @@
 package org.jruby.jubilee;
 
 import io.vertx.core.*;
-import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.net.KeyCertOptions;
-import io.vertx.core.spi.cluster.VertxSPI;
-import io.vertx.ext.sockjs.SockJSServer;
+import io.vertx.core.net.JksOptions;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.PermittedOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyInstanceConfig;
@@ -40,31 +41,29 @@ public class JubileeVerticle extends AbstractVerticle {
         final RackApplication app;
         boolean ssl = config.getBoolean("ssl");
         if (ssl) {
-            KeyCertOptions keyStoreOptions = new KeyCertOptions();
-            keyStoreOptions.setCertPath(config.getString("keystore_path"))
-                    .setKeyPath((config.getString("keystore_password")));
-            httpServerOptions.setSsl(true).setKeyStoreOptions(keyStoreOptions);
+            httpServerOptions.setSsl(true).setKeyStoreOptions(
+                    new JksOptions().setPath(config.getString("keystore_path"))
+                            .setPassword(config.getString("keystore_password"))
+            );
         }
-        HttpServer httpServer = getVertx().createHttpServer(httpServerOptions);
+        Router router = Router.router(vertx);
         try {
-            app = new RackApplication((VertxSPI) getVertx(), runtime.getCurrentContext(), rackApplication, config);
-            httpServer.requestHandler(req -> {
-                runtime.getOutputStream().println("jubilee verticle handle:");
-                app.call(req);
-            });
+            app = new RackApplication(vertx, runtime.getCurrentContext(), rackApplication, config);
             if (config.containsKey("event_bus")) {
-                JsonArray allowAll = new JsonArray();
-                allowAll.add(new JsonObject());
-                JsonObject ebconf = new JsonObject();
-                ebconf.put("prefix", config.getString("event_bus"));
-                SockJSServer sockJSServer = new SockJSServer(getVertx(), httpServer);
-                JsonArray permit = new JsonArray();
-                permit.add(new JsonObject());
-                sockJSServer.bridge(ebconf, permit, permit);
+                BridgeOptions options = new BridgeOptions().addOutboundPermitted(new PermittedOptions().setAddress("*"));
+                router.route("/" + config.getString("event_bus") + "/*").handler(SockJSHandler.create(vertx).bridge(options, event -> {
+                    event.complete(true);
+                }));
             }
+            router.route("*").handler(ctx -> {
+                runtime.getOutputStream().println("jubilee verticle handle:");
+                app.call(ctx.request());
+            });
         } catch (IOException e) {
             runtime.getErrorStream().println("Failed to create RackApplication");
         }
+
+        vertx.createHttpServer(httpServerOptions).requestHandler(router::accept).listen();
     }
 
     @Override

@@ -99,7 +99,7 @@ end
 desc "Build the jar"
 task :jar => :clean do
   sh "mvn package"
-  sh "unzip jars/*.zip *.rb -d lib"
+  #sh "unzip jars/*.zip *.rb -d lib"
 end
 
 task :build => :jar

@@ -36,7 +36,7 @@
     <mods.directory>target/mods</mods.directory>
 
     <!--Dependency versions-->
-    <vertx.version>3.0.0-SNAPSHOT</vertx.version>
+    <vertx.version>3.0.0</vertx.version>
     <lang-jruby.version>2.1.0-final</lang-jruby.version>
     <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
     <junit.version>4.11</junit.version>
@@ -88,22 +88,14 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-ext</artifactId>
+      <artifactId>vertx-lang-ruby</artifactId>
       <version>${vertx.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>lang-jruby</artifactId>
-      <version>${lang-jruby.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>lang-jruby</artifactId>
-      <version>${lang-jruby.version}</version>
-      <type>zip</type>
-      <classifier>mod</classifier>
+      <artifactId>vertx-web</artifactId>
+      <version>${vertx.version}</version>
       <scope>compile</scope>
     </dependency>
     <!--Test dependencies-->
@@ -294,14 +286,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
         <version>${maven.surefire.report.plugin.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${maven.javadoc.plugin.version}</version>
-        <configuration>
-          <aggregate>true</aggregate>
-        </configuration>
       </plugin>
     </plugins>
   </reporting>
