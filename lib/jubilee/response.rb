@@ -11,7 +11,7 @@ module Jubilee
       @chunked                 = false
       @hijack                  = nil
       if @body.kind_of? Array and @body.size == 1
-        @content_length = @body[0].bytesize
+        @content_length = @body[0].nil? ? 0 : @body[0].bytesize
       end
     end
 

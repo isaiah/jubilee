@@ -80,7 +80,7 @@ public class RackEnvironment {
         String scriptName = "";
         String[] hostInfo = getHostInfo(request.headers().get(Const.HOST));
 
-        env.lazyPut(RACK_KEY.REQUEST_METHOD, request.method(), true);
+        env.lazyPut(RACK_KEY.REQUEST_METHOD, request.method().toString(), true);
         env.lazyPut(RACK_KEY.SCRIPT_NAME, scriptName, false);
         env.lazyPut(RACK_KEY.PATH_INFO, pathInfo, false);
         env.lazyPut(RACK_KEY.QUERY_STRING, orEmpty(request.query()), false);

@@ -55,8 +55,7 @@ public class JubileeVerticle extends AbstractVerticle {
                     event.complete(true);
                 }));
             }
-            router.route("*").handler(ctx -> {
-                runtime.getOutputStream().println("jubilee verticle handle:");
+            router.route("/").handler(ctx -> {
                 app.call(ctx.request());
             });
         } catch (IOException e) {
