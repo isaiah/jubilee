@@ -86,14 +86,8 @@ public class RubyPlatformManager extends RubyObject {
 
     @JRubyMethod
     public IRubyObject stop(ThreadContext context) {
-        try {
-            this.vertx.undeploy(deploymentID, result -> {
-                context.runtime.getOutputStream().println("Bye for now!");
-                this.vertx.close();
-            });
-        } catch (IllegalStateException ignore) {
-            // already undeployed
-        }
+        this.vertx.undeploy(deploymentID);
+        this.vertx.close();
         return context.runtime.getNil();
     }
 

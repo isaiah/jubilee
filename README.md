@@ -3,12 +3,8 @@
 Jubilee server
 =========
  
-> "We need a web framework for Vertx.", you said.
-
-> "But why not use Vertx in your Rails applications, it's the most productive web framework ever created."
-
-The Answer is Jubilee, a rack server with [vertx 2.0](http://vertx.io) awesomeness builtin. Check out the
-[demo](http://192.241.201.68:8080/) [application](https://github.com/isaiah/jubilee/tree/master/examples/chatapp).
+A rack application compatible http server built on Vertx3. Check out the
+demo [application](https://github.com/isaiah/jubilee/tree/master/examples/chatapp).
 
 Why another rack server?
 ------------------------
@@ -36,7 +32,7 @@ bundle && bundle exec rake install
 ```
 
 This is the development branch of jubilee, it uses the vertx
-3.0-SNAPSHOT for a working version, please check out the
+3.0 for a working version, please check out the
 [2.x branch](https://github.com/isaiah/jubilee/tree/2.x).
 
 Rails
