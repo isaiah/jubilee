@@ -3,6 +3,7 @@ package org.jruby.jubilee;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpVersion;
 import io.vertx.core.net.SocketAddress;
 import org.jruby.*;
 import org.jruby.jubilee.utils.RubyHelper;
@@ -79,6 +80,10 @@ public class RackEnvironment {
 
         String scriptName = "";
         String[] hostInfo = getHostInfo(request.headers().get(Const.HOST));
+        String httpVersion = "1.1";
+        if (request.version() == HttpVersion.HTTP_1_0) {
+            httpVersion = "1.0";
+        }
 
         env.lazyPut(RACK_KEY.REQUEST_METHOD, request.method().toString(), true);
         env.lazyPut(RACK_KEY.SCRIPT_NAME, scriptName, false);
@@ -87,7 +92,7 @@ public class RackEnvironment {
         env.lazyPut(RACK_KEY.SERVER_NAME, hostInfo[0], false);
         env.lazyPut(RACK_KEY.SERVER_PORT, hostInfo[1], true);
         env.lazyPut(RACK_KEY.HTTP_VERSION,
-                request.version(), true);
+                httpVersion, true);
         env.lazyPut(RACK_KEY.CONTENT_TYPE, headers.get(HttpHeaders.Names.CONTENT_TYPE), true);
         env.lazyPut(RACK_KEY.REQUEST_URI, request.uri(), false);
         env.lazyPut(RACK_KEY.REMOTE_ADDR, getRemoteAddr(request), true);

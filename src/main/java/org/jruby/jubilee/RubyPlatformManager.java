@@ -22,6 +22,7 @@ import java.util.Enumeration;
 public class RubyPlatformManager extends RubyObject {
     private RubyHash options;
     private Vertx vertx;
+    private String deploymentID;
 
     public static void createPlatformManagerClass(Ruby runtime) {
         RubyModule mJubilee = runtime.defineModule("Jubilee");
@@ -74,6 +75,7 @@ public class RubyPlatformManager extends RubyObject {
                 if (block.isGiven()) {
                     block.yieldSpecific(context);
                 }
+                deploymentID = result.result();
             } else {
                 result.cause().printStackTrace(context.runtime.getErrorStream());
             }
@@ -84,7 +86,14 @@ public class RubyPlatformManager extends RubyObject {
 
     @JRubyMethod
     public IRubyObject stop(ThreadContext context) {
-        this.vertx.close();
+        try {
+            this.vertx.undeploy(deploymentID, result -> {
+                context.runtime.getOutputStream().println("Bye for now!");
+                this.vertx.close();
+            });
+        } catch (IllegalStateException ignore) {
+            // already undeployed
+        }
         return context.runtime.getNil();
     }
 
