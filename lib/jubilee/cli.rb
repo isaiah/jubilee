@@ -15,7 +15,7 @@ module Jubilee
 
     def test_java_version!(version)
       if version[0..2] < "1.8"
-        puts("Error: Jubilee requires JDK 1.7.0 or later. You can use the official Oracle distribution or the OpenJDK version.")
+        puts("Error: Jubilee requires JDK 1.8.0 or later. You can use the official Oracle distribution or the OpenJDK version.")
         exit 1
       end
     end
