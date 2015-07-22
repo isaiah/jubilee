@@ -63,7 +63,7 @@ Assume necessary javascript files are loaded in the page (they can be found [her
 start jubilee in a rack application with:
 
 ```
-$ jubilee --eventbus /eventbus
+$ jubilee --eventbus eventbus
 ```
 
 In one browser:
