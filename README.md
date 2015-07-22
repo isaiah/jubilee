@@ -25,7 +25,7 @@ the other cool features of Vertx:
 Get started
 ------------
 
-Make sure you have JDK 8 installed.
+Make sure you have JDK 8 and jruby 1.7.20+ installed.
 
 ```shell
 bundle && bundle exec rake install

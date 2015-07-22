@@ -50,7 +50,7 @@ $(function() {
     if ((receiver = $("#receivers").val()) === "all") {
       eb.publish("chat", {sender: uid, message: msg});
     } else {
-      updates.append("<div class='public by_you'><span class='sender'>You said to " + uid + ":</span>" + msg + "</div>");
+      updates.append("<div class='public by_you'><span class='sender'>You said to " + receiver + ":</span>" + msg + "</div>");
       eb.send(receiver, {sender: uid, message: msg});
     }
     $("#content").val("");

@@ -1,17 +1,17 @@
 /*
- * Copyright 2011-2012 the original author or authors.
+ *   Copyright (c) 2011-2015 The original author or authors
+ *   ------------------------------------------------------
+ *   All rights reserved. This program and the accompanying materials
+ *   are made available under the terms of the Eclipse Public License v1.0
+ *   and Apache License v2.0 which accompanies this distribution.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *       The Eclipse Public License is available at
+ *       http://www.eclipse.org/legal/epl-v10.html
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *       The Apache License v2.0 is available at
+ *       http://www.opensource.org/licenses/apache2.0.php
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *   You may elect to redistribute this code under either of these licenses.
  */
 
 var vertx = vertx || {};
@@ -35,31 +35,26 @@ var vertx = vertx || {};
     var handlerMap = {};
     var replyHandlers = {};
     var state = vertx.EventBus.CONNECTING;
-    var sessionID = null;
     var pingTimerID = null;
+    var pingInterval = null;
+    if (options) {
+      pingInterval = options['vertxbus_ping_interval'];
+    }
+    if (!pingInterval) {
+      pingInterval = 5000;
+    }
   
     that.onopen = null;
     that.onclose = null;
+    that.onerror = null;
 
-    that.login = function(username, password, replyHandler) {
-      sendOrPub("send", 'vertx.basicauthmanager.login', {username: username, password: password}, function(reply) {
-        if (reply.status === 'ok') {
-          that.sessionID = reply.sessionID;
-        }
-        if (replyHandler) {
-          delete reply.sessionID;
-          replyHandler(reply)
-        }
-      });
-    }
+    that.send = function(address, message, replyHandler, failureHandler) {
+      sendOrPub("send", address, message, replyHandler, failureHandler)
+    };
   
-    that.send = function(address, message, replyHandler) {
-      sendOrPub("send", address, message, replyHandler)
-    }
-  
-    that.publish = function(address, message, replyHandler) {
-      sendOrPub("publish", address, message, replyHandler)
-    }
+    that.publish = function(address, message) {
+      sendOrPub("publish", address, message, null)
+    };
   
     that.registerHandler = function(address, handler) {
       checkSpecified("address", 'string', address);
@@ -76,7 +71,7 @@ var vertx = vertx || {};
       } else {
         handlers[handlers.length] = handler;
       }
-    }
+    };
   
     that.unregisterHandler = function(address, handler) {
       checkSpecified("address", 'string', address);
@@ -95,23 +90,22 @@ var vertx = vertx || {};
           delete handlerMap[address];
         }
       }
-    }
+    };
   
     that.close = function() {
       checkOpen();
-      if (pingTimerID) clearInterval(pingTimerID);
       state = vertx.EventBus.CLOSING;
       sockJSConn.close();
-    }
+    };
   
     that.readyState = function() {
       return state;
-    }
+    };
   
     sockJSConn.onopen = function() {
-      // Send the first ping then send a ping every 5 seconds
+      // Send the first ping then send a ping every pingInterval milliseconds
       sendPing();
-      pingTimerID = setInterval(sendPing, 5000);
+      pingTimerID = setInterval(sendPing, pingInterval);
       state = vertx.EventBus.OPEN;
       if (that.onopen) {
         that.onopen();
@@ -120,6 +114,7 @@ var vertx = vertx || {};
   
     sockJSConn.onclose = function() {
       state = vertx.EventBus.CLOSED;
+      if (pingTimerID) clearInterval(pingTimerID);
       if (that.onclose) {
         that.onclose();
       }
@@ -128,6 +123,15 @@ var vertx = vertx || {};
     sockJSConn.onmessage = function(e) {
       var msg = e.data;
       var json = JSON.parse(msg);
+      var type = json.type;
+      if (type === 'err') {
+        if (that.onerror) {
+          that.onerror(json.body);
+        } else {
+          console.error("Error received on connection: " + json.body);
+        }
+        return;
+      }
       var body = json.body;
       var replyAddress = json.replyAddress;
       var address = json.address;
@@ -148,35 +152,43 @@ var vertx = vertx || {};
         }
       } else {
         // Might be a reply message
-        var handler = replyHandlers[address];
-        if (handler) {
+        handlers = replyHandlers[address];
+        if (handlers) {
           delete replyHandlers[address];
-          handler(body, replyHandler);
+          var handler = handlers.replyHandler;
+          if (body) {
+            handler(body, replyHandler);
+          } else if (typeof json.failureCode != 'undefined') {
+            // Check for failure
+            var failure = { failureCode: json.failureCode, failureType: json.failureType, message: json.message };
+            var failureHandler = handlers.failureHandler;
+            if (failureHandler) {
+              failureHandler(failure)
+            }
+          }
         }
       }
-    }
+    };
 
     function sendPing() {
       var msg = {
         type: "ping"
-      }
+      };
       sockJSConn.send(JSON.stringify(msg));
     }
   
-    function sendOrPub(sendOrPub, address, message, replyHandler) {
+    function sendOrPub(sendOrPub, address, message, replyHandler, failureHandler) {
       checkSpecified("address", 'string', address);
       checkSpecified("replyHandler", 'function', replyHandler, true);
+      checkSpecified("failureHandler", 'function', failureHandler, true);
       checkOpen();
       var envelope = { type : sendOrPub,
                        address: address,
                        body: message };
-      if (that.sessionID) {
-        envelope.sessionID = that.sessionID;
-      }
-      if (replyHandler) {
+      if (replyHandler || failureHandler) {
         var replyAddress = makeUUID();
         envelope.replyAddress = replyAddress;
-        replyHandlers[replyAddress] = replyHandler;
+        replyHandlers[replyAddress] = { replyHandler: replyHandler, failureHandler: failureHandler };
       }
       var str = JSON.stringify(envelope);
       sockJSConn.send(str);
@@ -204,7 +216,7 @@ var vertx = vertx || {};
     function makeUUID(){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
         .replace(/[xy]/g,function(a,b){return b=Math.random()*16,(a=="y"?b&3|8:b|0).toString(16)})}
   
-  }
+  };
   
   vertx.EventBus.CONNECTING = 0;
   vertx.EventBus.OPEN = 1;

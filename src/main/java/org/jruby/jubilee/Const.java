@@ -8,7 +8,7 @@ package org.jruby.jubilee;
  */
 public final class Const {
 
-    public static final String JUBILEE_VERSION = "Jubilee(2.1.0)";
+    public static final String JUBILEE_VERSION = "Jubilee(3.0.0)";
 
     public static final String LOCALHOST = "localhost";
     public static final String PORT_80 = "80";

@@ -11,3 +11,10 @@ require 'jubilee/application'
 require 'jubilee/configuration'
 require 'jubilee/response'
 require 'rack/handler/jubilee'
+require 'vertx/vertx'
+
+module Jubilee
+  def self.vertx
+    @vertx ||= Vertx::Vertx.new(org.jruby.jubilee.vertx.JubileeVertx.vertx)
+  end
+end

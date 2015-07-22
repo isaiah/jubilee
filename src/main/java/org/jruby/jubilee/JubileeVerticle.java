@@ -50,7 +50,8 @@ public class JubileeVerticle extends AbstractVerticle {
         try {
             app = new RackApplication(vertx, runtime.getCurrentContext(), rackApplication, config);
             if (config.containsKey("event_bus")) {
-                BridgeOptions options = new BridgeOptions().addOutboundPermitted(new PermittedOptions().setAddress("*"));
+                BridgeOptions options = new BridgeOptions().addOutboundPermitted(new PermittedOptions().setAddressRegex(".+"));
+                options.addInboundPermitted(new PermittedOptions().setAddressRegex(".+"));
                 router.route("/" + config.getString("event_bus") + "/*").handler(SockJSHandler.create(vertx).bridge(options, event -> {
                     event.complete(true);
                 }));
@@ -76,9 +77,6 @@ public class JubileeVerticle extends AbstractVerticle {
 
     private Ruby createRuntime(String root, JsonObject options) {
         Ruby runtime;
-//        if (Ruby.isGlobalRuntimeReady()) {
-//            runtime = Ruby.getGlobalRuntime();
-//        } else {
         RubyInstanceConfig instanceConfig = new RubyInstanceConfig();
         String jrubyHome = options.getString("jruby-home", "");
         if (!jrubyHome.isEmpty()) {
@@ -86,7 +84,6 @@ public class JubileeVerticle extends AbstractVerticle {
         }
         Object[] argv = options.getJsonArray("argv", new JsonArray()).getList().toArray();
         instanceConfig.setArgv(Arrays.copyOf(argv, argv.length, String[].class));
-//        }
         RubyArray globalLoadPaths = (RubyArray) Ruby.getGlobalRuntime().getLoadService().getLoadPath();
         List<String> loadPaths = new ArrayList<>();
         for (int i = 0; i < globalLoadPaths.size(); i++) {

@@ -1,23 +1,32 @@
 require 'bundler/setup'
 Bundler.require(:default)
-require 'vertx'
+require 'vertx/vertx'
 
-def to_a(shared_set)
-  ret = []
-  shared_set.each{ |item| ret << item}
-  ret
+def to_a(users)
+  users.split("\0")
 end
 
-Vertx::EventBus.register_handler('logout') do |message|
-  Vertx::SharedData.get_set(:users).delete(message.body)
+vertx = Jubilee.vertx
+event_bus = vertx.event_bus()
+sd = vertx.shared_data()
+
+event_bus.consumer('logout') do |message|
+  chat_data = sd.get_local_map("chat")
+  users = to_a(chat_data.get("users"))
+  users.reject!{|u| u == message.body }
+  chat_data.put("users", users.join("\0"))
 end
+
 
 # register the user and return the previous users
-Vertx::EventBus.register_handler('login') do |message|
+event_bus.consumer('login') do |message|
   user = message.body
-  users = Vertx::SharedData.get_set(:users).add(user)
+  chat_data = sd.get_local_map("chat")
+    users = chat_data.get("users") || ""
   message.reply(users: to_a(users))
-  Vertx::EventBus.publish("new_user", user)
+  users = user + "\0" + users
+  chat_data.put("users", users)
+  event_bus.publish("new_user", user)
 end
 
 
