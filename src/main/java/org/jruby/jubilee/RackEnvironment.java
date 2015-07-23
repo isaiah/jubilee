@@ -102,9 +102,9 @@ public class RackEnvironment {
         env.lazyPut(RACK_KEY.MULTIPROCESS, runtime.getFalse(), false);
         env.lazyPut(RACK_KEY.RUN_ONCE, runtime.getFalse(), false);
 
-        // Hijack handling
-        env.lazyPut(RACK_KEY.HIJACK_P, runtime.getTrue(), false);
-        env.lazyPut(RACK_KEY.HIJACK, hijackProc(env, request), false);
+        // Hijack handling (disabled)
+        env.lazyPut(RACK_KEY.HIJACK_P, runtime.getFalse(), false);
+        //env.lazyPut(RACK_KEY.HIJACK, hijackProc(env, request), false);
 
 
         final int contentLength = getContentLength(headers);
@@ -119,30 +119,30 @@ public class RackEnvironment {
         return env;
     }
 
-    private IRubyObject hijackProc(final RackEnvironmentHash env, final HttpServerRequest req) {
-        CompiledBlockCallback19 callback = new CompiledBlockCallback19() {
-            @Override
-            public IRubyObject call(ThreadContext context, IRubyObject self, IRubyObject[] args, Block block) {
-                RubyNetSocket rubyNetSocket = new RubyNetSocket(context.runtime, netSocketClass, req.netSocket());
-                env.put("rack.hijack_io", rubyNetSocket);
-                return rubyNetSocket;
-            }
-
-            @Override
-            public String getFile() {
-                return null;
-            }
-
-            @Override
-            public int getLine() {
-                return 0;
-            }
-        };
-        BlockBody body = CompiledBlockLight19.newCompiledBlockLight(Arity.NO_ARGUMENTS, runtime.getStaticScopeFactory().getDummyScope(), callback, false, 0, new String[]{});
-        Block b = new Block(body, runtime.newBinding().getBinding());
-
-        return RubyProc.newProc(runtime, b, Block.Type.LAMBDA);
-    }
+//    private IRubyObject hijackProc(final RackEnvironmentHash env, final HttpServerRequest req) {
+//        CompiledBlockCallback19 callback = new CompiledBlockCallback19() {
+//            @Override
+//            public IRubyObject call(ThreadContext context, IRubyObject self, IRubyObject[] args, Block block) {
+//                RubyNetSocket rubyNetSocket = new RubyNetSocket(context.runtime, netSocketClass, req.netSocket());
+//                env.put("rack.hijack_io", rubyNetSocket);
+//                return rubyNetSocket;
+//            }
+//
+//            @Override
+//            public String getFile() {
+//                return null;
+//            }
+//
+//            @Override
+//            public int getLine() {
+//                return 0;
+//            }
+//        };
+//        BlockBody body = CompiledBlockLight19.newCompiledBlockLight(Arity.NO_ARGUMENTS, runtime.getStaticScopeFactory().getDummyScope(), callback, false, 0, new String[]{});
+//        Block b = new Block(body, runtime.newBinding().getBinding());
+//
+//        return RubyProc.newProc(runtime, b, Block.Type.LAMBDA);
+//    }
 
     public String[] getHostInfo(String host) {
         String[] hostInfo;
