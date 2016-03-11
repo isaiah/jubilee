@@ -9,7 +9,7 @@ Make sure you are using jruby 1.7+ (jubilee 1.1.0+ require jruby 1.7.5 or later)
 To run the application:
 
 ```shell
-bundle && jubilee --eventbus /eventbus
+bundle && jubilee --eventbus eventbus
 ```
 
 Then go to http://localhost:8080 in your browser, if you have the page

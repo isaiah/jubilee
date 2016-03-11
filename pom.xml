@@ -37,7 +37,6 @@
 
     <!--Dependency versions-->
     <vertx.version>3.0.0</vertx.version>
-    <lang-jruby.version>2.1.0-final</lang-jruby.version>
     <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
     <junit.version>4.11</junit.version>
 
@@ -65,13 +64,6 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
-  <distributionManagement>
-    <repository>
-      <id>bintray-isaiah-maven-mod-rack</id>
-      <name>isaiah-maven-mod-rack</name>
-      <url>https://api.bintray.com/maven/isaiah/maven/mod-rack</url>
-    </repository>
-  </distributionManagement>
   <dependencies>
     <!--Vertx provided dependencies-->
     <dependency>
@@ -114,7 +106,7 @@
     <dependency>
       <groupId>org.jruby</groupId>
       <artifactId>jruby-complete</artifactId>
-      <version>9.0.0.0.rc2</version>
+      <version>9.0.5.0</version>
       <scope>provided</scope>
     </dependency>
 
