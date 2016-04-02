@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib"]
   s.authors = ["Isaiah Peng"]
-  s.date = "2016-03-11"
+  s.date = "2016-04-02"
   s.description = "Jubilee is a rack server for JRuby built upon the high performance Vertx platform. It provides the best features of Vertx such as EventBus, SharedData, and clustering."
   s.email = "issaria@gmail.com"
   s.executables = ["jubilee", "jubilee_d"]
@@ -49,6 +49,21 @@ Gem::Specification.new do |s|
     "examples/jubilee.conf.rb",
     "examples/keystore.jks",
     "examples/shims_example/log/development.log",
+    "jars/hazelcast-3.5.2.jar",
+    "jars/jackson-annotations-2.6.0.jar",
+    "jars/jackson-core-2.6.1.jar",
+    "jars/jackson-databind-2.6.1.jar",
+    "jars/netty-buffer-4.0.33.Final.jar",
+    "jars/netty-codec-4.0.33.Final.jar",
+    "jars/netty-codec-http-4.0.33.Final.jar",
+    "jars/netty-common-4.0.33.Final.jar",
+    "jars/netty-handler-4.0.33.Final.jar",
+    "jars/netty-transport-4.0.33.Final.jar",
+    "jars/vertx-auth-common-3.2.1.jar",
+    "jars/vertx-core-3.2.1.jar",
+    "jars/vertx-hazelcast-3.2.1.jar",
+    "jars/vertx-lang-ruby-3.2.1.jar",
+    "jars/vertx-web-3.2.1.jar",
     "jubilee.gemspec",
     "lib/jubilee.rb",
     "lib/jubilee/application.rb",
