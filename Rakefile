@@ -74,7 +74,7 @@ require 'ant'
 desc "Clean up build artifacts"
 task :clean do
   sh "mvn clean"
-  rm_rf "jars"
+  #rm_rf "jars"
   rm_rf "lib/jubilee/*.jar"
   rm_rf "lib/core"
   rm_rf "lib/vertx.rb"
