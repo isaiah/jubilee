@@ -43,14 +43,16 @@ module Jubilee
         server.start do
           puts "Jubilee is listening on port #{@config.options[:Port]}, press Ctrl+C to quit"
         end
-        thread = Thread.current
+        stopping = false
         Signal.trap("INT") do
           puts "Jubilee is shutting down gracefully..."
           server.stop
-          thread.wakeup
+          stopping = true
         end
         puts "Jubilee is initializing..."
-        sleep
+        while !stopping
+          sleep 0.2
+        end
       end
     end
 
@@ -129,7 +131,7 @@ module Jubilee
         end
 
         o.on "-v", "--version", "Print the version information" do
-          puts "jubilee version #{Jubilee::Version::STRING} on Vert.x 3.0.0-SNAPSHOT"
+          puts "jubilee version #{Jubilee::Version::STRING} on Vert.x 3.2.1"
           exit 0
         end
       end
