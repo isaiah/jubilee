@@ -106,9 +106,9 @@ public class RubyIORackInput extends RubyObject implements RackInput {
     @JRubyMethod(optional = 2)
     public IRubyObject read(ThreadContext context, IRubyObject[] args) {
         Ruby runtime = context.runtime;
-        RubyString dst = RubyString.newStringNoCopy(context.runtime, new ByteList(), BINARY, StringSupport.CR_VALID);
+        RubyString dst = RubyString.newStringNoCopy(runtime, new ByteList(), BINARY, StringSupport.CR_VALID);
         if (isEOF())
-            return runtime.getNil();
+            return RubyString.newEmptyString(runtime);
         int length;
         switch (args.length) {
             case 0:

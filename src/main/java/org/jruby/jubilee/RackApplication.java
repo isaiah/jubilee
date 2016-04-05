@@ -92,11 +92,9 @@ public class RackApplication {
                 future.complete(result);
             } else {
                 respond(result, request);
-                runtime.getOutputStream().println("not multiple threaded");
             }
         }, false, (ar) -> {
             if (ar.succeeded()) {
-                runtime.getOutputStream().println("multiple threaded");
                 respond((IRubyObject) ar.result(), request);
             } else {
                 fail(ar.cause(), request);
