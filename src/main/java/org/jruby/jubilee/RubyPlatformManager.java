@@ -49,6 +49,8 @@ public class RubyPlatformManager extends RubyObject {
         RubySymbol cluster_port_k = runtime.newSymbol("cluster_port");
 
         VertxOptions vertxOptions = new VertxOptions();
+        long maxEventLoopExecuteTime = 6000000000L;
+        vertxOptions.setMaxEventLoopExecuteTime(maxEventLoopExecuteTime);
         if (options.containsKey(clustered_k) && options.op_aref(context, clustered_k).isTrue()) {
             int clusterPort = 0;
             String clusterHost = null;

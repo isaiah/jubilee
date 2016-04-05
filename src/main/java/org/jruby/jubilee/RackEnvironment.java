@@ -53,7 +53,7 @@ public class RackEnvironment {
         putRack("REMOTE_ADDR", RACK_KEY.REMOTE_ADDR);
         putRack("rack.url_scheme", RACK_KEY.URL_SCHEME);
         putRack("rack.version", RACK_KEY.VERSION);
-        putRack("rack.multithread", RACK_KEY.MULTITHREAD);
+        putRack(Const.MULTI_THREADED, RACK_KEY.MULTITHREAD);
         putRack("rack.multiprocess", RACK_KEY.MULTIPROCESS);
         putRack("rack.run_once", RACK_KEY.RUN_ONCE);
         putRack("rack.hijack?", RACK_KEY.HIJACK_P);
@@ -65,14 +65,24 @@ public class RackEnvironment {
     }
 
     private void putRack(String key, RACK_KEY value) {
-        rackKeyMap.put(RubyHelper.toUsAsciiRubyString(runtime, key), value);
+        rackKeyMap.put(runtime.newString(key), value);
     }
 
     public RubyHash getEnv(final HttpServerRequest request,
                            final RackInput input,
                            final boolean isSSL) throws IOException {
         MultiMap headers = request.headers();
-        final RackEnvironmentHash env = new RackEnvironmentHash(runtime, headers, rackKeyMap);
+        mutliThreaded = true;
+        final RackEnvironmentHash env = new RackEnvironmentHash(runtime, headers, rackKeyMap) {
+            @Override
+            public IRubyObject op_aset(ThreadContext threadContext, IRubyObject key, IRubyObject value) {
+                fillKey(key);
+                if (key.equals(getRuntime().newString(Const.MULTI_THREADED))) {
+                    mutliThreaded ^= value.isTrue();
+                }
+                return super.op_aset(threadContext, key, value);
+            }
+        };
         env.lazyPut(RACK_KEY.RACK_INPUT, input, false);
         env.lazyPut(RACK_KEY.RACK_ERRORS, errors, false);
 
@@ -98,7 +108,7 @@ public class RackEnvironment {
         env.lazyPut(RACK_KEY.REMOTE_ADDR, getRemoteAddr(request), true);
         env.lazyPut(RACK_KEY.URL_SCHEME, isSSL ? Const.HTTPS : Const.HTTP, true);
         env.lazyPut(RACK_KEY.VERSION, rackVersion, false);
-        env.lazyPut(RACK_KEY.MULTITHREAD, runtime.getTrue(), false);
+        env.lazyPut(RACK_KEY.MULTITHREAD, runtime.newBoolean(mutliThreaded), false);
         env.lazyPut(RACK_KEY.MULTIPROCESS, runtime.getFalse(), false);
         env.lazyPut(RACK_KEY.RUN_ONCE, runtime.getFalse(), false);
 
@@ -159,6 +169,10 @@ public class RackEnvironment {
         return hostInfo;
     }
 
+    protected boolean isMutliThreaded() {
+        return mutliThreaded;
+    }
+
     private static String getRemoteAddr(final HttpServerRequest request) {
         SocketAddress sourceAddress = request.remoteAddress();
         if (sourceAddress == null) {
@@ -182,6 +196,7 @@ public class RackEnvironment {
     private final Ruby runtime;
     private final RubyArray rackVersion;
     private final RubyIO errors;
+    private boolean mutliThreaded;
     private final Map<RubyString, RACK_KEY> rackKeyMap = new HashMap<>();
     private final RubyClass netSocketClass;
 }

@@ -7,6 +7,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyHash;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.jubilee.impl.RubyIORackInput;
 import org.jruby.runtime.ThreadContext;
@@ -32,6 +33,7 @@ public class RackApplication {
     private RubyClass rackIOInputClass;
     private RubyClass httpServerResponseClass;
     private RackEnvironment rackEnv;
+    private boolean multiThreaded = true;
 
     public RackApplication(Vertx vertx, ThreadContext context, IRubyObject app, JsonObject config) throws IOException {
         this.app = app;
@@ -42,7 +44,6 @@ public class RackApplication {
         // Memorize the ruby classes
         this.rackIOInputClass = (RubyClass) runtime.getClassFromPath("Jubilee::IORackInput");
         this.httpServerResponseClass = (RubyClass) runtime.getClassFromPath("Jubilee::HttpServerResponse");
-
         this.rackEnv = new RackEnvironment(runtime);
     }
 
@@ -72,32 +73,55 @@ public class RackApplication {
 //            input = nullio;
 //        }
         vertx.executeBlocking((future) -> {
+            // This is a different context, do NOT replace runtime.getCurrentContext()
+            ThreadContext context = runtime.getCurrentContext();
+            RubyHash env = null;
             try {
-                // This is a different context, do NOT replace runtime.getCurrentContext()
-                IRubyObject result = app.callMethod(runtime.getCurrentContext(), "call", rackEnv.getEnv(request, input, ssl));
+                env = rackEnv.getEnv(request, input, ssl);
+            } catch (IOException e) {
+                fail(e, request);
+            }
+            IRubyObject result = app.callMethod(context, "call", env);
 //                if (request.isHijacked()) {
 //                    // It's the hijacker's response to close the socket.
 //                    return;
 //                }
-                RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
-                RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
-                        httpServerResponseClass, request);
-                response.respond(resp);
-                future.complete();
-            } catch (Exception e) {
-                request.response().setStatusCode(500);
-                String message = "Jubilee caught this error: " + e.getMessage() + "\n";
-                StringWriter stringWriter = new StringWriter();
-                PrintWriter printWriter = new PrintWriter(stringWriter);
-                e.printStackTrace(printWriter);
-                if (hideErrorStack) {
-                    request.response().end("Internal error.");
-                } else {
-                    request.response().end(message + stringWriter.toString());
-                }
-                e.printStackTrace(runtime.getErrorStream());
+
+            boolean multiThreaded = rackEnv.isMutliThreaded();
+            if (multiThreaded) {
+                future.complete(result);
+            } else {
+                respond(result, request);
+                runtime.getOutputStream().println("not multiple threaded");
             }
-        }, false, (ar) -> {});
+        }, false, (ar) -> {
+            if (ar.succeeded()) {
+                runtime.getOutputStream().println("multiple threaded");
+                respond((IRubyObject) ar.result(), request);
+            } else {
+                fail(ar.cause(), request);
+            }
+        });
+    }
+
+    private void respond(final IRubyObject result, final HttpServerRequest request) {
+        RubyHttpServerResponse resp = new RubyHttpServerResponse(runtime,
+                httpServerResponseClass, request);
+        RackResponse response = (RackResponse) JavaEmbedUtils.rubyToJava(runtime, result, RackResponse.class);
+        response.respond(resp);
+    }
+
+    private void fail(final Throwable e, final HttpServerRequest request) {
+        request.response().setStatusCode(500);
+        String message = "Jubilee caught this error: " + e.getMessage() + "\n";
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        e.printStackTrace(printWriter);
+        if (hideErrorStack) {
+            request.response().end("Internal error.");
+        } else {
+            request.response().end(message + stringWriter.toString());
+        }
     }
 
 }

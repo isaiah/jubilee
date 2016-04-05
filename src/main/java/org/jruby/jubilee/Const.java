@@ -12,7 +12,7 @@ public final class Const {
 
     public static final String LOCALHOST = "localhost";
     public static final String PORT_80 = "80";
-
+    public static final String MULTI_THREADED = "rack.multithread";
     public static class Vertx {
         public static final String CONTENT_LENGTH = "Content-Length";
     }

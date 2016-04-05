@@ -30,7 +30,7 @@ public class RackEnvironmentHash extends RubyHash {
     // synchronized probably isn't needed here since we create a new RackEnvironment
     // per request, but we can't guarantee users aren't spawning a new thread and
     // passing the env to that new thread
-    private synchronized void fillKey(final IRubyObject rubyKey) {
+    synchronized void fillKey(final IRubyObject rubyKey) {
         if (!filledEntireHash) {
             if (rubyKey instanceof RubyString && !containsKey(rubyKey)) {
                 if (!filledHeaderKeyMap) populateHeaderKeyMap();
