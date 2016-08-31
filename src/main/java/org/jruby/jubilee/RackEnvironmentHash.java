@@ -231,12 +231,6 @@ public class RackEnvironmentHash extends RubyHash {
     }
 
     @Override
-    public IRubyObject to_s19(ThreadContext context) {
-        fillEntireHash();
-        return super.to_s19(context);
-    }
-
-    @Override
     public RubyHash rehash() {
         fillEntireHash();
         return super.rehash();
