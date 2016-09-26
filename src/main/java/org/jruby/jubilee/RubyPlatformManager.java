@@ -66,7 +66,7 @@ public class RubyPlatformManager extends RubyObject {
             });
             try {
                 // Temporarily waiting for 5 seconds for cluster to start
-                // Need a better mode to wait until it really starts
+                // Need a better mode to wait until it really starts    
                 Thread.sleep(5000);
             } catch (Exception e) {}            
         } else {
