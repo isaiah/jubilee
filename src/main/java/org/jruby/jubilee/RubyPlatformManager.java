@@ -60,11 +60,20 @@ public class RubyPlatformManager extends RubyObject {
                 clusterHost = options.op_aref(context, cluster_host_k).asJavaString();
             if (clusterHost == null) clusterHost = getDefaultAddress();
             vertxOptions.setClustered(true).setClusterHost(clusterHost).setClusterPort(clusterPort);
-
+            Vertx.clusteredVertx(vertxOptions, result -> {
+                System.out.println("VERTX DEBUG: Clustered Vertx Instance Creation Completed.");
+                this.vertx = result.result();
+                JubileeVertx.init(this.vertx);
+            });
+            try {
+                // Temporarily waiting for 10 seconds for cluster to start
+                // Need a better mode to wait until it really starts    
+                Thread.sleep(10000);
+            } catch (Exception e) {}            
+        } else {
+            this.vertx = Vertx.vertx(vertxOptions);
+            JubileeVertx.init(this.vertx);
         }
-
-        this.vertx = Vertx.vertx(vertxOptions);
-        JubileeVertx.init(this.vertx);
         return this;
     }
 
